@@ -169,7 +169,17 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 5. `POST/GET /cadastros` (Sistema A grava só se aprovado).
 6. Frontend: `sistema-a.html`, `cagd.html`.
 7. telefone + municipio + `sistema-b.html` (dois sistemas, mesmas regras).
-8. Extras se sobrar tempo: `X-API-Key`, hospedagem com QR code, tempo de resposta no painel.
+8. **Meta: municípios do Brasil inteiro.** Queremos atingir isto depois do plano principal (etapas 1 a 7
+   prontas e estáveis) e antes dos extras da etapa 9. Hoje o município é só de RO, o que vale para cadastros
+   estaduais (residência, atendimento), mas bloqueia, por exemplo, cidadão de outro estado atendido em RO
+   ou naturalidade. Como fazer:
+   - tabela nacional do IBGE (cerca de 5.570 municípios) em `app/dados/`, com nome oficial, UF e código;
+     continua offline;
+   - campo opcional `uf` em `dados`; sem `uf`, vale RO, então a demo e os sistemas atuais não mudam;
+   - a UF é necessária porque há nomes repetidos entre estados (ex.: vários "Bom Jesus");
+   - saída mantém `municipio` e `municipio_codigo_ibge`, e ganha `municipio_uf`;
+   - mesma comparação (sem acento, caixa, apóstrofo, hífen e espaços) e sugestão por `difflib` dentro da UF.
+9. Extras se sobrar tempo: `X-API-Key`, hospedagem com QR code, tempo de resposta no painel.
 
 Congelar funcionalidades em 02/11. Daí em diante só correção de bug e ensaio.
 

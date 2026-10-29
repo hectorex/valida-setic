@@ -45,6 +45,11 @@ A CAGD altera as regras num lugar só e acompanha num painel onde os sistemas ma
 | I2 | Segundo sistema | `sistema-b.html`, com campos diferentes, obedece à mesma regra alterada pela CAGD sem mudar o próprio código |
 | I3 | Seed | `python -m app.seed` deixa o painel com dados fictícios para a demo |
 
+### Meta (depois dos obrigatórios e importantes, antes de "Se sobrar tempo")
+| # | Requisito | Pronto quando… |
+|---|---|---|
+| M1 | Municípios do Brasil inteiro | Com `uf` informada, aceita município de qualquer estado (tabela do IBGE, offline) e devolve nome oficial, código IBGE e UF; sem `uf`, continua valendo RO |
+
 ### Se sobrar tempo
 | # | Requisito |
 |---|---|
@@ -70,7 +75,7 @@ A CAGD altera as regras num lugar só e acompanha num painel onde os sistemas ma
 | 29/10 | R1 a R4 (validadores e `/validar`) + tira-dúvidas |
 | 30/10 | R5 a R8 (banco, regras, cadastros, painel, seed) |
 | 31/10 | R9 (telas) |
-| 01/11 | I1 e I2; extras se tudo estiver estável |
+| 01/11 | I1 e I2; se tudo estiver estável, a meta M1 e depois os extras |
 | 02/11 | **Congelamento.** Só correção de bug, slides e ensaio cronometrado |
 | 03/11 | Credenciamento e apresentação (16h–19h) |
 
