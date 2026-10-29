@@ -36,7 +36,10 @@ EXEMPLO_ATUALIZADO = RegraSaida(campo="telefone", ativo=True, **{**REGRAS_PADRAO
     responses={200: {"content": {"application/json": {"example": EXEMPLO_LISTA}}}},
 )
 def listar(sessao: Session = Depends(obter_sessao)):
-    """Configuração de cada campo. Os formulários montam asteriscos e textos de ajuda a partir daqui."""
+    """Configuração de cada campo. Os formulários montam asteriscos e textos de ajuda a partir daqui.
+
+    O asterisco aparece só quando o campo está ativo **e** obrigatório: inativo prevalece.
+    """
     return listar_regras(sessao)
 
 
@@ -63,7 +66,10 @@ def atualizar(
     alteracoes: Annotated[RegraAtualizacao, Body(openapi_examples=EXEMPLOS_ATUALIZACAO)],
     sessao: Session = Depends(obter_sessao),
 ):
-    """Altera a configuração de um campo. Só os atributos enviados mudam; vale na próxima validação."""
+    """Altera a configuração de um campo. Só os atributos enviados mudam; vale na próxima validação.
+
+    Desativar não apaga o `obrigatorio`: ao reativar, o campo volta como estava.
+    """
     regra = atualizar_regra(sessao, campo, alteracoes.model_dump(exclude_none=True))
     if regra is None:
         campos = ", ".join(REGRAS_PADRAO)
