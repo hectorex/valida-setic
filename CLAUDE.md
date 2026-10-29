@@ -69,8 +69,12 @@ Saída aprovada (HTTP 200):
 ```json
 {"valido": true, "erros": [],
  "dados_padronizados": {"nome": "Maria da Silva", "cpf": "12345678909",
-                        "email": "maria@exemplo.com", "data_nascimento": "1990-02-28"}}
+                        "email": "maria@exemplo.com", "data_nascimento": "1990-02-28",
+                        "municipio": "Espigão D'Oeste", "municipio_codigo_ibge": "1100098"}}
 ```
+`dados_padronizados` traz só os campos preenchidos, mais campos derivados que o validador calcula.
+Hoje o único derivado é `municipio_codigo_ibge` (código IBGE de 7 dígitos, como texto), presente quando
+`municipio` é aprovado.
 Payload malformado (não é JSON, falta `sistema_origem`) → 422 normal do FastAPI.
 
 ### `GET /regras` e `PUT /regras/{campo}`
@@ -102,7 +106,7 @@ falhas de uma vez. Uma checagem que depende de outra é pulada se a anterior fal
 | email | `sem_espacos`, `possui_arroba`, `dominio_valido` (domínio com ponto e TLD ≥ 2 letras) | minúsculo |
 | data_nascimento | `formato` (DD/MM/AAAA estrito), `data_existente`, `nao_futura`, `idade_maxima` (≤ 130 anos) | ISO `AAAA-MM-DD` |
 | telefone | `formato` (10 ou 11 dígitos), `ddd_valido`, `celular_com_9` (11 dígitos começa com 9 após DDD) | só dígitos |
-| municipio | `municipio_ro` (existe em RO, comparação sem acento e sem caixa) | nome oficial |
+| municipio | `municipio_ro` (existe em RO; compara ignorando acento, caixa, apóstrofo, hífen e espaços; se não achar, sugere o mais parecido na mensagem) | nome oficial + `municipio_codigo_ibge` |
 
 Mensagens em português simples, dizendo o que corrigir. `formato_esperado` sempre preenchido quando fizer sentido.
 Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0000") são **bloqueados** com
@@ -113,7 +117,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `regras_campo`: campo (pk), obrigatorio, ativo, formato_esperado, ajuda. A configuração inicial fica em
   `REGRAS_PADRAO` (`app/servicos/regras.py`) e é inserida na subida só para os campos que faltam, sem
   sobrescrever o que a CAGD mudou. Obrigatórios: nome, cpf, email, data_nascimento; opcionais: telefone, municipio.
-  Campo configurado sem validador (telefone e municipio, até a etapa 7) passa só por `obrigatorio` e trim.
+  Campo configurado sem validador (telefone, até a etapa 7) passa só por `obrigatorio` e trim.
 - Testes usam SQLite em memória (`tests/conftest.py`), nunca o `valida.db`.
 - `validacoes`: id, sistema_origem, aprovado, data_hora.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
