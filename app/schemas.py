@@ -31,3 +31,23 @@ class RespostaValidacao(BaseModel):
     valido: bool
     erros: list[ErroValidacao]
     dados_padronizados: dict[str, str] | None
+
+
+class RegraSaida(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    campo: str
+    obrigatorio: bool
+    ativo: bool
+    formato_esperado: str | None
+    ajuda: str | None
+
+
+class RegraAtualizacao(BaseModel):
+    # Todos opcionais: só o que for enviado muda. Atributo desconhecido gera 422.
+    model_config = ConfigDict(extra="forbid")
+
+    obrigatorio: bool | None = None
+    ativo: bool | None = None
+    formato_esperado: str | None = None
+    ajuda: str | None = None

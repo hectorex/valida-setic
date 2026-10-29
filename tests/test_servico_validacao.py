@@ -1,6 +1,9 @@
 import pytest
 
-from app.servicos.validacao import REGRAS_PADRAO, ConfigCampo, validar_dados
+from app.servicos.regras import config_padrao
+from app.servicos.validacao import ConfigCampo, validar_dados
+
+REGRAS_PADRAO = config_padrao()
 
 DADOS_VALIDOS = {
     "nome": "Maria  da silva",
@@ -83,6 +86,14 @@ def test_campo_inativo_e_ignorado():
     resposta = validar_dados(com(cpf="111.111.111-11"), regras)
     assert resposta.valido
     assert "cpf" not in resposta.dados_padronizados
+
+
+def test_campo_sem_validador_passa_so_pelo_trim():
+    # telefone ainda não tem validador (etapa 7): obrigatório é cobrado, valor passa com trim
+    regras = {**REGRAS_PADRAO, "telefone": ConfigCampo(obrigatorio=True)}
+    assert regras_por_campo(validar_dados(DADOS_VALIDOS, regras)) == [("telefone", "obrigatorio")]
+    resposta = validar_dados(com(telefone=" 69999990000 "), regras)
+    assert resposta.dados_padronizados["telefone"] == "69999990000"
 
 
 def test_todo_erro_tem_campo_regra_e_mensagem():

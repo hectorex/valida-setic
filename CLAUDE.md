@@ -37,7 +37,7 @@ app/
   dados/municipios_ro.py   # lista oficial dos 52 municípios de Rondônia (IBGE)
   servicos/validacao.py    # orquestra: lê regras do banco, roda validadores, registra falhas
   rotas/               # validar.py, regras.py, painel.py, cadastros.py
-  seed.py              # popula regras padrão e histórico fictício para o painel
+  seed.py              # histórico fictício para o painel (as regras padrão são criadas na subida do app)
 static/
   sistema-a.html       # cadastro de cidadão
   sistema-b.html       # segundo sistema, campos diferentes, mesmas regras
@@ -76,6 +76,8 @@ Payload malformado (não é JSON, falta `sistema_origem`) → 422 normal do Fast
 ### `GET /regras` e `PUT /regras/{campo}`
 Configuração por campo: `obrigatorio`, `ativo`, `formato_esperado`, `ajuda` (texto do ícone "i").
 O formulário monta asteriscos e textos de ajuda a partir do `GET /regras`, nunca de texto fixo.
+O `PUT` é parcial: só os atributos enviados mudam (ex.: `{"obrigatorio": true}`). Campo inexistente → 404;
+atributo desconhecido → 422. Não cria campos novos. O `/validar` lê a configuração do banco a cada chamada.
 
 ### `GET /painel/erros`
 Agrega falhas por sistema, campo e regra (contagem), mais totais de validações e taxa de bloqueio por sistema.
@@ -105,7 +107,12 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 `formato`: o objetivo é que todos os sistemas gravem no mesmo padrão.
 
 ## Banco (SQLite, arquivo `valida.db`, fora do git)
-- `regras_campo`: campo (pk), obrigatorio, ativo, formato_esperado, ajuda.
+- URL trocável pela variável `VALIDA_DB_URL` (padrão `sqlite:///./valida.db`). Tabelas criadas na subida do app.
+- `regras_campo`: campo (pk), obrigatorio, ativo, formato_esperado, ajuda. A configuração inicial fica em
+  `REGRAS_PADRAO` (`app/servicos/regras.py`) e é inserida na subida só para os campos que faltam, sem
+  sobrescrever o que a CAGD mudou. Obrigatórios: nome, cpf, email, data_nascimento; opcionais: telefone, municipio.
+  Campo configurado sem validador (telefone e municipio, até a etapa 7) passa só por `obrigatorio` e trim.
+- Testes usam SQLite em memória (`tests/conftest.py`), nunca o `valida.db`.
 - `validacoes`: id, sistema_origem, aprovado, data_hora.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
 - `cadastros`: dados padronizados do Sistema A de exemplo (fictícios).
