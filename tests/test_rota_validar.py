@@ -90,6 +90,18 @@ def test_cagd_torna_email_opcional(cliente):
     assert validar(cliente, sem_email).json()["valido"] is True
 
 
+def test_inativo_prevalece_sobre_obrigatorio_e_reativar_restaura(cliente):
+    sem_cpf = {k: v for k, v in DADOS_VALIDOS.items() if k != "cpf"}
+
+    regra = cliente.put("/regras/cpf", json={"ativo": False}).json()
+    assert regra["obrigatorio"] is True  # o valor fica guardado
+    assert validar(cliente, sem_cpf).json()["valido"] is True  # mas não é cobrado
+
+    cliente.put("/regras/cpf", json={"ativo": True})
+    erros = validar(cliente, sem_cpf).json()["erros"]
+    assert [(e["campo"], e["regra"]) for e in erros] == [("cpf", "obrigatorio")]
+
+
 def test_cagd_desativa_cpf(cliente):
     cliente.put("/regras/cpf", json={"ativo": False})
     resposta = validar(cliente, {**DADOS_VALIDOS, "cpf": "111.111.111-11"}).json()

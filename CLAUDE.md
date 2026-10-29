@@ -78,6 +78,8 @@ Configuração por campo: `obrigatorio`, `ativo`, `formato_esperado`, `ajuda` (t
 O formulário monta asteriscos e textos de ajuda a partir do `GET /regras`, nunca de texto fixo.
 O `PUT` é parcial: só os atributos enviados mudam (ex.: `{"obrigatorio": true}`). Campo inexistente → 404;
 atributo desconhecido → 422. Não cria campos novos. O `/validar` lê a configuração do banco a cada chamada.
+**Inativo prevalece:** com `ativo=false` o campo não é cobrado nem validado, mesmo com `obrigatorio=true`.
+Os dois valores ficam guardados de forma independente, para que reativar restaure a configuração anterior.
 
 ### `GET /painel/erros`
 Agrega falhas por sistema, campo e regra (contagem), mais totais de validações e taxa de bloqueio por sistema.
@@ -127,6 +129,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Erros aparecem embaixo de cada campo, todos de uma vez, vindos da API.
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
+  O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
+- Formulários: asterisco só quando `ativo && obrigatorio`.
 - Outros integrantes editam `static/`. Não reescrever arquivos de `static/` inteiros sem pedir.
 
 ## Fora do escopo

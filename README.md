@@ -89,4 +89,7 @@ Envie só o que quer mudar:
 {"obrigatorio": true}
 ```
 A partir da próxima chamada, o `POST /validar` sem telefone volta bloqueado com a regra `obrigatorio`.
+
+Campo com `"ativo": false` não é cobrado nem validado, mesmo que esteja obrigatório (inativo prevalece).
+Ao reativar, ele volta com a configuração que tinha.
 Mais exemplos estão no `/docs`.

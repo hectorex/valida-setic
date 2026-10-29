@@ -33,12 +33,19 @@ class RespostaValidacao(BaseModel):
     dados_padronizados: dict[str, str] | None
 
 
+DESCRICAO_OBRIGATORIO = "Campo vazio é bloqueado. Só vale quando `ativo` é true."
+DESCRICAO_ATIVO = (
+    "false: o campo não é cobrado nem validado, mesmo se `obrigatorio` for true. "
+    "O valor de `obrigatorio` fica guardado e volta a valer ao reativar."
+)
+
+
 class RegraSaida(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     campo: str
-    obrigatorio: bool
-    ativo: bool
+    obrigatorio: bool = Field(description=DESCRICAO_OBRIGATORIO)
+    ativo: bool = Field(description=DESCRICAO_ATIVO)
     formato_esperado: str | None
     ajuda: str | None
 
@@ -47,7 +54,7 @@ class RegraAtualizacao(BaseModel):
     # Todos opcionais: só o que for enviado muda. Atributo desconhecido gera 422.
     model_config = ConfigDict(extra="forbid")
 
-    obrigatorio: bool | None = None
-    ativo: bool | None = None
+    obrigatorio: bool | None = Field(default=None, description=DESCRICAO_OBRIGATORIO)
+    ativo: bool | None = Field(default=None, description=DESCRICAO_ATIVO)
     formato_esperado: str | None = None
     ajuda: str | None = None
