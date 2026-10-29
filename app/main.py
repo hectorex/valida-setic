@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
 from app.database import Base, SessionLocal, engine
@@ -30,6 +33,11 @@ app = FastAPI(
 
 app.include_router(validar.router)
 app.include_router(regras.router)
+
+
+# Frontend (HTML/CSS/JS) servido pelo próprio FastAPI: mesma origem, sem problema de CORS
+PASTA_STATIC = Path(__file__).resolve().parent.parent / "static"
+app.mount("/static", StaticFiles(directory=PASTA_STATIC, html=True), name="static")
 
 
 @app.get("/saude", tags=["sistema"])
