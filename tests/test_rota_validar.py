@@ -1,6 +1,8 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.rotas.validar import EXEMPLOS_REQUISICAO, EXEMPLOS_RESPOSTA
 
 cliente = TestClient(app)
 
@@ -55,6 +57,12 @@ def test_campo_desconhecido_e_ignorado():
 def test_sem_sistema_origem_retorna_422():
     resposta = cliente.post("/validar", json={"dados": DADOS_VALIDOS})
     assert resposta.status_code == 422
+
+
+@pytest.mark.parametrize("nome", ["bloqueado", "aprovado"])
+def test_exemplos_do_swagger_batem_com_a_resposta_real(nome):
+    resposta = cliente.post("/validar", json=EXEMPLOS_REQUISICAO[nome]["value"])
+    assert resposta.json() == EXEMPLOS_RESPOSTA[nome]["value"]
 
 
 def test_corpo_que_nao_e_json_retorna_422():
