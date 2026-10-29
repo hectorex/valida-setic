@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+from app.rotas import validar
+
 app = FastAPI(
     title="Valida SETIC",
     description=(
@@ -9,6 +11,8 @@ app = FastAPI(
     ),
     version="0.1.0",
 )
+
+app.include_router(validar.router)
 
 
 @app.get("/saude", tags=["sistema"])
