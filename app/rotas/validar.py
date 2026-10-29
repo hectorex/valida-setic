@@ -1,9 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
+from sqlalchemy.orm import Session
 
+from app.database import obter_sessao
 from app.schemas import ErroValidacao, RequisicaoValidacao, RespostaValidacao
-from app.servicos.validacao import REGRAS_PADRAO, validar_dados
+from app.servicos.regras import carregar_config
+from app.servicos.validacao import validar_dados
 
 router = APIRouter(tags=["validação"])
 
@@ -85,6 +88,12 @@ EXEMPLOS_RESPOSTA = {
     response_model=RespostaValidacao,
     responses={200: {"content": {"application/json": {"examples": EXEMPLOS_RESPOSTA}}}},
 )
-def validar(requisicao: Annotated[RequisicaoValidacao, Body(openapi_examples=EXEMPLOS_REQUISICAO)]):
-    """Verifica e padroniza os dados antes de o sistema gravar. Não grava nada."""
-    return validar_dados(requisicao.dados.model_dump(), REGRAS_PADRAO)
+def validar(
+    requisicao: Annotated[RequisicaoValidacao, Body(openapi_examples=EXEMPLOS_REQUISICAO)],
+    sessao: Session = Depends(obter_sessao),
+):
+    """Verifica e padroniza os dados antes de o sistema gravar. Não grava nada.
+
+    A configuração dos campos (obrigatório/ativo) é lida do banco a cada chamada.
+    """
+    return validar_dados(requisicao.dados.model_dump(), carregar_config(sessao))

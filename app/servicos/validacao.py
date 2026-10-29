@@ -6,8 +6,8 @@ from app.validadores.data import validar_data_nascimento
 from app.validadores.email import validar_email
 from app.validadores.nome import validar_nome
 
-# Ordem em que os campos são validados e os erros aparecem.
-# telefone e municipio entram na etapa 7.
+# Validador de cada campo. Campo configurado sem validador (telefone e municipio,
+# até a etapa 7) só passa pela regra obrigatorio e pelo trim.
 VALIDADORES = {
     "nome": validar_nome,
     "cpf": validar_cpf,
@@ -23,22 +23,13 @@ class ConfigCampo:
     formato_esperado: str | None = None
 
 
-# Configuração usada até a etapa 3, quando passa a vir da tabela regras_campo
-REGRAS_PADRAO = {
-    "nome": ConfigCampo(obrigatorio=True, formato_esperado="Nome e sobrenome"),
-    "cpf": ConfigCampo(obrigatorio=True, formato_esperado="000.000.000-00"),
-    "email": ConfigCampo(obrigatorio=True, formato_esperado="nome@dominio.com"),
-    "data_nascimento": ConfigCampo(obrigatorio=True, formato_esperado="DD/MM/AAAA"),
-}
-
-
 def validar_dados(dados: dict[str, str | None], regras: dict[str, ConfigCampo]) -> RespostaValidacao:
+    """Valida os campos na ordem de `regras` (vinda do banco) e devolve todos os erros de uma vez."""
     erros = []
     padronizados = {}
 
-    for campo, validador in VALIDADORES.items():
-        config = regras.get(campo)
-        if config is None or not config.ativo:
+    for campo, config in regras.items():
+        if not config.ativo:
             continue
 
         valor = (dados.get(campo) or "").strip()
@@ -52,6 +43,11 @@ def validar_dados(dados: dict[str, str | None], regras: dict[str, ConfigCampo]) 
                         formato_esperado=config.formato_esperado,
                     )
                 )
+            continue
+
+        validador = VALIDADORES.get(campo)
+        if validador is None:
+            padronizados[campo] = valor
             continue
 
         resultado = validador(valor)
