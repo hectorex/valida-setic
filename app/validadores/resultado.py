@@ -12,6 +12,7 @@ class Falha:
 class Resultado:
     valor: str | None  # valor padronizado; None quando há falha
     falhas: list[Falha] = field(default_factory=list)
+    extras: dict[str, str] = field(default_factory=dict)  # campos derivados, ex.: código IBGE
 
     @property
     def valido(self) -> bool:
