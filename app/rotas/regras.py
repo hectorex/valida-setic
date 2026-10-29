@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import obter_sessao
@@ -7,15 +9,60 @@ from app.servicos.regras import REGRAS_PADRAO, atualizar_regra, listar_regras
 
 router = APIRouter(prefix="/regras", tags=["regras"])
 
+# Exemplos do Swagger, montados com os modelos de schemas
+EXEMPLO_LISTA = [RegraSaida(campo=campo, ativo=True, **padrao).model_dump() for campo, padrao in REGRAS_PADRAO.items()]
 
-@router.get("", response_model=list[RegraSaida])
+EXEMPLOS_ATUALIZACAO = {
+    "tornar_obrigatorio": {
+        "summary": "Tornar o campo obrigatório (interruptor da CAGD)",
+        "value": {"obrigatorio": True},
+    },
+    "desativar": {
+        "summary": "Desativar a validação do campo",
+        "value": {"ativo": False},
+    },
+    "mudar_ajuda": {
+        "summary": "Trocar o texto do ícone de ajuda",
+        "value": {"ajuda": "Informe o celular com DDD. Ex.: (69) 99999-0000."},
+    },
+}
+
+EXEMPLO_ATUALIZADO = RegraSaida(campo="telefone", ativo=True, **{**REGRAS_PADRAO["telefone"], "obrigatorio": True})
+
+
+@router.get(
+    "",
+    response_model=list[RegraSaida],
+    responses={200: {"content": {"application/json": {"example": EXEMPLO_LISTA}}}},
+)
 def listar(sessao: Session = Depends(obter_sessao)):
     """Configuração de cada campo. Os formulários montam asteriscos e textos de ajuda a partir daqui."""
     return listar_regras(sessao)
 
 
-@router.put("/{campo}", response_model=RegraSaida)
-def atualizar(campo: str, alteracoes: RegraAtualizacao, sessao: Session = Depends(obter_sessao)):
+@router.put(
+    "/{campo}",
+    response_model=RegraSaida,
+    responses={
+        200: {
+            "description": "Configuração do campo depois da alteração (exemplo: PUT /regras/telefone)",
+            "content": {"application/json": {"example": EXEMPLO_ATUALIZADO.model_dump()}},
+        },
+        404: {
+            "description": "Campo inexistente",
+            "content": {
+                "application/json": {
+                    "example": {"detail": f"Campo 'apelido' não existe. Campos: {', '.join(REGRAS_PADRAO)}."}
+                }
+            },
+        },
+    },
+)
+def atualizar(
+    campo: str,
+    alteracoes: Annotated[RegraAtualizacao, Body(openapi_examples=EXEMPLOS_ATUALIZACAO)],
+    sessao: Session = Depends(obter_sessao),
+):
     """Altera a configuração de um campo. Só os atributos enviados mudam; vale na próxima validação."""
     regra = atualizar_regra(sessao, campo, alteracoes.model_dump(exclude_none=True))
     if regra is None:

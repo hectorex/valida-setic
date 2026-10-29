@@ -41,6 +41,10 @@ python -m uvicorn app.main:app --reload
 ```
 A documentação interativa (Swagger) fica em **http://127.0.0.1:8000/docs**.
 
+Na primeira execução é criado o banco SQLite `valida.db` (fora do git), já com a configuração
+inicial dos campos. Para começar do zero, pare o servidor e apague o arquivo.
+Para usar outro banco, defina a variável `VALIDA_DB_URL` (ex.: `postgresql://usuario:senha@host/valida`).
+
 ## Como rodar os testes
 ```bash
 python -m pytest
@@ -52,6 +56,8 @@ python -m pytest
 |---|---|---|
 | `GET` | `/saude` | Confirma que a API está no ar |
 | `POST` | `/validar` | Verifica e padroniza os dados; não grava nada |
+| `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato esperado, ajuda) |
+| `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação |
 
 ### Exemplo: `POST /validar`
 Entrada:
@@ -75,4 +81,12 @@ Com o e-mail corrigido para `Maria@Exemplo.com`, a saída é aprovada:
                         "email": "maria@exemplo.com", "data_nascimento": "1990-02-28"}}
 ```
 
-Hoje nome, CPF, e-mail e data de nascimento são obrigatórios. Mais exemplos estão no `/docs`.
+Na configuração inicial, nome, CPF, e-mail e data de nascimento são obrigatórios; telefone e município, opcionais.
+
+### Exemplo: `PUT /regras/telefone`
+Envie só o que quer mudar:
+```json
+{"obrigatorio": true}
+```
+A partir da próxima chamada, o `POST /validar` sem telefone volta bloqueado com a regra `obrigatorio`.
+Mais exemplos estão no `/docs`.

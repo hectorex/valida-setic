@@ -1,4 +1,5 @@
 from app.models import RegraCampo
+from app.rotas.regras import EXEMPLO_ATUALIZADO, EXEMPLO_LISTA
 from app.servicos.regras import inicializar_regras
 
 CAMPOS = ["nome", "cpf", "email", "data_nascimento", "telefone", "municipio"]
@@ -36,6 +37,12 @@ def test_put_campo_inexistente_retorna_404(cliente):
 def test_put_com_atributo_desconhecido_retorna_422(cliente):
     resposta = cliente.put("/regras/cpf", json={"obrigatoria": True})
     assert resposta.status_code == 422
+
+
+def test_exemplos_do_swagger_batem_com_a_resposta_real(cliente):
+    assert cliente.get("/regras").json() == EXEMPLO_LISTA
+    resposta = cliente.put("/regras/telefone", json={"obrigatorio": True})
+    assert resposta.json() == EXEMPLO_ATUALIZADO.model_dump()
 
 
 def test_inicializar_nao_sobrescreve_alteracoes_da_cagd(sessao):
