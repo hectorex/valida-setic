@@ -1,0 +1,78 @@
+# Valida SETIC
+
+API central de qualidade de dados para os sistemas do Governo de Rondônia.
+Antes de gravar, o sistema envia os dados para a API, que verifica e padroniza na hora:
+devolve o dado **aprovado** já no formato padrão, ou **bloqueado** com o campo, a regra violada e o formato esperado.
+
+Projeto do Desafio 1 (Qualidade de Dados) do Hackathon SETIC / 3º Conexão Tech.RO.
+
+## Pré-requisitos
+- Python 3.11 ou mais novo
+- git
+
+## Instalação
+```bash
+git clone https://github.com/hectorex/valida-setic.git
+cd valida-setic
+python -m venv .venv
+```
+
+Ative o ambiente virtual:
+
+| Sistema | Comando |
+|---|---|
+| Windows (PowerShell) | `.venv\Scripts\Activate.ps1` |
+| Windows (Git Bash) | `source .venv/Scripts/activate` |
+| Linux / macOS | `source .venv/bin/activate` |
+
+Depois instale as dependências:
+```bash
+python -m pip install -r requirements.txt
+```
+
+> No Windows, se o PowerShell bloquear a ativação, rode uma vez
+> `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+> Se tiver mais de um Python instalado, crie o ambiente com `py -3.12 -m venv .venv`.
+
+## Como rodar
+Com o ambiente ativado:
+```bash
+python -m uvicorn app.main:app --reload
+```
+A documentação interativa (Swagger) fica em **http://127.0.0.1:8000/docs**.
+
+## Como rodar os testes
+```bash
+python -m pytest
+```
+
+## Rotas disponíveis
+
+| Método | Rota | O que faz |
+|---|---|---|
+| `GET` | `/saude` | Confirma que a API está no ar |
+| `POST` | `/validar` | Verifica e padroniza os dados; não grava nada |
+
+### Exemplo: `POST /validar`
+Entrada:
+```json
+{"sistema_origem": "sistema_a",
+ "dados": {"nome": "Maria  da silva", "cpf": "123.456.789-09",
+           "email": "maria@", "data_nascimento": "28/02/1990"}}
+```
+Saída (bloqueado):
+```json
+{"valido": false,
+ "erros": [{"campo": "email", "regra": "dominio_valido",
+            "mensagem": "Informe o domínio depois do @, com ponto e terminação (ex.: exemplo.com.br).",
+            "formato_esperado": "nome@dominio.com"}],
+ "dados_padronizados": null}
+```
+Com o e-mail corrigido para `Maria@Exemplo.com`, a saída é aprovada:
+```json
+{"valido": true, "erros": [],
+ "dados_padronizados": {"nome": "Maria da Silva", "cpf": "12345678909",
+                        "email": "maria@exemplo.com", "data_nascimento": "1990-02-28"}}
+```
+
+Hoje nome, CPF, e-mail e data de nascimento são obrigatórios. Mais exemplos estão no `/docs`.
