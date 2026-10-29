@@ -134,13 +134,17 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
    29/02/2024 (válido), 29/02/2023, 31/02/1990, data futura, 00/00/0000, 1985-03-15,
    CPF 111.111.111-11, CPF com 10 dígitos, e-mail sem domínio, município com e sem acento.
 3. Rode `pytest` antes de dizer que terminou. Não marque como pronto com teste falhando.
-4. Cada etapa numa branch `feat/<o-que-entrega>` (ex.: `feat/validadores`), integrada à `main` por PR.
+4. Cada etapa numa branch `<tipo>/<o-que-entrega>`, com o mesmo tipo do Conventional Commits
+   (ex.: `feat/validadores`, `docs/readme-swagger`, `fix/...`), integrada à `main` por PR.
    Commits pequenos e com testes passando, no padrão Conventional Commits: tipo em inglês e descrição
    em português no imperativo (`feat(validadores): adiciona validação de CPF`, `chore: ...`, `docs: ...`).
 5. Não adicione dependências sem perguntar. Não apague arquivos sem perguntar.
 6. Código e nomes em português (variáveis, funções, rotas), comentários curtos só onde ajudam.
 7. Ao final de cada etapa, explique em poucas linhas o que mudou e como testar no Swagger (`/docs`).
 8. Prefira simples e legível a esperto: a equipe precisa explicar cada parte para a banca.
+9. Ao fechar cada etapa: atualize o README.md (como instalar, rodar, testar e rotas disponíveis),
+   adicione exemplos de entrada e saída nas rotas novas do Swagger, e atualize este CLAUDE.md se alguma
+   decisão mudou. A documentação vai num commit próprio do tipo docs, na mesma branch e PR da etapa.
 
 ## Etapas (ordem de prioridade)
 1. Validadores puros + testes (nome, cpf, email, data).
