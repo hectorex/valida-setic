@@ -129,18 +129,20 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Login completo. Se sobrar tempo: chave por sistema no header `X-API-Key` e token simples para `cagd.html`.
 
 ## Como trabalhar neste repositório
-1. Uma fatia por vez. Antes de codar uma fatia, apresente o plano e espere aprovação.
+1. Uma etapa por vez. Antes de codar uma etapa, apresente o plano e espere aprovação.
 2. Toda função de `validadores/` tem testes em `tests/` com casos válidos e inválidos, incluindo:
    29/02/2024 (válido), 29/02/2023, 31/02/1990, data futura, 00/00/0000, 1985-03-15,
    CPF 111.111.111-11, CPF com 10 dígitos, e-mail sem domínio, município com e sem acento.
 3. Rode `pytest` antes de dizer que terminou. Não marque como pronto com teste falhando.
-4. Commit por fatia funcionando, mensagem em português no imperativo ("Adiciona validação de CPF").
+4. Cada etapa numa branch `feat/<o-que-entrega>` (ex.: `feat/validadores`), integrada à `main` por PR.
+   Commits pequenos e com testes passando, no padrão Conventional Commits: tipo em inglês e descrição
+   em português no imperativo (`feat(validadores): adiciona validação de CPF`, `chore: ...`, `docs: ...`).
 5. Não adicione dependências sem perguntar. Não apague arquivos sem perguntar.
 6. Código e nomes em português (variáveis, funções, rotas), comentários curtos só onde ajudam.
-7. Ao final de cada fatia, explique em poucas linhas o que mudou e como testar no Swagger (`/docs`).
+7. Ao final de cada etapa, explique em poucas linhas o que mudou e como testar no Swagger (`/docs`).
 8. Prefira simples e legível a esperto: a equipe precisa explicar cada parte para a banca.
 
-## Fatias (ordem de prioridade)
+## Etapas (ordem de prioridade)
 1. Validadores puros + testes (nome, cpf, email, data).
 2. `POST /validar` com erros em camadas e `dados_padronizados`.
 3. Banco + `regras_campo` + `GET/PUT /regras`; validação passa a ler a configuração.
