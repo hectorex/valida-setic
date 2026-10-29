@@ -62,6 +62,13 @@ def test_corpo_que_nao_e_json_retorna_422(cliente):
     assert resposta.status_code == 422
 
 
+def test_municipio_volta_com_codigo_ibge(cliente):
+    resposta = validar(cliente, {**DADOS_VALIDOS, "municipio": "Guajara Mirim"}).json()
+    assert resposta["valido"] is True
+    assert resposta["dados_padronizados"]["municipio"] == "Guajará-Mirim"
+    assert resposta["dados_padronizados"]["municipio_codigo_ibge"] == "1100106"
+
+
 @pytest.mark.parametrize("nome", ["bloqueado", "aprovado"])
 def test_exemplos_do_swagger_batem_com_a_resposta_real(cliente, nome):
     resposta = cliente.post("/validar", json=EXEMPLOS_REQUISICAO[nome]["value"])

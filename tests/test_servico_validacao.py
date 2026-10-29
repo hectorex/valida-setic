@@ -96,6 +96,23 @@ def test_campo_sem_validador_passa_so_pelo_trim():
     assert resposta.dados_padronizados["telefone"] == "69999990000"
 
 
+def test_municipio_valido_traz_nome_oficial_e_codigo_ibge():
+    resposta = validar_dados(com(municipio="espigao doeste"), REGRAS_PADRAO)
+    assert resposta.dados_padronizados["municipio"] == "Espigão D'Oeste"
+    assert resposta.dados_padronizados["municipio_codigo_ibge"] == "1100098"
+
+
+def test_municipio_invalido_bloqueia_sem_codigo():
+    resposta = validar_dados(com(municipio="Manaus"), REGRAS_PADRAO)
+    assert regras_por_campo(resposta) == [("municipio", "municipio_ro")]
+    assert resposta.dados_padronizados is None
+
+
+def test_municipio_obrigatorio_vazio():
+    regras = {**REGRAS_PADRAO, "municipio": ConfigCampo(obrigatorio=True)}
+    assert regras_por_campo(validar_dados(DADOS_VALIDOS, regras)) == [("municipio", "obrigatorio")]
+
+
 def test_todo_erro_tem_campo_regra_e_mensagem():
     resposta = validar_dados({"email": "maria"}, REGRAS_PADRAO)
     assert resposta.erros

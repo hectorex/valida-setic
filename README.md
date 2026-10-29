@@ -74,12 +74,17 @@ Saída (bloqueado):
             "formato_esperado": "nome@dominio.com"}],
  "dados_padronizados": null}
 ```
-Com o e-mail corrigido para `Maria@Exemplo.com`, a saída é aprovada:
+Com o e-mail corrigido para `Maria@Exemplo.com` (e, se quiser, `"municipio": "espigao doeste"`),
+a saída é aprovada:
 ```json
 {"valido": true, "erros": [],
  "dados_padronizados": {"nome": "Maria da Silva", "cpf": "12345678909",
-                        "email": "maria@exemplo.com", "data_nascimento": "1990-02-28"}}
+                        "email": "maria@exemplo.com", "data_nascimento": "1990-02-28",
+                        "municipio": "Espigão D'Oeste", "municipio_codigo_ibge": "1100098"}}
 ```
+O município é aceito sem acento, caixa, apóstrofo ou hífen e volta com o nome oficial e o código IBGE.
+Se não for de Rondônia, é bloqueado; com erro de digitação, a mensagem sugere o mais parecido
+(ex.: "Porto Velo" → "Você quis dizer Porto Velho?").
 
 Na configuração inicial, nome, CPF, e-mail e data de nascimento são obrigatórios; telefone e município, opcionais.
 
