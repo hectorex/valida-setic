@@ -183,6 +183,7 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
 | `/sistema-a.html` | Sistema A: cadastro de cidadão + banco do Sistema A (simulado) |
 | `/sistema-b.html` | Sistema B: agendamento de atendimento (outro sistema, mesmas regras) |
 | `/cagd.html` | CAGD: gestão de regras + painel de erros |
+| `/integrar.html` | Como integrar: o mesmo exemplo em curl, Python, JavaScript, PHP, Java e C# |
 
 - **Sistema A**: formulário de cadastro de cidadão que busca a configuração em `GET /regras` (asterisco nos
   obrigatórios, ajuda + formato esperado no ícone `i` e campos inativos desabilitados) e envia os dados para o
@@ -198,6 +199,9 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
 - **Máscaras** (Sistema A): CPF, telefone e data ganham a pontuação enquanto o usuário digita (`12345678909` →
   `123.456.789-09`, `31021990` → `31/02/1990`). A máscara só formata: `31/02/1990` continua bloqueado pela API.
   O Sistema B fica sem máscara de propósito, como um sistema legado: a API protege igual.
+- **Como integrar**: os três passos (chamar antes de gravar, mostrar os erros, gravar os `dados_padronizados`)
+  e o mesmo exemplo de chamada em curl, Python, JavaScript, PHP, Java e C#, já com o endereço do servidor de onde
+  a página foi aberta e botão de copiar. O botão "Executar o exemplo" faz a chamada de verdade e mostra a resposta.
 - **CAGD**: interruptores de **Obrigatório** e **Ativo** por campo (`PUT /regras/{campo}`, valem na próxima
   validação) e o **Painel de Erros** (`GET /painel/erros`): totais, taxa de bloqueio por sistema, campos que mais
   erram e as falhas mais frequentes. O painel se atualiza ao voltar para a aba.

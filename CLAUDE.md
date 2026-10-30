@@ -49,12 +49,14 @@ static/
   sistema-a.html       # cadastro de cidadão
   sistema-b.html       # segundo sistema, campos diferentes, mesmas regras
   cagd.html            # regras + painel de erros
+  integrar.html        # como integrar: exemplos em várias linguagens (em <script type="text/plain">)
   js/comum.js          # chamadas à API (endereço relativo), toasts, alertas
   js/formulario.js     # formulário genérico: <form data-sistema="sistema_a" data-rota="/cadastros">
                        #   data-rota opcional; sem ela envia para POST /validar (Sistema B)
   js/banco-sistema-a.js  # lista "Banco do Sistema A (simulado)" (GET /cadastros)
   js/cagd.js           # interruptores das regras
   js/painel.js         # painel de erros da CAGD (GET /painel/erros)
+  js/integrar.js       # abas de linguagem, copiar, executar o exemplo; troca {{URL}} por location.origin
   css/style.css
 tests/
 ```
@@ -187,6 +189,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
+- `integrar.html`: exemplos com `{{URL}}` (trocado pelo endereço de onde a página foi aberta) e
+  `sistema_origem: "sistema_exemplo"`. `tests/test_integrar.py` manda o JSON do exemplo curl para a API: se o
+  contrato mudar, o teste avisa que a página ficou desatualizada. Executados de verdade: curl, Python e Java.
 - Outros integrantes editam `static/`. Não reescrever arquivos de `static/` inteiros sem pedir.
 
 ## Fora do escopo
@@ -223,7 +228,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 7. ✅ telefone + municipio + `sistema-b.html` (dois sistemas, mesmas regras). Também prontos: hospedagem no
    Render, páginas na raiz, máscaras, lista de municípios e identidade da equipe.
 8. **Diferenciais (objetivo atual, não é extra: vamos fazer).** Escolhidos pela equipe em 30/10, nesta ordem:
-   1. **Página "Como integrar"**: o mesmo exemplo de chamada ao `POST /validar` em curl, Python, JavaScript,
+   1. ✅ **Página "Como integrar"**: o mesmo exemplo de chamada ao `POST /validar` em curl, Python, JavaScript,
       PHP e Java/C#, para mostrar que qualquer sistema legado integra em poucas linhas (restrições "sistemas
       legados" e "tecnologias variadas" do desafio).
    2. **Tempo de resposta no painel**: medir cada `/validar` e mostrar o tempo médio (restrição "desempenho":
