@@ -12,6 +12,9 @@ def regras(resultado):
     [
         ("Maria@Exemplo.com", "maria@exemplo.com"),
         ("joao.silva@sefin.ro.gov.br", "joao.silva@sefin.ro.gov.br"),
+        ("joao.silva@ifro.edu.br", "joao.silva@ifro.edu.br"),  # institucional
+        ("aluno@estudante.ifro.edu.br", "aluno@estudante.ifro.edu.br"),  # subdomínio
+        ("Servidor@SETIC.RO.GOV.BR", "servidor@setic.ro.gov.br"),
         ("  ana@exemplo.com.br ", "ana@exemplo.com.br"),
     ],
 )
