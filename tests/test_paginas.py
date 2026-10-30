@@ -74,3 +74,11 @@ def test_mascaras_so_no_sistema_a(cliente):
     # Sistema A ajuda o usuário com a pontuação; o Sistema B fica sem, como um sistema legado
     assert 'data-mascara="cpf"' in cliente.get("/sistema-a.html").text
     assert "data-mascara" not in cliente.get("/sistema-b.html").text
+
+
+@pytest.mark.parametrize("pagina", ["/", "/sistema-a.html", "/sistema-b.html", "/cagd.html"])
+def test_rodape_com_a_equipe(cliente, pagina):
+    html = cliente.get(pagina).text
+    assert "QuemMaisCorp" in html
+    for nome in ["Celso Hector Silva Sales", "Luiz Felipe Mâcedo Alencar de Menezes", "Judson Gabriel Ferreira dos Santos"]:
+        assert nome in html
