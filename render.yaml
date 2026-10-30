@@ -1,0 +1,16 @@
+# Hospedagem no Render (plano grátis). No painel do Render: New > Blueprint > este repositório.
+# Cada merge na main publica de novo automaticamente.
+services:
+  - type: web
+    name: valida-setic
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # O seed recria o histórico fictício do painel; as regras padrão são criadas na subida.
+    # O disco do plano grátis é apagado a cada reinício: o site sempre volta limpo.
+    startCommand: python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /saude
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
