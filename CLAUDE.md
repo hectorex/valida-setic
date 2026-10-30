@@ -21,7 +21,7 @@ Fluxo do desafio, que a demo precisa mostrar de ponta a ponta:
 
 ## Stack
 - Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, SQLite, pytest.
-- Frontend: HTML, CSS, Bootstrap 5 (CDN) e JavaScript puro com `fetch`, servido pelo próprio FastAPI.
+- Frontend: HTML, CSS e JavaScript puro com `fetch` (SPA sem frameworks ou bibliotecas externas), servido pelo próprio FastAPI em `/static/`.
 - Um único comando sobe tudo: `uvicorn app.main:app --reload`.
 - O SQLAlchemy permite trocar SQLite por PostgreSQL só mudando a URL de conexão (argumento de viabilidade).
 
@@ -129,7 +129,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Só dados fictícios em seed, testes e demo. CPFs de teste gerados por algoritmo, nunca reais.
 
 ## Frontend
-- Responsivo (abrir no celular). Bootstrap via CDN, sem build, sem framework JS.
+- Responsivo (abrir no celular). SPA em HTML5, CSS3 e JavaScript puro (`static/index.html`), sem build e sem bibliotecas externas.
 - Erros aparecem embaixo de cada campo, todos de uma vez, vindos da API.
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
