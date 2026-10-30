@@ -68,3 +68,9 @@ def test_menu_tem_as_tres_paginas(cliente, pagina):
 def test_formularios_pedem_dados_ficticios(cliente, pagina):
     # LGPD: com a demo hospedada, ninguém deve digitar dados reais
     assert "use apenas dados fictícios" in cliente.get(pagina).text
+
+
+def test_mascaras_so_no_sistema_a(cliente):
+    # Sistema A ajuda o usuário com a pontuação; o Sistema B fica sem, como um sistema legado
+    assert 'data-mascara="cpf"' in cliente.get("/sistema-a.html").text
+    assert "data-mascara" not in cliente.get("/sistema-b.html").text

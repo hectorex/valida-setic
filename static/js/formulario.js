@@ -64,27 +64,165 @@ function aplicarRegraNoCampo(regra) {
   }
 }
 
+/* --------------------------------------------------------------------------
+   Máscaras: a pontuação aparece enquanto o usuário digita.
+   Só nos campos com data-mascara (Sistema A). O Sistema B fica sem, como um
+   sistema legado: a API valida do mesmo jeito.
+   -------------------------------------------------------------------------- */
+
+const MASCARAS = {
+  // 12345678909 → 123.456.789-09 (o separador só aparece quando vem dígito depois)
+  cpf(d) {
+    d = d.slice(0, 11);
+    if (d.length > 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+    if (d.length > 6) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+    if (d.length > 3) return `${d.slice(0, 3)}.${d.slice(3)}`;
+    return d;
+  },
+  // 69999990000 → (69) 99999-0000; com 10 dígitos (fixo) → (69) 3216-0000
+  telefone(d) {
+    d = d.slice(0, 11);
+    if (!d) return '';
+    if (d.length <= 2) return `(${d}`;
+    if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  },
+};
+
+function iniciarMascaras() {
+  formulario.querySelectorAll('input[data-mascara]').forEach((input) => {
+    const formatar = MASCARAS[input.dataset.mascara];
+    if (!formatar) return;
+    input.addEventListener('input', () => {
+      input.value = formatar(input.value.replace(/\D/g, ''));
+    });
+  });
+}
+
+/* --------------------------------------------------------------------------
+   Sugestões de município (lista própria, do tamanho do campo)
+   Dados do GET /municipios. Só ajuda: o campo continua livre e quem valida é a API.
+   -------------------------------------------------------------------------- */
+
+const MAX_SUGESTOES = 8;
+
+/** Compara sem acento, caixa, apóstrofo e hífen (como a API faz). */
+function chaveBusca(texto) {
+  return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/['’]/g, '').replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 /**
- * Sugestões de município enquanto o usuário digita (<datalist> nativo, sem biblioteca).
- * Só ajuda: o usuário pode digitar qualquer coisa e quem valida é a API.
+ * Primeiro os que começam com o texto ("P" → Pimenta Bueno, Porto Velho...); a partir de 3 letras,
+ * também os que têm outra palavra começando com ele ("vel" → Porto Velho).
  */
-async function carregarSugestoesMunicipio() {
+function filtrarMunicipios(municipios, texto) {
+  const busca = chaveBusca(texto);
+  if (!busca) return [];
+  const comecam = municipios.filter((m) => m.chave.startsWith(busca));
+  const palavra = busca.length < 3 ? []
+    : municipios.filter((m) => !m.chave.startsWith(busca) && m.chave.includes(` ${busca}`));
+  return [...comecam, ...palavra].slice(0, MAX_SUGESTOES);
+}
+
+async function iniciarSugestoesMunicipio() {
   const input = formulario.querySelector('[name="municipio"]');
   if (!input) return;
+
+  let municipios;
   try {
-    const { data: municipios } = await apiFetch('/municipios');
-    const lista = document.createElement('datalist');
-    lista.id = 'lista-municipios';
-    municipios.forEach((m) => {
-      const opcao = document.createElement('option');
-      opcao.value = m.nome;
-      lista.appendChild(opcao);
-    });
-    formulario.appendChild(lista);
-    input.setAttribute('list', lista.id);
+    const { data } = await apiFetch('/municipios');
+    municipios = data.map((m) => ({ nome: m.nome, chave: chaveBusca(m.nome) }));
   } catch {
-    // Sem sugestões o campo continua funcionando normalmente
+    return; // sem sugestões o campo continua funcionando normalmente
   }
+
+  // O input ganha um invólucro para a lista abrir logo abaixo dele, com a mesma largura
+  const caixa = criarElemento('div', 'autocompletar');
+  input.parentNode.insertBefore(caixa, input);
+  caixa.appendChild(input);
+  const lista = criarElemento('ul', 'sugestoes hidden');
+  lista.id = 'sugestoes-municipio';
+  lista.setAttribute('role', 'listbox');
+  caixa.appendChild(lista);
+
+  input.setAttribute('role', 'combobox');
+  input.setAttribute('aria-autocomplete', 'list');
+  input.setAttribute('aria-controls', lista.id);
+  input.setAttribute('aria-expanded', 'false');
+
+  let opcoes = [];
+  let ativa = -1;
+
+  function fechar() {
+    lista.classList.add('hidden');
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+    ativa = -1;
+  }
+
+  function marcar(indice) {
+    ativa = indice;
+    [...lista.children].forEach((li, i) => li.setAttribute('aria-selected', String(i === ativa)));
+    if (ativa >= 0) {
+      input.setAttribute('aria-activedescendant', lista.children[ativa].id);
+      lista.children[ativa].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function escolher(nome) {
+    input.value = nome;
+    fechar();
+    // Evento sintético (isTrusted = false): limpa o erro do campo sem reabrir a lista
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function mostrar() {
+    opcoes = filtrarMunicipios(municipios, input.value);
+    lista.textContent = '';
+    if (!opcoes.length || (opcoes.length === 1 && opcoes[0].nome === input.value)) {
+      fechar();
+      return;
+    }
+    opcoes.forEach((m, i) => {
+      const li = criarElemento('li', 'sugestao', m.nome);
+      li.id = `sugestao-municipio-${i}`;
+      li.setAttribute('role', 'option');
+      // mousedown (e não click) para escolher antes de o input perder o foco
+      li.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        escolher(m.nome);
+      });
+      lista.appendChild(li);
+    });
+    lista.classList.remove('hidden');
+    input.setAttribute('aria-expanded', 'true');
+    marcar(-1);
+  }
+
+  input.addEventListener('input', (e) => {
+    if (e.isTrusted) mostrar();
+  });
+  input.addEventListener('focus', () => {
+    if (input.value) mostrar();
+  });
+  input.addEventListener('blur', fechar);
+  input.addEventListener('keydown', (e) => {
+    if (lista.classList.contains('hidden')) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      marcar((ativa + 1) % opcoes.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      marcar((ativa - 1 + opcoes.length) % opcoes.length);
+    } else if (e.key === 'Enter' && ativa >= 0) {
+      e.preventDefault(); // escolhe a sugestão em vez de enviar o formulário
+      escolher(opcoes[ativa].nome);
+    } else if (e.key === 'Escape') {
+      fechar();
+    }
+  });
 }
 
 /** Tooltips no celular: abre/fecha ao tocar no "i". */
@@ -265,5 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
   formulario.addEventListener('reset', () => setTimeout(limparErros, 0));
 
   carregarRegrasFormulario();
-  carregarSugestoesMunicipio();
+  iniciarMascaras();
+  iniciarSugestoesMunicipio();
 });
