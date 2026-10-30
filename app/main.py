@@ -2,7 +2,6 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
@@ -38,17 +37,14 @@ app.include_router(cadastros.router)
 app.include_router(municipios.router)
 
 
-# Frontend (HTML/CSS/JS) servido pelo próprio FastAPI: mesma origem, sem problema de CORS
-PASTA_STATIC = Path(__file__).resolve().parent.parent / "static"
-app.mount("/static", StaticFiles(directory=PASTA_STATIC, html=True), name="static")
-
-
-@app.get("/", include_in_schema=False)
-def inicio():
-    # Quem abre só o endereço do servidor (ex.: pelo QR code) cai na página inicial
-    return RedirectResponse("/static/")
-
-
 @app.get("/saude", tags=["sistema"])
 def saude():
     return {"status": "ok"}
+
+
+# Frontend (HTML/CSS/JS) servido pelo próprio FastAPI: mesma origem, sem problema de CORS.
+# As páginas ficam na raiz (/sistema-a.html); /static/... continua valendo para links antigos.
+# Os mounts ficam por último: as rotas da API e o /docs, declarados antes, têm prioridade.
+PASTA_STATIC = Path(__file__).resolve().parent.parent / "static"
+app.mount("/static", StaticFiles(directory=PASTA_STATIC, html=True), name="static")
+app.mount("/", StaticFiles(directory=PASTA_STATIC, html=True), name="frontend")
