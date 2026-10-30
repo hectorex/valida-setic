@@ -3,7 +3,8 @@
    Consome a API RESTful: GET /regras, PUT /regras/{campo}, POST /validar
    ========================================================================== */
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+// Vazio = mesmo endereço da página (a API serve o frontend). Funciona em qualquer porta, IP ou celular.
+const API_BASE_URL = '';
 const SISTEMA_ORIGEM = 'sistema_a';
 const CAMPOS = ['nome', 'cpf', 'email', 'data_nascimento', 'telefone', 'municipio'];
 
@@ -45,7 +46,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
     resposta = await fetch(`${API_BASE_URL}${endpoint}`, opcoes);
   } catch (erroRede) {
     // Falha de rede, API fora do ar ou bloqueio de CORS
-    const erro = new Error('Não foi possível conectar à API Valida SETIC. Verifique se o servidor está rodando em ' + API_BASE_URL + '.');
+    const erro = new Error('Não foi possível conectar à API Valida SETIC. Verifique se o servidor está rodando.');
     erro.status = 0;
     throw erro;
   }
