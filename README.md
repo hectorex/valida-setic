@@ -142,7 +142,7 @@ Depois de três validações (Sistema A bloqueado e aprovado, Sistema B bloquead
                  {"sistema_origem": "sistema_b", "validacoes": 1, "bloqueadas": 1, "taxa_bloqueio": 100.0}],
  "por_campo": [{"campo": "email", "falhas": 3}, {"campo": "cpf", "falhas": 1}, {"campo": "data_nascimento", "falhas": 1}],
  "falhas": [{"sistema_origem": "sistema_b", "campo": "cpf", "regra": "obrigatorio", "quantidade": 1}, "..."],
- "tempo_medio_ms": 0.82, "medicoes_tempo": 3}
+ "tempo_medio_ms": 0.82, "medicoes_tempo": 3, "onde_agir": [...]}
 ```
 O registro guarda só sistema, campo, regra, data/hora e quanto tempo a verificação levou, **nunca o valor
 digitado** (LGPD). `tempo_medio_ms` é medido de verdade a cada validação; o histórico do seed não tem tempo e fica
@@ -210,7 +210,9 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
   No fim, o **Antes e depois**: um cadastro em PHP antes e depois da integração (+9 linhas e 3 alteradas, destacadas).
 - **CAGD**: interruptores de **Obrigatório** e **Ativo** por campo (`PUT /regras/{campo}`, valem na próxima
   validação) e o **Painel de Erros** (`GET /painel/erros`): totais, taxa de bloqueio por sistema, campos que mais
-  erram, as falhas mais frequentes e o **tempo médio de verificação** (medido de verdade, em milissegundos).
+  erram, as falhas mais frequentes, o **tempo médio de verificação** (medido de verdade, em milissegundos) e o
+  **Onde agir**: recomendações geradas das contagens, por regras simples (ex.: "Sistema A: 21,9% das falhas são de
+  data de nascimento fora do formato. Sugestão: use máscara DD/MM/AAAA").
   O painel se atualiza ao voltar para a aba.
 
 ### Roteiro da demo pela interface

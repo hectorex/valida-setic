@@ -37,7 +37,23 @@ function preencherVazio(container, texto) {
   container.appendChild(criarElemento('p', 'muted small', texto));
 }
 
+/** Recomendações geradas pela API a partir das contagens (regras simples, sem IA). */
+function desenharOndeAgir(recomendacoes) {
+  const lista = document.querySelector('#painel-onde-agir');
+  lista.textContent = '';
+  if (!recomendacoes.length) {
+    lista.appendChild(criarElemento('li', 'onde-agir-vazio', 'Nada urgente: nenhuma falha concentra 15% ou mais dos erros de um sistema.'));
+    return;
+  }
+  recomendacoes.forEach((r) => {
+    const item = criarElemento('li', 'onde-agir-item');
+    item.append(criarElemento('strong', '', r.diagnostico), criarElemento('p', '', r.sugestao));
+    lista.appendChild(item);
+  });
+}
+
 function desenharPainel(painel) {
+  desenharOndeAgir(painel.onde_agir || []);
   document.querySelector('#painel-total').textContent = formatarNumero(painel.total_validacoes);
   document.querySelector('#painel-bloqueadas').textContent = formatarNumero(painel.total_bloqueadas);
   document.querySelector('#painel-taxa').textContent = formatarTaxa(painel.taxa_bloqueio);

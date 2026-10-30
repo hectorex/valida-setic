@@ -23,6 +23,7 @@ def test_painel_vazio(cliente):
         "falhas": [],
         "tempo_medio_ms": None,
         "medicoes_tempo": 0,
+        "onde_agir": [],
     }
 
 
@@ -33,8 +34,11 @@ def test_exemplo_do_swagger_bate_com_a_resposta_real(cliente):
     painel = cliente.get("/painel/erros").json()
     # O tempo é medido de verdade e muda a cada execução: compara o resto e confere que é um número positivo
     assert painel["tempo_medio_ms"] > 0
-    sem_tempo = lambda d: {k: v for k, v in d.items() if k != "tempo_medio_ms"}  # noqa: E731
-    assert sem_tempo(painel) == sem_tempo(EXEMPLO_PAINEL)
+    # onde_agir: com 3 validações nada passa do mínimo; o exemplo mostra uma recomendação típica
+    assert painel["onde_agir"] == []
+    variaveis = {"tempo_medio_ms", "onde_agir"}
+    sem_variaveis = lambda d: {k: v for k, v in d.items() if k not in variaveis}  # noqa: E731
+    assert sem_variaveis(painel) == sem_variaveis(EXEMPLO_PAINEL)
 
 
 def test_falha_repetida_soma_e_vem_primeiro(cliente):

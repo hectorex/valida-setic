@@ -101,3 +101,7 @@ def test_arquivo_sem_mudanca_responde_304(cliente):
 def test_painel_da_cagd_mostra_o_tempo_medio(cliente):
     html = cliente.get("/cagd.html").text
     assert 'id="painel-tempo"' in html
+
+
+def test_painel_da_cagd_tem_onde_agir(cliente):
+    assert 'id="painel-onde-agir"' in cliente.get("/cagd.html").text

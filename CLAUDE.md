@@ -42,6 +42,7 @@ app/
   servicos/regras.py       # REGRAS_PADRAO e leitura/alteração de regras_campo
   servicos/registro.py     # validar_e_registrar: lê a config, valida e grava em validacoes/falhas_validacao
   servicos/painel.py       # agregações do GET /painel/erros
+  servicos/onde_agir.py    # recomendações "Onde agir" a partir das contagens (regras simples, sem IA)
   rotas/               # validar.py, regras.py, painel.py, cadastros.py, municipios.py
   seed.py              # histórico fictício para o painel (as regras padrão são criadas na subida do app)
 static/
@@ -113,8 +114,14 @@ Todo `POST /validar` com payload válido é registrado (aprovado ou não); 422 n
  "por_sistema": [{"sistema_origem": "sistema_a", "validacoes": 2, "bloqueadas": 1, "taxa_bloqueio": 50.0}],
  "por_campo": [{"campo": "email", "falhas": 3}],
  "falhas": [{"sistema_origem": "sistema_a", "campo": "email", "regra": "dominio_valido", "quantidade": 1}],
- "tempo_medio_ms": 0.82, "medicoes_tempo": 3}
+ "tempo_medio_ms": 0.82, "medicoes_tempo": 3,
+ "onde_agir": [{"sistema_origem": "sistema_a", "campo": "data_nascimento", "regra": "formato", "quantidade": 16,
+                "percentual": 21.9, "diagnostico": "Sistema A: 21,9% das falhas são de data de nascimento fora do formato (16 de 73).",
+                "sugestao": "Sugestão: use máscara DD/MM/AAAA no campo de data, ..."}]}
 ```
+`onde_agir` (`servicos/onde_agir.py`): em cada sistema, as falhas com ≥ 3 ocorrências e ≥ 15% das falhas dele
+(no máximo 2 por sistema) viram diagnóstico + sugestão de ajuste no formulário, por um dicionário (campo, regra) →
+sugestão no código. Sem IA. Regra nova sem sugestão própria recebe um texto genérico.
 `tempo_medio_ms`: média do tempo da verificação (ler a configuração + validar), duas casas, só de validações medidas
 de verdade (`null` sem medições; o seed não inventa tempos). `taxa_bloqueio` é percentual (0 a 100, uma casa). `por_sistema` em ordem alfabética; `por_campo` e `falhas`
 do mais frequente para o menos (empate em ordem alfabética). `sistema_origem` tem no máximo 50 caracteres.
@@ -242,7 +249,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
       legados" e "tecnologias variadas" do desafio).
    2. ✅ **Tempo de resposta no painel**: medir cada `/validar` e mostrar o tempo médio (restrição "desempenho":
       a verificação não pode deixar o cadastro lento).
-   3. **"Onde agir" no painel**: recomendações a partir das contagens, por regras simples no código, sem IA
+   3. ✅ **"Onde agir" no painel**: recomendações a partir das contagens, por regras simples no código, sem IA
       (ex.: "Sistema A: a maioria das falhas de data é de formato; sugestão: máscara DD/MM/AAAA").
    4. **Senha simples na CAGD**: proteger o `PUT /regras/{campo}` e a tela da CAGD, porque o link hospedado é
       público. Não é login completo: uma senha só, configurada por variável de ambiente.
