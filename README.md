@@ -6,6 +6,13 @@ devolve o dado **aprovado** já no formato padrão, ou **bloqueado** com o campo
 
 Projeto do Desafio 1 (Qualidade de Dados) do Hackathon SETIC / 3º Conexão Tech.RO.
 
+## Equipe QuemMaisCorp
+- Celso Hector Silva Sales
+- Luiz Felipe Mâcedo Alencar de Menezes
+- Judson Gabriel Ferreira dos Santos
+
+Demonstração online: https://valida-setic.onrender.com (plano grátis: o primeiro acesso pode levar até 1 minuto).
+
 ## Pré-requisitos
 - Python 3.11 ou mais novo
 - git
