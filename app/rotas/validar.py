@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import obter_sessao
 from app.schemas import ErroValidacao, RequisicaoValidacao, RespostaValidacao
-from app.servicos.regras import carregar_config
-from app.servicos.validacao import validar_dados
+from app.servicos.registro import validar_e_registrar
 
 router = APIRouter(tags=["validação"])
 
@@ -95,8 +94,10 @@ def validar(
     requisicao: Annotated[RequisicaoValidacao, Body(openapi_examples=EXEMPLOS_REQUISICAO)],
     sessao: Session = Depends(obter_sessao),
 ):
-    """Verifica e padroniza os dados antes de o sistema gravar. Não grava nada.
+    """Verifica e padroniza os dados antes de o sistema gravar. Não grava os dados.
 
     A configuração dos campos (obrigatório/ativo) é lida do banco a cada chamada.
+    Cada chamada é registrada para o painel de erros só com sistema, campo, regra e data/hora,
+    nunca com o valor digitado (LGPD).
     """
-    return validar_dados(requisicao.dados.model_dump(), carregar_config(sessao))
+    return validar_e_registrar(sessao, requisicao.sistema_origem, requisicao.dados.model_dump())

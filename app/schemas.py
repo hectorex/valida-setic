@@ -14,7 +14,7 @@ class DadosEntrada(BaseModel):
 
 
 class RequisicaoValidacao(BaseModel):
-    sistema_origem: str = Field(min_length=1, examples=["sistema_a"])
+    sistema_origem: str = Field(min_length=1, max_length=50, examples=["sistema_a"])
     dados: DadosEntrada
 
     model_config = ConfigDict(str_strip_whitespace=True)
