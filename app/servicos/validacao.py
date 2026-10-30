@@ -6,14 +6,16 @@ from app.validadores.data import validar_data_nascimento
 from app.validadores.email import validar_email
 from app.validadores.municipio import validar_municipio
 from app.validadores.nome import validar_nome
+from app.validadores.telefone import validar_telefone
 
-# Validador de cada campo. Campo configurado sem validador (telefone, até a
-# etapa 7) só passa pela regra obrigatorio e pelo trim.
+# Validador de cada campo. Um campo configurado sem validador só passaria
+# pela regra obrigatorio e pelo trim.
 VALIDADORES = {
     "nome": validar_nome,
     "cpf": validar_cpf,
     "email": validar_email,
     "data_nascimento": validar_data_nascimento,
+    "telefone": validar_telefone,
     "municipio": validar_municipio,
 }
 

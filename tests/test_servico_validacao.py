@@ -89,11 +89,21 @@ def test_campo_inativo_e_ignorado():
 
 
 def test_campo_sem_validador_passa_so_pelo_trim():
-    # telefone ainda não tem validador (etapa 7): obrigatório é cobrado, valor passa com trim
-    regras = {**REGRAS_PADRAO, "telefone": ConfigCampo(obrigatorio=True)}
-    assert regras_por_campo(validar_dados(DADOS_VALIDOS, regras)) == [("telefone", "obrigatorio")]
-    resposta = validar_dados(com(telefone=" 69999990000 "), regras)
+    # Campo configurado sem validador (hipotético): obrigatório é cobrado, valor passa só com trim
+    regras = {**REGRAS_PADRAO, "apelido": ConfigCampo(obrigatorio=True)}
+    assert regras_por_campo(validar_dados(DADOS_VALIDOS, regras)) == [("apelido", "obrigatorio")]
+    resposta = validar_dados(com(apelido="  Mari "), regras)
+    assert resposta.dados_padronizados["apelido"] == "Mari"
+
+
+def test_telefone_e_validado_e_padronizado():
+    resposta = validar_dados(com(telefone="(69) 99999-0000"), REGRAS_PADRAO)
     assert resposta.dados_padronizados["telefone"] == "69999990000"
+
+
+def test_telefone_invalido_bloqueia_com_erros_em_camadas():
+    resposta = validar_dados(com(telefone="(23) 89999-0000"), REGRAS_PADRAO)
+    assert regras_por_campo(resposta) == [("telefone", "ddd_valido"), ("telefone", "celular_com_9")]
 
 
 def test_municipio_valido_traz_nome_oficial_e_codigo_ibge():
