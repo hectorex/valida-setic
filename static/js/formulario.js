@@ -64,6 +64,29 @@ function aplicarRegraNoCampo(regra) {
   }
 }
 
+/**
+ * Sugestões de município enquanto o usuário digita (<datalist> nativo, sem biblioteca).
+ * Só ajuda: o usuário pode digitar qualquer coisa e quem valida é a API.
+ */
+async function carregarSugestoesMunicipio() {
+  const input = formulario.querySelector('[name="municipio"]');
+  if (!input) return;
+  try {
+    const { data: municipios } = await apiFetch('/municipios');
+    const lista = document.createElement('datalist');
+    lista.id = 'lista-municipios';
+    municipios.forEach((m) => {
+      const opcao = document.createElement('option');
+      opcao.value = m.nome;
+      lista.appendChild(opcao);
+    });
+    formulario.appendChild(lista);
+    input.setAttribute('list', lista.id);
+  } catch {
+    // Sem sugestões o campo continua funcionando normalmente
+  }
+}
+
 /** Tooltips no celular: abre/fecha ao tocar no "i". */
 function iniciarTooltips() {
   document.addEventListener('click', (e) => {
@@ -242,4 +265,5 @@ document.addEventListener('DOMContentLoaded', () => {
   formulario.addEventListener('reset', () => setTimeout(limparErros, 0));
 
   carregarRegrasFormulario();
+  carregarSugestoesMunicipio();
 });

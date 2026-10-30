@@ -71,6 +71,7 @@ python -m pytest
 | `GET` | `/painel/erros` | Onde os sistemas mais erram: totais, taxa de bloqueio por sistema e falhas por campo e regra |
 | `POST` | `/cadastros` | Backend do Sistema A de exemplo: valida e só grava se aprovado, já padronizado |
 | `GET` | `/cadastros` | Cadastros gravados pelo Sistema A, mais recentes primeiro |
+| `GET` | `/municipios` | Os 52 municípios aceitos (nome oficial e código IBGE), para sugestão nos formulários |
 | `GET` | `/` | Redireciona para a página inicial do frontend (`/static/`) |
 | `GET` | `/static/...` | Páginas do frontend (veja abaixo) |
 
@@ -147,6 +148,11 @@ Com os dados corrigidos (HTTP 201), o registro é gravado já padronizado:
 ```
 Para zerar os cadastros, pare o servidor e apague o `valida.db` (depois rode o seed de novo).
 
+### Telefone
+Aceita 10 dígitos (fixo) ou 11 (celular), com ou sem parênteses, espaço, hífen ou ponto, e devolve só os dígitos:
+`(69) 99999-0000` → `69999990000`. Regras: `formato` (sem DDD, com `+55` ou com letras é bloqueado),
+`ddd_valido` (um dos 67 DDDs do Brasil) e `celular_com_9` (celular de 11 dígitos começa com 9 depois do DDD).
+
 ## Interface web (`/static/`)
 
 Páginas separadas em HTML, CSS e JavaScript puro, servidas pelo próprio FastAPI. O JS chama a API pelo
@@ -156,6 +162,7 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
 |---|---|
 | `/static/` (`index.html`) | Página inicial com os links |
 | `/static/sistema-a.html` | Sistema A: cadastro de cidadão + banco do Sistema A (simulado) |
+| `/static/sistema-b.html` | Sistema B: agendamento de atendimento (outro sistema, mesmas regras) |
 | `/static/cagd.html` | CAGD: gestão de regras + painel de erros |
 
 - **Sistema A**: formulário de cadastro de cidadão que busca a configuração em `GET /regras` (asterisco nos
@@ -163,6 +170,11 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
   próprio backend, `POST /cadastros`, que valida e só grava se aprovado. Os erros aparecem embaixo de cada campo;
   se gravar, abre o modal com o dado padronizado. Abaixo, **Banco do Sistema A (simulado)** lista o
   `GET /cadastros`: na vida real esse banco é do próprio sistema, o Valida SETIC não guarda dados do cidadão.
+- **Sistema B**: outro sistema (Agendamento de Atendimento), com cor, campos e ordem próprios, sem município e
+  com um campo que a API não conhece ("Serviço", que não é enviado). Usa o mesmo `formulario.js`, mas só chama
+  `POST /validar`. Serve para mostrar que uma regra mudada pela CAGD vale nele sem mudar o código dele.
+- **Município** (Sistema A): ao digitar, aparecem sugestões vindas do `GET /municipios` (digite "P" e surgem
+  Pimenta Bueno, Porto Velho, Presidente Médici...). O campo continua livre: quem valida é a API.
 - **CAGD**: interruptores de **Obrigatório** e **Ativo** por campo (`PUT /regras/{campo}`, valem na próxima
   validação) e o **Painel de Erros** (`GET /painel/erros`): totais, taxa de bloqueio por sistema, campos que mais
   erram e as falhas mais frequentes. O painel se atualiza ao voltar para a aba.
@@ -171,7 +183,9 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
 1. `python -m app.seed` (painel com histórico) e suba o servidor.
 2. **Sistema A**: e-mail `maria@` e data `31/02/1990` → erros embaixo dos campos; o banco continua vazio.
 3. Corrija e salve → o cadastro aparece no banco já padronizado (data `1990-02-28`, CPF só dígitos).
-4. **CAGD**: ligue "Obrigatório" em telefone → no Sistema A aparece o asterisco e o envio sem telefone é bloqueado.
-5. **CAGD**: o painel mostra as falhas novas somadas ao histórico.
+4. **CAGD**: ligue "Obrigatório" em telefone.
+5. **Sistema B**: o telefone ganhou asterisco e o envio sem ele é bloqueado, sem mudar uma linha do Sistema B.
+   Com `(23) 89999-0000` aparecem dois erros de uma vez: DDD inexistente e celular sem o 9.
+6. **CAGD**: o painel mostra as falhas novas somadas ao histórico.
 
 Para recomeçar do zero (regras padrão, sem cadastros), pare o servidor, apague o `valida.db` e rode o seed.

@@ -7,7 +7,7 @@ def test_raiz_redireciona_para_a_pagina_inicial(cliente):
     assert resposta.headers["location"] == "/static/"
 
 
-@pytest.mark.parametrize("pagina", ["/static/", "/static/sistema-a.html", "/static/cagd.html"])
+@pytest.mark.parametrize("pagina", ["/static/", "/static/sistema-a.html", "/static/sistema-b.html", "/static/cagd.html"])
 def test_paginas_do_frontend_abrem(cliente, pagina):
     resposta = cliente.get(pagina)
     assert resposta.status_code == 200
@@ -33,3 +33,19 @@ def test_cagd_tem_regras_e_painel(cliente):
     html = cliente.get("/static/cagd.html").text
     assert 'id="rules-grid"' in html and 'id="tabela-falhas"' in html
     assert "js/cagd.js" in html and "js/painel.js" in html
+
+
+def test_sistema_b_so_valida_e_tem_campos_proprios(cliente):
+    html = cliente.get("/static/sistema-b.html").text
+    tag_form = html[html.index("<form"):].split(">", 1)[0]
+    assert 'data-sistema="sistema_b"' in tag_form
+    assert "data-rota" not in tag_form  # sem data-rota: envia para POST /validar
+    assert 'data-campo="telefone"' in html and 'data-campo="municipio"' not in html
+    assert "js/formulario.js" in html and "banco-sistema-a.js" not in html
+
+
+@pytest.mark.parametrize("pagina", ["/static/", "/static/sistema-a.html", "/static/sistema-b.html", "/static/cagd.html"])
+def test_menu_tem_as_tres_paginas(cliente, pagina):
+    html = cliente.get(pagina).text
+    for destino in ["sistema-a.html", "sistema-b.html", "cagd.html"]:
+        assert f'href="{destino}"' in html
