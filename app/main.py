@@ -46,5 +46,20 @@ def saude():
 # As páginas ficam na raiz (/sistema-a.html); /static/... continua valendo para links antigos.
 # Os mounts ficam por último: as rotas da API e o /docs, declarados antes, têm prioridade.
 PASTA_STATIC = Path(__file__).resolve().parent.parent / "static"
-app.mount("/static", StaticFiles(directory=PASTA_STATIC, html=True), name="static")
-app.mount("/", StaticFiles(directory=PASTA_STATIC, html=True), name="frontend")
+
+
+class ArquivosDoFrontend(StaticFiles):
+    """Manda o navegador conferir se há versão nova a cada acesso (no-cache).
+
+    Sem isso o navegador guardava o JS antigo depois de um deploy. Se nada mudou, o servidor responde
+    304 (não modificado) sem reenviar o arquivo, então não fica mais lento.
+    """
+
+    def file_response(self, *args, **kwargs):
+        resposta = super().file_response(*args, **kwargs)
+        resposta.headers["Cache-Control"] = "no-cache"
+        return resposta
+
+
+app.mount("/static", ArquivosDoFrontend(directory=PASTA_STATIC, html=True), name="static")
+app.mount("/", ArquivosDoFrontend(directory=PASTA_STATIC, html=True), name="frontend")
