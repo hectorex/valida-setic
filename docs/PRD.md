@@ -45,17 +45,26 @@ A CAGD altera as regras num lugar só e acompanha num painel onde os sistemas ma
 | I2 | Segundo sistema | `sistema-b.html`, com campos diferentes, obedece à mesma regra alterada pela CAGD sem mudar o próprio código |
 | I3 | Seed | `python -m app.seed` deixa o painel com dados fictícios para a demo |
 
-### Meta (depois dos obrigatórios e importantes, antes de "Se sobrar tempo")
+### Diferenciais (objetivo atual, decidido em 30/10: vamos fazer)
+| # | Requisito | Pronto quando… |
+|---|---|---|
+| D1 | Como integrar | Uma página mostra a chamada ao `POST /validar` em curl, Python, JavaScript, PHP e Java/C#, prontos para copiar |
+| D2 | Tempo de resposta | O painel mostra o tempo médio do `/validar` (meta: menos de 200 ms) |
+| D3 | Onde agir | O painel mostra recomendações geradas das contagens (ex.: "a maioria das falhas de data do Sistema A é de formato: use máscara") |
+| D4 | Senha da CAGD | Sem a senha, `PUT /regras/{campo}` é recusado e a tela da CAGD pede a senha; a senha vem de variável de ambiente |
+| D5 | Histórico de regras | Cada alteração da CAGD fica registrada (campo, atributo, antes, depois, data/hora) e aparece na tela da CAGD |
+
+### Em espera (depois dos diferenciais, se houver tempo)
 | # | Requisito | Pronto quando… |
 |---|---|---|
 | M1 | Municípios do Brasil inteiro | Com `uf` informada, aceita município de qualquer estado (tabela do IBGE, offline) e devolve nome oficial, código IBGE e UF; sem `uf`, continua valendo RO |
+| M2 | Dockerfile | `docker build` + `docker run` sobem a API e o frontend |
 
 ### Se sobrar tempo
 | # | Requisito |
 |---|---|
-| S1 | Chave por sistema no header `X-API-Key` e token simples para a tela da CAGD |
-| S2 | Hospedagem com QR code para a banca testar pelo celular |
-| S3 | Tempo médio de resposta exibido no painel |
+| S1 | Chave por sistema no header `X-API-Key` |
+| S2 | ✅ Hospedagem com QR code para a banca testar pelo celular (Render) |
 
 ## 5. Fora do escopo
 - Corrigir dados antigos já gravados (excluído pelo próprio desafio).
@@ -75,7 +84,8 @@ A CAGD altera as regras num lugar só e acompanha num painel onde os sistemas ma
 | 29/10 | R1 a R4 (validadores e `/validar`) + tira-dúvidas |
 | 30/10 | R5 a R8 (banco, regras, cadastros, painel, seed) |
 | 31/10 | R9 (telas) |
-| 01/11 | I1 e I2; se tudo estiver estável, a meta M1 e depois os extras |
+| 30/10 | ✅ R1 a R9, I1 a I3 e hospedagem prontos |
+| 31/10 a 01/11 | Diferenciais D1 a D5, depois ensaio da demo e correções |
 | 02/11 | **Congelamento.** Só correção de bug, slides e ensaio cronometrado |
 | 03/11 | Credenciamento e apresentação (16h–19h) |
 
