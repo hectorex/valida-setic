@@ -112,9 +112,11 @@ Todo `POST /validar` com payload válido é registrado (aprovado ou não); 422 n
 {"total_validacoes": 3, "total_bloqueadas": 2, "taxa_bloqueio": 66.7,
  "por_sistema": [{"sistema_origem": "sistema_a", "validacoes": 2, "bloqueadas": 1, "taxa_bloqueio": 50.0}],
  "por_campo": [{"campo": "email", "falhas": 3}],
- "falhas": [{"sistema_origem": "sistema_a", "campo": "email", "regra": "dominio_valido", "quantidade": 1}]}
+ "falhas": [{"sistema_origem": "sistema_a", "campo": "email", "regra": "dominio_valido", "quantidade": 1}],
+ "tempo_medio_ms": 0.82, "medicoes_tempo": 3}
 ```
-`taxa_bloqueio` é percentual (0 a 100, uma casa). `por_sistema` em ordem alfabética; `por_campo` e `falhas`
+`tempo_medio_ms`: média do tempo da verificação (ler a configuração + validar), duas casas, só de validações medidas
+de verdade (`null` sem medições; o seed não inventa tempos). `taxa_bloqueio` é percentual (0 a 100, uma casa). `por_sistema` em ordem alfabética; `por_campo` e `falhas`
 do mais frequente para o menos (empate em ordem alfabética). `sistema_origem` tem no máximo 50 caracteres.
 
 ### `POST /cadastros` e `GET /cadastros`
@@ -160,7 +162,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   Os formulários mostram o aviso "use apenas dados fictícios" (o link é público).
 - Horários (`data_hora`, `criado_em`) gravados em UTC (`agora_utc()` em `models.py`); a API devolve com fuso
   (`...Z`) e o navegador converte para o horário local. O servidor do Render está em UTC.
-- `validacoes`: id, sistema_origem, aprovado, data_hora.
+- `validacoes`: id, sistema_origem, aprovado, data_hora, duracao_ms (nulo no histórico do seed).
+- Colunas novas em tabela existente: `atualizar_tabelas()` (`database.py`) faz o `create_all` e acrescenta a
+  coluna que faltar (`ALTER TABLE`), para o `valida.db` de quem já rodava o projeto não quebrar.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
 - `cadastros`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, criado_em.
   Dados padronizados do Sistema A de exemplo (fictícios).
@@ -189,6 +193,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
+- `integrar.html` tem também o "Antes e depois" (cadastro em PHP: +9 linhas, 3 alteradas, destacadas) com os
+  números do pitch: ~10 linhas por formulário, menos de 1 hora de desenvolvimento, zero linhas quando a regra muda.
 - `integrar.html`: o exemplo JavaScript fica num editor e roda de verdade no navegador (`FuncaoAssincrona`, com
   o `console.log` mostrado na tela), para a banca editar valores dentro do código. Só no navegador de quem clicou,
   nunca no servidor: executar no servidor código digitado na página seria uma falha de segurança grave. As outras
@@ -234,7 +240,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
    1. ✅ **Página "Como integrar"**: o mesmo exemplo de chamada ao `POST /validar` em curl, Python, JavaScript,
       PHP e Java/C#, para mostrar que qualquer sistema legado integra em poucas linhas (restrições "sistemas
       legados" e "tecnologias variadas" do desafio).
-   2. **Tempo de resposta no painel**: medir cada `/validar` e mostrar o tempo médio (restrição "desempenho":
+   2. ✅ **Tempo de resposta no painel**: medir cada `/validar` e mostrar o tempo médio (restrição "desempenho":
       a verificação não pode deixar o cadastro lento).
    3. **"Onde agir" no painel**: recomendações a partir das contagens, por regras simples no código, sem IA
       (ex.: "Sistema A: a maioria das falhas de data é de formato; sugestão: máscara DD/MM/AAAA").
