@@ -55,6 +55,19 @@ python -m app.seed
 Substitui o histórico de validações por 200 validações fictícias dos sistemas A e B nos últimos 7 dias
 (sempre as mesmas). Não mexe nas regras da CAGD. Rode antes da demo para o painel não começar vazio.
 
+## Hospedagem (Render, plano grátis)
+O `render.yaml` da raiz descreve o serviço. Para publicar pela primeira vez:
+1. Em render.com, entre com o GitHub.
+2. **New → Blueprint**, escolha o repositório `valida-setic` e confirme (**Apply**).
+3. Ao terminar, o endereço aparece no topo do serviço (ex.: `https://valida-setic.onrender.com`).
+
+Depois disso, cada merge na `main` publica de novo sozinho. No plano grátis:
+- o site "dorme" após 15 min sem acesso e leva uns 30 a 60 s para acordar (abra o link um pouco antes);
+- o banco é apagado a cada reinício ou publicação: volta com as regras padrão e o histórico do seed;
+- qualquer pessoa com o link pode usar a tela da CAGD. Use apenas dados fictícios.
+
+A demo oficial roda no notebook (funciona sem internet); o link serve para testes e para a banca pelo QR code.
+
 ## Como rodar os testes
 ```bash
 python -m pytest

@@ -151,6 +151,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   sobrescrever o que a CAGD mudou. Obrigatórios: nome, cpf, email, data_nascimento; opcionais: telefone, municipio.
   Todos os campos têm validador; um campo configurado sem validador passaria só por `obrigatorio` e trim.
 - Testes usam SQLite em memória (`tests/conftest.py`), nunca o `valida.db`.
+- Hospedagem: `render.yaml` (Render, plano grátis). O start roda `python -m app.seed` e o uvicorn em `$PORT`;
+  o disco é apagado a cada reinício, então o site hospedado sempre volta às regras padrão + seed.
+  Os formulários mostram o aviso "use apenas dados fictícios" (o link é público).
 - `validacoes`: id, sistema_origem, aprovado, data_hora.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
 - `cadastros`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, criado_em.
