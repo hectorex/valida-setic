@@ -84,3 +84,15 @@ def test_rodape_com_a_equipe(cliente, pagina):
     assert "QuemMaisCorp" in html
     for nome in ["Celso Hector Silva Sales", "Luiz Felipe Mâcedo Alencar de Menezes", "Judson Gabriel Ferreira dos Santos"]:
         assert nome in html
+
+
+@pytest.mark.parametrize("arquivo", ["/", "/sistema-a.html", "/js/formulario.js", "/css/style.css", "/static/js/comum.js"])
+def test_navegador_confere_versao_nova(cliente, arquivo):
+    # Depois de um deploy o navegador não pode continuar usando o JS antigo
+    assert cliente.get(arquivo).headers["cache-control"] == "no-cache"
+
+
+def test_arquivo_sem_mudanca_responde_304(cliente):
+    primeira = cliente.get("/js/formulario.js")
+    segunda = cliente.get("/js/formulario.js", headers={"If-None-Match": primeira.headers["etag"]})
+    assert segunda.status_code == 304
