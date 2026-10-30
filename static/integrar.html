@@ -98,11 +98,11 @@
           </div>
           <div class="codigo-caixa">
             <div class="rotulo-codigo">Depois: <span class="destaque-novo">+9 linhas</span> e <span class="destaque-alterado">3 alteradas</span></div>
-            <div class="codigo-corpo"><pre><code><span>// o sistema já tem os dados e vai gravar</span><span class="linha-nova">$resposta = valida_setic([</span><span class="linha-nova">    'nome' =&gt; $nome,</span><span class="linha-nova">    'cpf' =&gt; $cpf,</span><span class="linha-nova">    'data_nascimento' =&gt; $nascimento,</span><span class="linha-nova">]);</span><span class="linha-nova">if (!$resposta['valido']) {</span><span class="linha-nova">    return mostrar_erros($resposta['erros']);</span><span class="linha-nova">}</span><span class="linha-nova">$d = $resposta['dados_padronizados'];</span><span>$sql-&gt;insert('cidadao', [</span><span class="linha-alterada">    'nome' =&gt; $d['nome'],</span><span class="linha-alterada">    'cpf' =&gt; $d['cpf'],</span><span class="linha-alterada">    'nascimento' =&gt; $d['data_nascimento'],</span><span>]);</span></code></pre></div>
+            <div class="codigo-corpo"><pre><code><span>// o sistema já tem os dados e vai gravar</span><span class="linha-nova">$resposta = valida_setic([</span><span class="linha-nova">    'nome' =&gt; $nome,</span><span class="linha-nova">    'cpf' =&gt; $cpf,</span><span class="linha-nova">    'data_nascimento' =&gt; $nascimento,</span><span class="linha-nova">]);</span><span class="linha-nova">if (!$resposta['valido']) {</span><span class="linha-nova">    return mostrar_erros($resposta['erros']); // do seu sistema</span><span class="linha-nova">}</span><span class="linha-nova">$d = $resposta['dados_padronizados'];</span><span>$sql-&gt;insert('cidadao', [</span><span class="linha-alterada">    'nome' =&gt; $d['nome'],</span><span class="linha-alterada">    'cpf' =&gt; $d['cpf'],</span><span class="linha-alterada">    'nascimento' =&gt; $d['data_nascimento'],</span><span>]);</span></code></pre></div>
           </div>
         </div>
         <ul class="numeros-integracao">
-          <li><strong>~10 linhas</strong> por formulário: <code>valida_setic()</code> é o exemplo PHP acima, colado uma vez no sistema.</li>
+          <li><strong>~10 linhas</strong> por formulário. A função <code>valida_setic()</code> está na aba PHP acima: é colada uma vez no sistema e faz a requisição para a API. <code>mostrar_erros()</code> é do próprio sistema (o jeito que ele já usa para mostrar erros na tela).</li>
           <li><strong>Menos de 1 hora</strong> de desenvolvimento para integrar um formulário: colar, ligar os nomes dos campos e testar.</li>
           <li><strong>Zero linhas</strong> quando a regra muda: a CAGD altera num lugar só e vale para todos os sistemas integrados.</li>
         </ul>
@@ -156,14 +156,21 @@ if (resposta.valido) {
   <script type="text/plain" id="exemplo-php">
 <?php
 // PHP 5.4+, sem bibliotecas (para https, a extensão openssl, que já vem na maioria das instalações)
-$dados = ['nome' => 'Maria da Silva', 'cpf' => '123.456.789-09',
-          'email' => 'maria@', 'data_nascimento' => '31/02/1990'];
-$contexto = stream_context_create(['http' => [
-    'method'  => 'POST',
-    'header'  => "Content-Type: application/json\r\n",
-    'content' => json_encode(['sistema_origem' => 'sistema_exemplo', 'dados' => $dados]),
-]]);
-$resposta = json_decode(file_get_contents('{{URL}}/validar', false, $contexto), true);
+
+// 1) Cole esta função UMA vez no sistema: ela faz a requisição para a API e devolve a resposta.
+function valida_setic(array $dados)
+{
+    $contexto = stream_context_create(['http' => [
+        'method'  => 'POST',
+        'header'  => "Content-Type: application/json\r\n",
+        'content' => json_encode(['sistema_origem' => 'sistema_exemplo', 'dados' => $dados]),
+    ]]);
+    return json_decode(file_get_contents('{{URL}}/validar', false, $contexto), true);
+}
+
+// 2) Antes de cada gravação, chame a função com os dados que o sistema já tem:
+$resposta = valida_setic(['nome' => 'Maria da Silva', 'cpf' => '123.456.789-09',
+                          'email' => 'maria@', 'data_nascimento' => '31/02/1990']);
 
 if ($resposta['valido']) {
     // gravar $resposta['dados_padronizados'] no SEU banco
