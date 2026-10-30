@@ -21,8 +21,9 @@ Fluxo do desafio, que a demo precisa mostrar de ponta a ponta:
 
 ## Stack
 - Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, SQLite, pytest.
-- Frontend: HTML, CSS e JavaScript puro com `fetch` (sem frameworks nem Bootstrap), servido pelo próprio FastAPI em `/static/`.
-  A raiz `/` redireciona para `/static/`.
+- Frontend: HTML, CSS e JavaScript puro com `fetch` (sem frameworks nem Bootstrap), servido pelo próprio FastAPI
+  na raiz (`/`, `/sistema-a.html`...). `/static/...` também funciona. Os mounts ficam no fim do `main.py`, depois
+  das rotas da API, para não escondê-las.
 - Um único comando sobe tudo: `uvicorn app.main:app --reload`.
 - O SQLAlchemy permite trocar SQLite por PostgreSQL só mudando a URL de conexão (argumento de viabilidade).
 
@@ -176,7 +177,10 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `sistema-b.html` (Agendamento de Atendimento): só `POST /validar`, campos nome, cpf, telefone, data_nascimento,
   email e um campo próprio não enviado ("Serviço"); cor própria (`body.tema-sistema-b`). Precisa ter todos os
   campos obrigatórios por padrão, senão seria sempre bloqueado (as regras valem para todos os sistemas).
-- Campo município com sugestões do `GET /municipios` (`<datalist>`), preenchidas pelo `formulario.js`.
+- Campo município com lista própria de sugestões do `GET /municipios` (não `<datalist>`, que não dá para
+  estilizar), montada pelo `formulario.js`.
+- Máscaras por `data-mascara="cpf"`/`"telefone"` no input, só no Sistema A. O Sistema B fica sem, de propósito.
+  Data sem máscara nos dois: a demo mostra a API bloqueando `1985-03-15`.
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.

@@ -1,13 +1,26 @@
 import pytest
 
 
-def test_raiz_redireciona_para_a_pagina_inicial(cliente):
-    resposta = cliente.get("/", follow_redirects=False)
-    assert resposta.status_code == 307
-    assert resposta.headers["location"] == "/static/"
+def test_raiz_abre_a_pagina_inicial(cliente):
+    # Quem abre só o endereço do servidor (ex.: pelo QR code) já cai na página inicial
+    resposta = cliente.get("/")
+    assert resposta.status_code == 200
+    assert 'href="sistema-a.html"' in resposta.text
 
 
-@pytest.mark.parametrize("pagina", ["/static/", "/static/sistema-a.html", "/static/sistema-b.html", "/static/cagd.html"])
+@pytest.mark.parametrize("pagina", ["/static/", "/static/sistema-a.html", "/static/js/comum.js"])
+def test_links_antigos_com_static_continuam_valendo(cliente, pagina):
+    assert cliente.get(pagina).status_code == 200
+
+
+@pytest.mark.parametrize("rota", ["/regras", "/painel/erros", "/municipios", "/cadastros", "/saude", "/docs", "/openapi.json"])
+def test_frontend_na_raiz_nao_esconde_a_api(cliente, rota):
+    resposta = cliente.get(rota)
+    assert resposta.status_code == 200
+    assert "text/html" not in resposta.headers["content-type"] or rota == "/docs"
+
+
+@pytest.mark.parametrize("pagina", ["/", "/sistema-a.html", "/sistema-b.html", "/cagd.html"])
 def test_paginas_do_frontend_abrem(cliente, pagina):
     resposta = cliente.get(pagina)
     assert resposta.status_code == 200
@@ -17,26 +30,26 @@ def test_paginas_do_frontend_abrem(cliente, pagina):
 @pytest.mark.parametrize("script", ["comum.js", "formulario.js", "cagd.js", "banco-sistema-a.js", "painel.js"])
 def test_js_nao_fixa_endereco_da_api(cliente, script):
     # O JS chama a API pelo mesmo endereço da página, para funcionar no celular e em outra porta
-    resposta = cliente.get(f"/static/js/{script}")
+    resposta = cliente.get(f"/js/{script}")
     assert resposta.status_code == 200
     assert "127.0.0.1" not in resposta.text
 
 
 def test_sistema_a_grava_pelo_proprio_backend(cliente):
     # Sistema A envia para POST /cadastros (valida e grava); a lista do banco simulado fica na mesma página
-    html = cliente.get("/static/sistema-a.html").text
+    html = cliente.get("/sistema-a.html").text
     assert 'data-sistema="sistema_a"' in html and 'data-rota="/cadastros"' in html
     assert 'id="tabela-cadastros"' in html and "js/banco-sistema-a.js" in html
 
 
 def test_cagd_tem_regras_e_painel(cliente):
-    html = cliente.get("/static/cagd.html").text
+    html = cliente.get("/cagd.html").text
     assert 'id="rules-grid"' in html and 'id="tabela-falhas"' in html
     assert "js/cagd.js" in html and "js/painel.js" in html
 
 
 def test_sistema_b_so_valida_e_tem_campos_proprios(cliente):
-    html = cliente.get("/static/sistema-b.html").text
+    html = cliente.get("/sistema-b.html").text
     tag_form = html[html.index("<form"):].split(">", 1)[0]
     assert 'data-sistema="sistema_b"' in tag_form
     assert "data-rota" not in tag_form  # sem data-rota: envia para POST /validar
@@ -44,14 +57,20 @@ def test_sistema_b_so_valida_e_tem_campos_proprios(cliente):
     assert "js/formulario.js" in html and "banco-sistema-a.js" not in html
 
 
-@pytest.mark.parametrize("pagina", ["/static/", "/static/sistema-a.html", "/static/sistema-b.html", "/static/cagd.html"])
+@pytest.mark.parametrize("pagina", ["/", "/sistema-a.html", "/sistema-b.html", "/cagd.html"])
 def test_menu_tem_as_tres_paginas(cliente, pagina):
     html = cliente.get(pagina).text
     for destino in ["sistema-a.html", "sistema-b.html", "cagd.html"]:
         assert f'href="{destino}"' in html
 
 
-@pytest.mark.parametrize("pagina", ["/static/sistema-a.html", "/static/sistema-b.html"])
+@pytest.mark.parametrize("pagina", ["/sistema-a.html", "/sistema-b.html"])
 def test_formularios_pedem_dados_ficticios(cliente, pagina):
     # LGPD: com a demo hospedada, ninguém deve digitar dados reais
     assert "use apenas dados fictícios" in cliente.get(pagina).text
+
+
+def test_mascaras_so_no_sistema_a(cliente):
+    # Sistema A ajuda o usuário com a pontuação; o Sistema B fica sem, como um sistema legado
+    assert 'data-mascara="cpf"' in cliente.get("/sistema-a.html").text
+    assert "data-mascara" not in cliente.get("/sistema-b.html").text
