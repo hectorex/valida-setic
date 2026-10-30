@@ -14,7 +14,7 @@ def test_paginas_do_frontend_abrem(cliente, pagina):
     assert "text/html" in resposta.headers["content-type"]
 
 
-@pytest.mark.parametrize("script", ["comum.js", "formulario.js", "cagd.js", "banco-sistema-a.js"])
+@pytest.mark.parametrize("script", ["comum.js", "formulario.js", "cagd.js", "banco-sistema-a.js", "painel.js"])
 def test_js_nao_fixa_endereco_da_api(cliente, script):
     # O JS chama a API pelo mesmo endereço da página, para funcionar no celular e em outra porta
     resposta = cliente.get(f"/static/js/{script}")
@@ -27,3 +27,9 @@ def test_sistema_a_grava_pelo_proprio_backend(cliente):
     html = cliente.get("/static/sistema-a.html").text
     assert 'data-sistema="sistema_a"' in html and 'data-rota="/cadastros"' in html
     assert 'id="tabela-cadastros"' in html and "js/banco-sistema-a.js" in html
+
+
+def test_cagd_tem_regras_e_painel(cliente):
+    html = cliente.get("/static/cagd.html").text
+    assert 'id="rules-grid"' in html and 'id="tabela-falhas"' in html
+    assert "js/cagd.js" in html and "js/painel.js" in html
