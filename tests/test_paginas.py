@@ -96,3 +96,8 @@ def test_arquivo_sem_mudanca_responde_304(cliente):
     primeira = cliente.get("/js/formulario.js")
     segunda = cliente.get("/js/formulario.js", headers={"If-None-Match": primeira.headers["etag"]})
     assert segunda.status_code == 304
+
+
+def test_painel_da_cagd_mostra_o_tempo_medio(cliente):
+    html = cliente.get("/cagd.html").text
+    assert 'id="painel-tempo"' in html

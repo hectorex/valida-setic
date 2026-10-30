@@ -7,7 +7,8 @@ LINGUAGENS = ["curl", "python", "javascript", "php", "java", "csharp"]
 
 
 def exemplo(html, linguagem):
-    return re.search(rf'<script type="text/plain" id="exemplo-{linguagem}">\n(.*?)</script>', html, re.S).group(1)
+    # \r?\n: no Windows o git pode trazer o arquivo com quebras de linha CRLF
+    return re.search(rf'<script type="text/plain" id="exemplo-{linguagem}">\r?\n(.*?)</script>', html, re.S).group(1)
 
 
 @pytest.fixture
@@ -65,3 +66,10 @@ def test_api_responde_ao_que_foi_digitado(cliente):
         ("nome", "tamanho_minimo"),
         ("email", "dominio_valido"),
     ]
+
+
+def test_antes_e_depois_destaca_as_linhas_novas(html):
+    assert "antes e depois" in html
+    assert html.count('class="linha-nova"') == 9  # o texto da página diz "+9 linhas"
+    assert html.count('class="linha-alterada"') == 3  # e "3 alteradas"
+    assert "+9 linhas" in html and "3 alteradas" in html

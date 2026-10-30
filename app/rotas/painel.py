@@ -30,6 +30,8 @@ EXEMPLO_PAINEL = RespostaPainel(
         FalhaPainel(sistema_origem="sistema_b", campo="cpf", regra="obrigatorio", quantidade=1),
         FalhaPainel(sistema_origem="sistema_b", campo="email", regra="dominio_valido", quantidade=1),
     ],
+    tempo_medio_ms=1.84,  # varia a cada execução: é medido de verdade
+    medicoes_tempo=3,
 ).model_dump()
 
 

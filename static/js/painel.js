@@ -42,6 +42,18 @@ function desenharPainel(painel) {
   document.querySelector('#painel-bloqueadas').textContent = formatarNumero(painel.total_bloqueadas);
   document.querySelector('#painel-taxa').textContent = formatarTaxa(painel.taxa_bloqueio);
 
+  // Tempo médio: só de validações medidas de verdade (o histórico do seed não tem tempo)
+  const tempo = document.querySelector('#painel-tempo');
+  const rotuloTempo = document.querySelector('#painel-tempo-rotulo');
+  if (painel.tempo_medio_ms === null) {
+    tempo.textContent = '—';
+    rotuloTempo.textContent = 'tempo médio: faça uma validação para medir';
+  } else {
+    tempo.textContent = `${Number(painel.tempo_medio_ms).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ms`;
+    const medicoes = painel.medicoes_tempo;
+    rotuloTempo.textContent = `tempo médio de verificação (${formatarNumero(medicoes)} ${medicoes === 1 ? 'medição' : 'medições'})`;
+  }
+
   // Taxa de bloqueio por sistema (a barra é a própria taxa, de 0 a 100%)
   const sistemas = document.querySelector('#painel-sistemas');
   sistemas.textContent = '';

@@ -141,9 +141,12 @@ Depois de três validações (Sistema A bloqueado e aprovado, Sistema B bloquead
  "por_sistema": [{"sistema_origem": "sistema_a", "validacoes": 2, "bloqueadas": 1, "taxa_bloqueio": 50.0},
                  {"sistema_origem": "sistema_b", "validacoes": 1, "bloqueadas": 1, "taxa_bloqueio": 100.0}],
  "por_campo": [{"campo": "email", "falhas": 3}, {"campo": "cpf", "falhas": 1}, {"campo": "data_nascimento", "falhas": 1}],
- "falhas": [{"sistema_origem": "sistema_b", "campo": "cpf", "regra": "obrigatorio", "quantidade": 1}, "..."]}
+ "falhas": [{"sistema_origem": "sistema_b", "campo": "cpf", "regra": "obrigatorio", "quantidade": 1}, "..."],
+ "tempo_medio_ms": 0.82, "medicoes_tempo": 3}
 ```
-O registro guarda só sistema, campo, regra e data/hora, **nunca o valor digitado** (LGPD).
+O registro guarda só sistema, campo, regra, data/hora e quanto tempo a verificação levou, **nunca o valor
+digitado** (LGPD). `tempo_medio_ms` é medido de verdade a cada validação; o histórico do seed não tem tempo e fica
+fora da média.
 
 ### Exemplo: `POST /cadastros`
 Representa o backend de um sistema qualquer (o "Sistema A"): antes de gravar, chama a validação central.
@@ -204,9 +207,11 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
   a página foi aberta e botão de copiar. **O exemplo JavaScript é editável e roda de verdade no navegador**: troque
   qualquer valor dentro do código e clique em "Executar este código"; o que o código imprime aparece na tela. As
   outras linguagens são para copiar e rodar no terminal (o navegador só executa JavaScript).
+  No fim, o **Antes e depois**: um cadastro em PHP antes e depois da integração (+9 linhas e 3 alteradas, destacadas).
 - **CAGD**: interruptores de **Obrigatório** e **Ativo** por campo (`PUT /regras/{campo}`, valem na próxima
   validação) e o **Painel de Erros** (`GET /painel/erros`): totais, taxa de bloqueio por sistema, campos que mais
-  erram e as falhas mais frequentes. O painel se atualiza ao voltar para a aba.
+  erram, as falhas mais frequentes e o **tempo médio de verificação** (medido de verdade, em milissegundos).
+  O painel se atualiza ao voltar para a aba.
 
 ### Roteiro da demo pela interface
 1. `python -m app.seed` (painel com histórico) e suba o servidor.

@@ -774,7 +774,7 @@ input.input-error:focus { box-shadow: 0 0 0 3px rgba(247, 90, 104, 0.25); }
 /* ==========================================================================
    Painel de erros (CAGD)
    ========================================================================== */
-.painel-numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
+.painel-numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
 
 .numero-card {
   display: flex;
@@ -894,6 +894,19 @@ code {
 
 .btn-pequeno { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
 
+/* Antes e depois: linhas novas e alteradas destacadas */
+.antes-depois { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+.antes-depois .codigo-caixa { margin-bottom: 0; display: flex; flex-direction: column; }
+.antes-depois .codigo-corpo { flex: 1; }
+.rotulo-codigo { padding: 0.6rem 0.9rem; font-size: 0.82rem; font-weight: 600; color: var(--text); background: var(--surface); border-bottom: 1px solid var(--border); }
+.antes-depois pre { padding: 0.8rem 0; }
+.antes-depois pre span { display: block; padding: 0 1rem; border-left: 3px solid transparent; }
+.antes-depois .linha-nova { background: rgba(0, 179, 126, 0.12); border-left-color: var(--success); }
+.antes-depois .linha-alterada { background: rgba(242, 193, 78, 0.12); border-left-color: #F2C14E; }
+.destaque-novo { color: var(--success); }
+.destaque-alterado { color: #F2C14E; }
+.numeros-integracao { margin-left: 1.25rem; display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.92rem; color: var(--text); }
+
 /* Editor do exemplo JavaScript: mesmo visual do código só leitura */
 .codigo-editavel {
   display: block;
@@ -961,6 +974,8 @@ code {
 
 @media (max-width: 720px) {
   .painel-grade { grid-template-columns: 1fr; }
+  .painel-numeros { grid-template-columns: repeat(2, 1fr); }
+  .antes-depois { grid-template-columns: 1fr; }
   .numero-valor { font-size: 1.35rem; }
   .barra-linha { grid-template-columns: 6.5rem 1fr auto; }
   .tabela th, .tabela td { padding: 0.55rem 0.6rem; white-space: normal; }
