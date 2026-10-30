@@ -49,3 +49,9 @@ def test_menu_tem_as_tres_paginas(cliente, pagina):
     html = cliente.get(pagina).text
     for destino in ["sistema-a.html", "sistema-b.html", "cagd.html"]:
         assert f'href="{destino}"' in html
+
+
+@pytest.mark.parametrize("pagina", ["/static/sistema-a.html", "/static/sistema-b.html"])
+def test_formularios_pedem_dados_ficticios(cliente, pagina):
+    # LGPD: com a demo hospedada, ninguém deve digitar dados reais
+    assert "use apenas dados fictícios" in cliente.get(pagina).text

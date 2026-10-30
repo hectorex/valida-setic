@@ -444,6 +444,7 @@ input.input-error:focus { box-shadow: 0 0 0 3px rgba(247, 90, 104, 0.25); }
 }
 
 .alert-error { color: var(--error); background: var(--error-bg); border-color: rgba(247, 90, 104, 0.35); }
+.alert-aviso { display: block; color: #F2C14E; background: rgba(242, 193, 78, 0.08); border-color: rgba(242, 193, 78, 0.35); }
 
 /* ==========================================================================
    Painel CAGD
