@@ -39,7 +39,10 @@ Com o ambiente ativado:
 ```bash
 python -m uvicorn app.main:app --reload
 ```
-A interface web fica em **http://127.0.0.1:8000/static/** e a documentação interativa (Swagger) em **http://127.0.0.1:8000/docs**.
+Abra **http://127.0.0.1:8000**: a raiz leva à página inicial do frontend, com links para o Sistema A, a CAGD e o Swagger.
+A documentação interativa (Swagger) fica em **http://127.0.0.1:8000/docs**.
+
+Para abrir no celular (mesma rede Wi-Fi), suba com `--host 0.0.0.0` e acesse `http://<IP-do-computador>:8000`.
 
 Na primeira execução é criado o banco SQLite `valida.db` (fora do git), já com a configuração
 inicial dos campos. Para começar do zero, pare o servidor e apague o arquivo.
@@ -58,7 +61,8 @@ python -m pytest
 | `POST` | `/validar` | Verifica e padroniza os dados; não grava nada |
 | `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato esperado, ajuda) |
 | `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação |
-| `GET` | `/static/` | Interface web (SPA): formulário do Sistema A e painel de regras da CAGD |
+| `GET` | `/` | Redireciona para a página inicial do frontend (`/static/`) |
+| `GET` | `/static/...` | Páginas do frontend (veja abaixo) |
 
 ### Exemplo: `POST /validar`
 Entrada:
@@ -102,6 +106,14 @@ Mais exemplos estão no `/docs`.
 
 ## Interface web (`/static/`)
 
-Página única em HTML, CSS e JavaScript puro, servida pelo próprio FastAPI, com duas abas:
+Páginas separadas em HTML, CSS e JavaScript puro, servidas pelo próprio FastAPI. O JS chama a API pelo
+mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
+
+| Página | O que é |
+|---|---|
+| `/static/` (`index.html`) | Página inicial com os links |
+| `/static/sistema-a.html` | Sistema A: cadastro de cidadão |
+| `/static/cagd.html` | CAGD: gestão de regras |
+
 - **Sistema A**: formulário de cadastro de cidadão que busca a configuração em `GET /regras` (asterisco nos obrigatórios, ajuda + formato esperado no ícone `i` e campos inativos desabilitados) e envia os dados para `POST /validar`, exibindo os erros embaixo de cada campo ou o modal com os dados padronizados.
 - **Gestão de Regras (CAGD)**: painel com interruptores de **Obrigatório** e **Ativo** por campo, que chamam `PUT /regras/{campo}` e já valem na próxima validação.

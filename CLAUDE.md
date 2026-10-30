@@ -21,7 +21,8 @@ Fluxo do desafio, que a demo precisa mostrar de ponta a ponta:
 
 ## Stack
 - Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, SQLite, pytest.
-- Frontend: HTML, CSS e JavaScript puro com `fetch` (SPA sem frameworks ou bibliotecas externas), servido pelo próprio FastAPI em `/static/`.
+- Frontend: HTML, CSS e JavaScript puro com `fetch` (sem frameworks nem Bootstrap), servido pelo próprio FastAPI em `/static/`.
+  A raiz `/` redireciona para `/static/`.
 - Um único comando sobe tudo: `uvicorn app.main:app --reload`.
 - O SQLAlchemy permite trocar SQLite por PostgreSQL só mudando a URL de conexão (argumento de viabilidade).
 
@@ -39,10 +40,14 @@ app/
   rotas/               # validar.py, regras.py, painel.py, cadastros.py
   seed.py              # histórico fictício para o painel (as regras padrão são criadas na subida do app)
 static/
+  index.html           # página inicial com links para as outras
   sistema-a.html       # cadastro de cidadão
   sistema-b.html       # segundo sistema, campos diferentes, mesmas regras
   cagd.html            # regras + painel de erros
-  js/ css/
+  js/comum.js          # chamadas à API (endereço relativo), toasts, alertas
+  js/formulario.js     # formulário genérico; a página diz o sistema em <form data-sistema="sistema_a">
+  js/cagd.js           # interruptores das regras (+ painel)
+  css/style.css
 tests/
 ```
 
@@ -129,7 +134,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Só dados fictícios em seed, testes e demo. CPFs de teste gerados por algoritmo, nunca reais.
 
 ## Frontend
-- Responsivo (abrir no celular). SPA em HTML5, CSS3 e JavaScript puro (`static/index.html`), sem build e sem bibliotecas externas.
+- Responsivo (abrir no celular). Uma página por ator (Sistema A, Sistema B, CAGD), sem build e sem bibliotecas externas.
+- O JS chama a API por caminho relativo (`API_BASE_URL = ''`), nunca por endereço fixo, para funcionar no celular.
 - Erros aparecem embaixo de cada campo, todos de uma vez, vindos da API.
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
