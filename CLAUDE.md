@@ -189,7 +189,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
-- `integrar.html`: exemplos com `{{URL}}` (trocado pelo endereço de onde a página foi aberta) e
+- `integrar.html`: "Teste você mesmo" envia o JSON de uma caixa editável (os botões só preenchem a caixa), para
+  a banca ver a API responder a dados que ninguém previu. Exemplos com `{{URL}}` (trocado pelo endereço de onde a página foi aberta) e
   `sistema_origem: "sistema_exemplo"`. `tests/test_integrar.py` manda o JSON do exemplo curl para a API: se o
   contrato mudar, o teste avisa que a página ficou desatualizada. Executados de verdade: curl, Python e Java.
 - Outros integrantes editam `static/`. Não reescrever arquivos de `static/` inteiros sem pedir.

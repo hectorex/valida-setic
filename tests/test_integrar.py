@@ -39,3 +39,21 @@ def test_json_do_exemplo_curl_e_aceito_pela_api(cliente, html):
 def test_pagina_explica_os_tres_passos(html):
     for trecho in ["Antes de gravar", '"valido": false', '"valido": true', "dados_padronizados"]:
         assert trecho in html
+
+
+def test_teste_voce_mesmo_tem_requisicao_editavel(html):
+    # A pessoa edita o JSON e envia: a resposta depende do que foi digitado, não há resposta pronta
+    assert '<textarea id="requisicao-exemplo"' in html
+    assert 'id="btn-enviar-exemplo"' in html
+
+
+def test_api_responde_ao_que_foi_digitado(cliente):
+    # O mesmo que a caixa editável faz: dados que nenhum botão prevê geram os erros desses dados
+    resposta = cliente.post("/validar", json={
+        "sistema_origem": "sistema_exemplo",
+        "dados": {"nome": "Judson", "cpf": "123.456.789-09", "email": "celso@ifro", "data_nascimento": "15/03/1985"},
+    }).json()
+    assert [(e["campo"], e["regra"]) for e in resposta["erros"]] == [
+        ("nome", "tamanho_minimo"),
+        ("email", "dominio_valido"),
+    ]

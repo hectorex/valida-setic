@@ -37,16 +37,34 @@ async function copiarCodigo() {
   }
 }
 
-async function executarExemplo(tipo) {
+const caixaRequisicao = () => document.querySelector('#requisicao-exemplo');
+
+/** Preenche a caixa com um dos exemplos. A pessoa pode editar à vontade antes de enviar. */
+function preencherExemplo(tipo) {
+  const requisicao = { sistema_origem: 'sistema_exemplo', dados: DADOS_EXEMPLO[tipo] };
+  caixaRequisicao().value = JSON.stringify(requisicao, null, 2);
+}
+
+/** Envia exatamente o que está na caixa: a resposta depende do que foi digitado, não há resposta pronta. */
+async function enviarRequisicao() {
   esconderAlerta('#exemplo-alerta');
   const saida = document.querySelector('#resposta-exemplo');
+  let requisicao;
   try {
-    const { data } = await apiFetch('/validar', 'POST', { sistema_origem: 'sistema_exemplo', dados: DADOS_EXEMPLO[tipo] });
+    requisicao = JSON.parse(caixaRequisicao().value);
+  } catch {
+    saida.classList.add('hidden');
+    mostrarAlerta('#exemplo-alerta', 'O texto não é um JSON válido. Confira aspas, vírgulas e chaves.');
+    return;
+  }
+  try {
+    const { data } = await apiFetch('/validar', 'POST', requisicao);
     saida.textContent = `POST ${ENDERECO}/validar → ${data.valido ? 'aprovado' : 'bloqueado'}\n\n${JSON.stringify(data, null, 2)}`;
     saida.classList.remove('hidden');
   } catch (erro) {
+    // Ex.: sem sistema_origem a API responde 422, como faria com qualquer sistema
     saida.classList.add('hidden');
-    mostrarAlerta('#exemplo-alerta', erro.message);
+    mostrarAlerta('#exemplo-alerta', `A API recusou a requisição: ${erro.message}`);
   }
 }
 
@@ -56,7 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.querySelector('#btn-copiar').addEventListener('click', copiarCodigo);
   document.querySelectorAll('[data-exemplo]').forEach((botao) => {
-    botao.addEventListener('click', () => executarExemplo(botao.dataset.exemplo));
+    botao.addEventListener('click', () => preencherExemplo(botao.dataset.exemplo));
   });
+  document.querySelector('#btn-enviar-exemplo').addEventListener('click', enviarRequisicao);
   mostrarLinguagem('curl');
+  preencherExemplo('erro');
 });

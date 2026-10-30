@@ -894,6 +894,27 @@ code {
 
 .acoes-exemplo { justify-content: flex-start; margin-bottom: 1rem; }
 
+.atalhos-exemplo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem; }
+.btn-pequeno { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+
+.rotulo-requisicao { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 500; color: var(--text); }
+
+.requisicao-exemplo {
+  width: 100%;
+  margin-bottom: 0.9rem;
+  padding: 0.9rem 1rem;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--surface-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+}
+
+.requisicao-exemplo:focus { outline: none; border-color: var(--primary-active); box-shadow: 0 0 0 3px var(--primary-glow); }
+
 .resposta-exemplo {
   max-height: 24rem;
   background: var(--surface-input);
