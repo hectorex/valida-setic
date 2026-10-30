@@ -774,7 +774,7 @@ input.input-error:focus { box-shadow: 0 0 0 3px rgba(247, 90, 104, 0.25); }
 /* ==========================================================================
    Painel de erros (CAGD)
    ========================================================================== */
-.painel-numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
+.painel-numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
 
 .numero-card {
   display: flex;
