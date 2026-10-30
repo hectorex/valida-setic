@@ -23,7 +23,8 @@ Fluxo do desafio, que a demo precisa mostrar de ponta a ponta:
 - Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, SQLite, pytest.
 - Frontend: HTML, CSS e JavaScript puro com `fetch` (sem frameworks nem Bootstrap), servido pelo próprio FastAPI
   na raiz (`/`, `/sistema-a.html`...). `/static/...` também funciona. Os mounts ficam no fim do `main.py`, depois
-  das rotas da API, para não escondê-las.
+  das rotas da API, para não escondê-las. Os arquivos vão com `Cache-Control: no-cache` (`ArquivosDoFrontend`), para
+  o navegador pegar a versão nova logo depois de cada deploy.
 - Um único comando sobe tudo: `uvicorn app.main:app --reload`.
 - O SQLAlchemy permite trocar SQLite por PostgreSQL só mudando a URL de conexão (argumento de viabilidade).
 
