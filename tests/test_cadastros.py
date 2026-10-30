@@ -87,3 +87,15 @@ def test_campo_inativo_nao_e_gravado(cliente):
 def test_exemplos_do_swagger_batem_com_a_resposta_real(cliente, nome):
     resposta = cliente.post("/cadastros", json=EXEMPLOS_REQUISICAO[nome]["value"]).json()
     assert sem_variaveis(resposta) == sem_variaveis(EXEMPLOS_RESPOSTA[nome])
+
+
+def test_criado_em_vem_em_utc_com_fuso(cliente):
+    # O navegador converte para o horário local; sem o fuso, o horário do servidor (UTC no Render)
+    # aparecia como se fosse local: 4 h adiantado em Rondônia
+    from datetime import datetime, timedelta, timezone
+
+    criado_em = cliente.post("/cadastros", json=DADOS_VALIDOS).json()["cadastro"]["criado_em"]
+    assert criado_em.endswith("Z")
+    momento = datetime.fromisoformat(criado_em.replace("Z", "+00:00"))
+    assert abs(datetime.now(timezone.utc) - momento) < timedelta(minutes=1)
+    assert cliente.get("/cadastros").json()[0]["criado_em"] == criado_em

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, Response, status
@@ -43,7 +43,7 @@ EXEMPLO_CADASTRO = CadastroSaida(
     telefone=None,
     municipio="Porto Velho",
     municipio_codigo_ibge="1100205",
-    criado_em=datetime(2026, 11, 3, 16, 30),
+    criado_em=datetime(2026, 11, 3, 20, 30, tzinfo=timezone.utc),  # 16h30 em Rondônia
 )
 
 EXEMPLOS_RESPOSTA = {

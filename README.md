@@ -195,8 +195,9 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
 - **Município** (Sistema A): ao digitar, abre uma lista do tamanho do campo com sugestões do `GET /municipios`
   (digite "P" e surgem Parecis, Pimenta Bueno, Porto Velho...; a partir de 3 letras também acha palavras do meio,
   "vel" → Porto Velho). Setas, Enter e toque escolhem. O campo continua livre: quem valida é a API.
-- **Máscaras** (Sistema A): CPF e telefone ganham a pontuação enquanto o usuário digita (`12345678909` →
-  `123.456.789-09`). O Sistema B fica sem máscara de propósito, como um sistema legado: a API protege igual.
+- **Máscaras** (Sistema A): CPF, telefone e data ganham a pontuação enquanto o usuário digita (`12345678909` →
+  `123.456.789-09`, `31021990` → `31/02/1990`). A máscara só formata: `31/02/1990` continua bloqueado pela API.
+  O Sistema B fica sem máscara de propósito, como um sistema legado: a API protege igual.
 - **CAGD**: interruptores de **Obrigatório** e **Ativo** por campo (`PUT /regras/{campo}`, valem na próxima
   validação) e o **Painel de Erros** (`GET /painel/erros`): totais, taxa de bloqueio por sistema, campos que mais
   erram e as falhas mais frequentes. O painel se atualiza ao voltar para a aba.

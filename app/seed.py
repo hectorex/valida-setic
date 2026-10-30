@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
 from app.database import Base, SessionLocal, engine
-from app.models import FalhaValidacao, Validacao
+from app.models import FalhaValidacao, Validacao, agora_utc
 from app.servicos.regras import inicializar_regras
 
 DIAS_DE_HISTORICO = 7
@@ -72,7 +72,7 @@ def sortear_falhas(rng: random.Random, opcoes: list[tuple[str, str, int]]) -> li
 
 def popular(sessao: Session, agora: datetime | None = None, semente: int = 42) -> dict[str, int]:
     """Substitui o histórico de validações por um fictício. Devolve as contagens criadas."""
-    agora = agora or datetime.now()
+    agora = agora or agora_utc()
     rng = random.Random(semente)
 
     sessao.execute(delete(FalhaValidacao))
