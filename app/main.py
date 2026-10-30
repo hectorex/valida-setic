@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
 from app.database import Base, SessionLocal, engine
-from app.rotas import regras, validar
+from app.rotas import painel, regras, validar
 from app.servicos.regras import inicializar_regras
 
 
@@ -33,6 +33,7 @@ app = FastAPI(
 
 app.include_router(validar.router)
 app.include_router(regras.router)
+app.include_router(painel.router)
 
 
 # Frontend (HTML/CSS/JS) servido pelo próprio FastAPI: mesma origem, sem problema de CORS

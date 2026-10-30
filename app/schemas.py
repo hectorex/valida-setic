@@ -58,3 +58,34 @@ class RegraAtualizacao(BaseModel):
     ativo: bool | None = Field(default=None, description=DESCRICAO_ATIVO)
     formato_esperado: str | None = None
     ajuda: str | None = None
+
+
+# Painel de erros (GET /painel/erros)
+
+
+class SistemaPainel(BaseModel):
+    sistema_origem: str
+    validacoes: int
+    bloqueadas: int
+    taxa_bloqueio: float = Field(description="Percentual de validações bloqueadas (0 a 100, uma casa decimal).")
+
+
+class CampoPainel(BaseModel):
+    campo: str
+    falhas: int
+
+
+class FalhaPainel(BaseModel):
+    sistema_origem: str
+    campo: str
+    regra: str
+    quantidade: int
+
+
+class RespostaPainel(BaseModel):
+    total_validacoes: int
+    total_bloqueadas: int
+    taxa_bloqueio: float = Field(description="Percentual geral de validações bloqueadas (0 a 100).")
+    por_sistema: list[SistemaPainel] = Field(description="Em ordem alfabética de sistema.")
+    por_campo: list[CampoPainel] = Field(description="Campos que mais erram primeiro.")
+    falhas: list[FalhaPainel] = Field(description="Contagem por sistema, campo e regra; as mais frequentes primeiro.")
