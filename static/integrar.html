@@ -81,13 +81,19 @@
         <div class="card-header card-header-row">
           <div>
             <span class="chip">teste agora</span>
-            <h2>Executar o exemplo</h2>
-            <p class="muted">Envia o exemplo de verdade para a API, como o código acima faria, e mostra a resposta.</p>
+            <h2>Teste você mesmo</h2>
+            <p class="muted">Edite a requisição como quiser (troque o e-mail, a data, o CPF...) e envie: a resposta vem da API na hora, para os dados que você digitou.</p>
           </div>
         </div>
+        <div class="atalhos-exemplo">
+          <span class="muted small">Preencher com:</span>
+          <button type="button" class="btn btn-ghost btn-pequeno" data-exemplo="erro">exemplo com erro</button>
+          <button type="button" class="btn btn-ghost btn-pequeno" data-exemplo="correto">exemplo corrigido</button>
+        </div>
+        <label class="rotulo-requisicao" for="requisicao-exemplo">Requisição (JSON) para <code>POST /validar</code></label>
+        <textarea id="requisicao-exemplo" class="requisicao-exemplo" rows="9" spellcheck="false"></textarea>
         <div class="form-actions acoes-exemplo">
-          <button type="button" class="btn btn-primary" data-exemplo="erro">Enviar com erro</button>
-          <button type="button" class="btn btn-ghost" data-exemplo="correto">Enviar corrigido</button>
+          <button type="button" class="btn btn-primary" id="btn-enviar-exemplo">Enviar para a API</button>
         </div>
         <div class="alert alert-error hidden" id="exemplo-alerta" role="alert"></div>
         <pre class="resposta-exemplo hidden" id="resposta-exemplo" aria-live="polite"></pre>
