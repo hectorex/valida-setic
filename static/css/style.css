@@ -156,7 +156,7 @@ button { font-family: inherit; cursor: pointer; }
   padding: 2.5rem 1.25rem 4rem;
 }
 
-.view { width: 100%; display: flex; justify-content: center; }
+.view { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
 .view[hidden] { display: none; }
 .view.active { animation: fadeUp 0.4s ease; }
 
@@ -710,6 +710,24 @@ input.input-error:focus { box-shadow: 0 0 0 3px rgba(247, 90, 104, 0.25); }
 /* ==========================================================================
    Responsivo
    ========================================================================== */
+/* ==========================================================================
+   Tabelas (banco do Sistema A, falhas do painel)
+   ========================================================================== */
+.tabela-rolagem { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+
+.tabela { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+
+.tabela th,
+.tabela td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border-soft); white-space: nowrap; }
+
+.tabela th { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); background: var(--surface); }
+
+.tabela td { color: var(--text); }
+.tabela td.numero, .tabela th.numero { text-align: right; font-variant-numeric: tabular-nums; }
+.tabela td.codigo { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.8rem; color: var(--text-muted); }
+.tabela tbody tr:last-child td { border-bottom: none; }
+.tabela .vazio td { padding: 1.5rem; text-align: center; color: var(--text-muted); white-space: normal; }
+
 /* ==========================================================================
    Página inicial (atalhos para as páginas)
    ========================================================================== */

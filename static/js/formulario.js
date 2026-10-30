@@ -4,8 +4,11 @@
    ========================================================================== */
 
 const formulario = document.querySelector('form[data-sistema]');
-// Cada página diz qual sistema ela é: <form data-sistema="sistema_a">
+// Cada página diz qual sistema ela é e para onde envia:
+//   <form data-sistema="sistema_a" data-rota="/cadastros">  → backend do sistema, que valida e grava
+//   <form data-sistema="sistema_b">                          → só POST /validar (padrão)
 const SISTEMA_ORIGEM = formulario.dataset.sistema;
+const ROTA_ENVIO = formulario.dataset.rota || '/validar';
 
 /** Busca as regras e aplica asterisco, tooltip e estado ativo/inativo em cada campo. */
 async function carregarRegrasFormulario() {
@@ -109,7 +112,16 @@ function montarPayload() {
     const input = formulario.querySelector(`[name="${campo}"]`);
     dados[campo] = input && !input.disabled ? input.value.trim() : '';
   });
-  return { sistema_origem: SISTEMA_ORIGEM, dados };
+  // POST /cadastros recebe os campos direto; POST /validar recebe {sistema_origem, dados}
+  return ROTA_ENVIO === '/validar' ? { sistema_origem: SISTEMA_ORIGEM, dados } : dados;
+}
+
+/** Une as duas respostas: /validar → {valido, dados_padronizados}; /cadastros → {gravado, cadastro}. */
+function lerResultado(resultado) {
+  if (ROTA_ENVIO === '/validar') {
+    return { aprovado: resultado.valido, erros: resultado.erros, dados: resultado.dados_padronizados };
+  }
+  return { aprovado: resultado.gravado, erros: resultado.erros, dados: resultado.cadastro };
 }
 
 function definirCarregando(carregando) {
@@ -125,9 +137,10 @@ async function enviarFormulario(e) {
   definirCarregando(true);
 
   try {
-    const { data: resultado } = await apiFetch('/validar', 'POST', montarPayload());
+    const { data } = await apiFetch(ROTA_ENVIO, 'POST', montarPayload());
+    const resultado = lerResultado(data);
 
-    if (resultado.valido === false) {
+    if (resultado.aprovado === false) {
       const erros = Array.isArray(resultado.erros) ? resultado.erros : [];
       const semCampo = [];
 
@@ -143,13 +156,15 @@ async function enviarFormulario(e) {
       return;
     }
 
-    if (resultado.valido === true) {
-      abrirModalSucesso(resultado.dados_padronizados || {});
+    if (resultado.aprovado === true) {
+      abrirModalSucesso(resultado.dados || {});
       formulario.reset();
+      // Avisa quem estiver ouvindo (ex.: a lista do banco do Sistema A) que algo foi gravado
+      document.dispatchEvent(new CustomEvent('envio-aprovado'));
       return;
     }
 
-    throw new Error('Resposta inesperada da rota /validar.');
+    throw new Error(`Resposta inesperada da rota ${ROTA_ENVIO}.`);
   } catch (erro) {
     mostrarAlerta('#form-alerta', erro.message);
     mostrarToast('Falha ao validar os dados.', 'error');
