@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -89,3 +91,26 @@ class RespostaPainel(BaseModel):
     por_sistema: list[SistemaPainel] = Field(description="Em ordem alfabética de sistema.")
     por_campo: list[CampoPainel] = Field(description="Campos que mais erram primeiro.")
     falhas: list[FalhaPainel] = Field(description="Contagem por sistema, campo e regra; as mais frequentes primeiro.")
+
+
+# Cadastros do Sistema A de exemplo (POST/GET /cadastros)
+
+
+class CadastroSaida(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    nome: str | None
+    cpf: str | None
+    email: str | None
+    data_nascimento: str | None
+    telefone: str | None
+    municipio: str | None
+    municipio_codigo_ibge: str | None
+    criado_em: datetime
+
+
+class RespostaCadastro(BaseModel):
+    gravado: bool = Field(description="true: o dado foi aprovado e gravado já padronizado (HTTP 201).")
+    erros: list[ErroValidacao] = Field(description="Mesmos erros do POST /validar; vazio quando gravado.")
+    cadastro: CadastroSaida | None = Field(description="O registro gravado; null quando bloqueado.")

@@ -43,3 +43,20 @@ class FalhaValidacao(Base):
     campo: Mapped[str] = mapped_column(String(50))
     regra: Mapped[str] = mapped_column(String(50))
     data_hora: Mapped[datetime] = mapped_column(default=datetime.now)
+
+
+class Cadastro(Base):
+    """Cidadão gravado pelo Sistema A de exemplo. Só entra aqui o dado aprovado, já padronizado."""
+
+    __tablename__ = "cadastros"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    # Todos opcionais: a CAGD pode tornar qualquer campo opcional ou inativo
+    nome: Mapped[str | None] = mapped_column(String(200))
+    cpf: Mapped[str | None] = mapped_column(String(11))
+    email: Mapped[str | None] = mapped_column(String(200))
+    data_nascimento: Mapped[str | None] = mapped_column(String(10))  # AAAA-MM-DD
+    telefone: Mapped[str | None] = mapped_column(String(20))
+    municipio: Mapped[str | None] = mapped_column(String(100))
+    municipio_codigo_ibge: Mapped[str | None] = mapped_column(String(7))
+    criado_em: Mapped[datetime] = mapped_column(default=datetime.now)
