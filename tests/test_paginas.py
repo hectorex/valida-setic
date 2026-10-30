@@ -72,7 +72,9 @@ def test_formularios_pedem_dados_ficticios(cliente, pagina):
 
 def test_mascaras_so_no_sistema_a(cliente):
     # Sistema A ajuda o usuário com a pontuação; o Sistema B fica sem, como um sistema legado
-    assert 'data-mascara="cpf"' in cliente.get("/sistema-a.html").text
+    html_a = cliente.get("/sistema-a.html").text
+    for mascara in ["cpf", "telefone", "data"]:
+        assert f'data-mascara="{mascara}"' in html_a
     assert "data-mascara" not in cliente.get("/sistema-b.html").text
 
 

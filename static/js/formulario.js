@@ -88,6 +88,13 @@ const MASCARAS = {
     if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
     return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
   },
+  // 31021990 → 31/02/1990 (a máscara só põe as barras; se a data existe quem diz é a API)
+  data(d) {
+    d = d.slice(0, 8);
+    if (d.length > 4) return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+    if (d.length > 2) return `${d.slice(0, 2)}/${d.slice(2)}`;
+    return d;
+  },
 };
 
 function iniciarMascaras() {
