@@ -156,7 +156,7 @@ button { font-family: inherit; cursor: pointer; }
   padding: 2.5rem 1.25rem 4rem;
 }
 
-.view { width: 100%; display: flex; justify-content: center; }
+.view { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
 .view[hidden] { display: none; }
 .view.active { animation: fadeUp 0.4s ease; }
 
@@ -184,6 +184,9 @@ button { font-family: inherit; cursor: pointer; }
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+/* O texto ocupa o espaço que sobrar e o botão fica à direita (no celular, desce para baixo) */
+.card-header-row > div { flex: 1 1 20rem; min-width: 0; }
 
 .chip {
   display: inline-block;
@@ -711,6 +714,61 @@ input.input-error:focus { box-shadow: 0 0 0 3px rgba(247, 90, 104, 0.25); }
    Responsivo
    ========================================================================== */
 /* ==========================================================================
+   Tabelas (banco do Sistema A, falhas do painel)
+   ========================================================================== */
+.tabela-rolagem { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+
+.tabela { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+
+.tabela th,
+.tabela td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border-soft); white-space: nowrap; }
+
+.tabela th { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); background: var(--surface); }
+
+.tabela td { color: var(--text); }
+.tabela td.numero, .tabela th.numero { text-align: right; font-variant-numeric: tabular-nums; }
+.tabela td.codigo { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.8rem; color: var(--text-muted); }
+.tabela tbody tr:last-child td { border-bottom: none; }
+.tabela .vazio td { padding: 1.5rem; text-align: center; color: var(--text-muted); white-space: normal; }
+
+/* ==========================================================================
+   Painel de erros (CAGD)
+   ========================================================================== */
+.painel-numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.75rem; }
+
+.numero-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+.numero-valor { font-size: 1.75rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.numero-rotulo { font-size: 0.78rem; color: var(--text-muted); }
+
+.painel-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; margin-bottom: 1.75rem; }
+.painel-secao h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.9rem; color: var(--text); }
+
+.barras { display: flex; flex-direction: column; gap: 0.7rem; }
+
+.barra-linha {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.barra-rotulo { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barra-valor { color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.barra-trilho { height: 10px; background: var(--surface); border-radius: 4px; overflow: hidden; }
+.barra-preenchida { height: 100%; background: var(--primary); border-radius: 0 4px 4px 0; transition: width var(--transition); }
+.barra-linha:hover .barra-preenchida { background: var(--primary-hover); }
+
+/* ==========================================================================
    Página inicial (atalhos para as páginas)
    ========================================================================== */
 .brand-title a { color: inherit; text-decoration: none; }
@@ -735,6 +793,10 @@ input.input-error:focus { box-shadow: 0 0 0 3px rgba(247, 90, 104, 0.25); }
 
 
 @media (max-width: 720px) {
+  .painel-grade { grid-template-columns: 1fr; }
+  .numero-valor { font-size: 1.35rem; }
+  .barra-linha { grid-template-columns: 6.5rem 1fr auto; }
+  .tabela th, .tabela td { padding: 0.55rem 0.6rem; white-space: normal; }
   .topbar { padding: 0.9rem 1rem; justify-content: center; }
   .tabs { width: 100%; }
   .tab { flex: 1; justify-content: center; padding: 0.55rem 0.6rem; font-size: 0.8rem; }

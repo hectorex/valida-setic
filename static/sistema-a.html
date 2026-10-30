@@ -43,12 +43,12 @@
         <div class="card-header">
           <span class="chip">sistema_a</span>
           <h2>Cadastro de Cidadão</h2>
-          <p class="muted">Os dados são verificados pela API Valida SETIC antes de serem gravados.</p>
+          <p class="muted">Antes de gravar no próprio banco, o Sistema A envia os dados para a API Valida SETIC. Só grava se aprovado.</p>
         </div>
 
         <div class="alert alert-error hidden" id="form-alerta" role="alert"></div>
 
-        <form id="form-sistema-a" data-sistema="sistema_a" novalidate autocomplete="off">
+        <form id="form-sistema-a" data-sistema="sistema_a" data-rota="/cadastros" novalidate autocomplete="off">
           <div class="form-grid">
 
             <div class="field field-full" data-campo="nome">
@@ -119,6 +119,27 @@
           </div>
         </form>
       </div>
+
+      <!-- Banco do Sistema A: na vida real fica no servidor do próprio sistema, não na SETIC -->
+      <div class="card glass card-wide">
+        <div class="card-header card-header-row">
+          <div>
+            <span class="chip">banco do sistema_a</span>
+            <h2>Banco do Sistema A <span class="muted small">(simulado)</span></h2>
+            <p class="muted">O que o Sistema A gravou. O Valida SETIC não guarda estes dados: só verifica e responde.</p>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btn-recarregar-cadastros" aria-label="Recarregar cadastros">Recarregar</button>
+        </div>
+        <div class="alert alert-error hidden" id="cadastros-alerta" role="alert"></div>
+        <div class="tabela-rolagem">
+          <table class="tabela" id="tabela-cadastros">
+            <thead>
+              <tr><th>Nome</th><th>CPF</th><th>Nascimento</th><th>E-mail</th><th>Telefone</th><th>Município</th><th>Gravado em</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -128,8 +149,8 @@
       <div class="modal-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
       </div>
-      <h3 id="modal-titulo">Dados válidos!</h3>
-      <p class="muted">A API aprovou o envio. Estes são os dados padronizados que serão gravados:</p>
+      <h3 id="modal-titulo">Cadastro gravado!</h3>
+      <p class="muted">A API aprovou os dados e o Sistema A gravou no banco dele a versão padronizada:</p>
       <dl class="data-list" id="modal-dados"></dl>
       <button type="button" class="btn btn-success" id="btn-fechar-modal">Fechar</button>
     </div>
@@ -140,5 +161,6 @@
 
   <script src="js/comum.js"></script>
   <script src="js/formulario.js"></script>
+  <script src="js/banco-sistema-a.js"></script>
 </body>
 </html>
