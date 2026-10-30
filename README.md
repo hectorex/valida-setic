@@ -201,8 +201,9 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
   O Sistema B fica sem máscara de propósito, como um sistema legado: a API protege igual.
 - **Como integrar**: os três passos (chamar antes de gravar, mostrar os erros, gravar os `dados_padronizados`)
   e o mesmo exemplo de chamada em curl, Python, JavaScript, PHP, Java e C#, já com o endereço do servidor de onde
-  a página foi aberta e botão de copiar. Em "Teste você mesmo", a requisição fica numa caixa editável: troque
-  qualquer valor e envie, e a resposta vem da API para os dados digitados (prova de que não é resposta pronta).
+  a página foi aberta e botão de copiar. **O exemplo JavaScript é editável e roda de verdade no navegador**: troque
+  qualquer valor dentro do código e clique em "Executar este código"; o que o código imprime aparece na tela. As
+  outras linguagens são para copiar e rodar no terminal (o navegador só executa JavaScript).
 - **CAGD**: interruptores de **Obrigatório** e **Ativo** por campo (`PUT /regras/{campo}`, valem na próxima
   validação) e o **Painel de Erros** (`GET /painel/erros`): totais, taxa de bloqueio por sistema, campos que mais
   erram e as falhas mais frequentes. O painel se atualiza ao voltar para a aba.

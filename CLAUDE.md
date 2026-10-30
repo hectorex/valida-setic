@@ -56,7 +56,7 @@ static/
   js/banco-sistema-a.js  # lista "Banco do Sistema A (simulado)" (GET /cadastros)
   js/cagd.js           # interruptores das regras
   js/painel.js         # painel de erros da CAGD (GET /painel/erros)
-  js/integrar.js       # abas de linguagem, copiar, executar o exemplo; troca {{URL}} por location.origin
+  js/integrar.js       # abas de linguagem, copiar, editar e executar o exemplo JS; troca {{URL}} por location.origin
   css/style.css
 tests/
 ```
@@ -189,8 +189,10 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
-- `integrar.html`: "Teste você mesmo" envia o JSON de uma caixa editável (os botões só preenchem a caixa), para
-  a banca ver a API responder a dados que ninguém previu. Exemplos com `{{URL}}` (trocado pelo endereço de onde a página foi aberta) e
+- `integrar.html`: o exemplo JavaScript fica num editor e roda de verdade no navegador (`FuncaoAssincrona`, com
+  o `console.log` mostrado na tela), para a banca editar valores dentro do código. Só no navegador de quem clicou,
+  nunca no servidor: executar no servidor código digitado na página seria uma falha de segurança grave. As outras
+  linguagens são só leitura ("copie e rode no terminal"); não fingir execução delas. Exemplos com `{{URL}}` (trocado pelo endereço de onde a página foi aberta) e
   `sistema_origem: "sistema_exemplo"`. `tests/test_integrar.py` manda o JSON do exemplo curl para a API: se o
   contrato mudar, o teste avisa que a página ficou desatualizada. Executados de verdade: curl, Python e Java.
 - Outros integrantes editam `static/`. Não reescrever arquivos de `static/` inteiros sem pedir.
