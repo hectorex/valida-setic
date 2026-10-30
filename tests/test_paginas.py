@@ -27,7 +27,7 @@ def test_paginas_do_frontend_abrem(cliente, pagina):
     assert "text/html" in resposta.headers["content-type"]
 
 
-@pytest.mark.parametrize("script", ["comum.js", "formulario.js", "cagd.js", "banco-sistema-a.js", "painel.js"])
+@pytest.mark.parametrize("script", ["comum.js", "formulario.js", "cagd.js", "banco-sistema-a.js", "painel.js", "integrar.js"])
 def test_js_nao_fixa_endereco_da_api(cliente, script):
     # O JS chama a API pelo mesmo endereço da página, para funcionar no celular e em outra porta
     resposta = cliente.get(f"/js/{script}")
@@ -57,10 +57,10 @@ def test_sistema_b_so_valida_e_tem_campos_proprios(cliente):
     assert "js/formulario.js" in html and "banco-sistema-a.js" not in html
 
 
-@pytest.mark.parametrize("pagina", ["/", "/sistema-a.html", "/sistema-b.html", "/cagd.html"])
-def test_menu_tem_as_tres_paginas(cliente, pagina):
+@pytest.mark.parametrize("pagina", ["/", "/sistema-a.html", "/sistema-b.html", "/cagd.html", "/integrar.html"])
+def test_menu_tem_todas_as_paginas(cliente, pagina):
     html = cliente.get(pagina).text
-    for destino in ["sistema-a.html", "sistema-b.html", "cagd.html"]:
+    for destino in ["sistema-a.html", "sistema-b.html", "cagd.html", "integrar.html"]:
         assert f'href="{destino}"' in html
 
 

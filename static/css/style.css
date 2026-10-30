@@ -843,6 +843,65 @@ input.input-error:focus { box-shadow: 0 0 0 3px rgba(247, 90, 104, 0.25); }
 .rodape-nomes { margin-top: 0.35rem; font-size: 0.75rem; }
 
 /* ==========================================================================
+   Como integrar
+   ========================================================================== */
+.passos { margin: 0 0 1.5rem 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; color: var(--text); font-size: 0.92rem; }
+
+code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.85em;
+  padding: 0.1rem 0.35rem;
+  background: var(--surface);
+  border-radius: 4px;
+}
+
+.codigo-caixa { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 0.75rem; }
+
+.abas-codigo { display: flex; flex-wrap: wrap; gap: 0.25rem; padding: 0.4rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+
+.aba-codigo {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.aba-codigo:hover { color: var(--text); }
+.aba-codigo.active { color: #fff; background: var(--primary); }
+.aba-codigo:focus-visible { outline: 2px solid var(--primary-hover); outline-offset: 2px; }
+
+.codigo-corpo { background: var(--surface-input); }
+
+/* Links dentro de textos (ex.: "Swagger (/docs)") legíveis no fundo escuro */
+.muted a, .passos a { color: var(--primary-hover); }
+.btn-copiar { margin-left: auto; padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+
+.codigo-corpo pre,
+.resposta-exemplo {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.codigo-corpo pre code { padding: 0; background: none; font-size: inherit; }
+
+.acoes-exemplo { justify-content: flex-start; margin-bottom: 1rem; }
+
+.resposta-exemplo {
+  max-height: 24rem;
+  background: var(--surface-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
    Página inicial (atalhos para as páginas)
    ========================================================================== */
 .brand-title a { color: inherit; text-decoration: none; }
