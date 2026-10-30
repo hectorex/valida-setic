@@ -48,6 +48,13 @@ Na primeira execução é criado o banco SQLite `valida.db` (fora do git), já c
 inicial dos campos. Para começar do zero, pare o servidor e apague o arquivo.
 Para usar outro banco, defina a variável `VALIDA_DB_URL` (ex.: `postgresql://usuario:senha@host/valida`).
 
+### Dados fictícios para o painel (demo)
+```bash
+python -m app.seed
+```
+Substitui o histórico de validações por 200 validações fictícias dos sistemas A e B nos últimos 7 dias
+(sempre as mesmas). Não mexe nas regras da CAGD. Rode antes da demo para o painel não começar vazio.
+
 ## Como rodar os testes
 ```bash
 python -m pytest
@@ -58,9 +65,10 @@ python -m pytest
 | Método | Rota | O que faz |
 |---|---|---|
 | `GET` | `/saude` | Confirma que a API está no ar |
-| `POST` | `/validar` | Verifica e padroniza os dados; não grava nada |
+| `POST` | `/validar` | Verifica e padroniza os dados; não grava os dados, só registra o resultado para o painel |
 | `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato esperado, ajuda) |
 | `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação |
+| `GET` | `/painel/erros` | Onde os sistemas mais erram: totais, taxa de bloqueio por sistema e falhas por campo e regra |
 | `GET` | `/` | Redireciona para a página inicial do frontend (`/static/`) |
 | `GET` | `/static/...` | Páginas do frontend (veja abaixo) |
 
@@ -103,6 +111,17 @@ A partir da próxima chamada, o `POST /validar` sem telefone volta bloqueado com
 Campo com `"ativo": false` não é cobrado nem validado, mesmo que esteja obrigatório (inativo prevalece).
 Ao reativar, ele volta com a configuração que tinha.
 Mais exemplos estão no `/docs`.
+
+### Exemplo: `GET /painel/erros`
+Depois de três validações (Sistema A bloqueado e aprovado, Sistema B bloqueado), a resposta resumida fica:
+```json
+{"total_validacoes": 3, "total_bloqueadas": 2, "taxa_bloqueio": 66.7,
+ "por_sistema": [{"sistema_origem": "sistema_a", "validacoes": 2, "bloqueadas": 1, "taxa_bloqueio": 50.0},
+                 {"sistema_origem": "sistema_b", "validacoes": 1, "bloqueadas": 1, "taxa_bloqueio": 100.0}],
+ "por_campo": [{"campo": "email", "falhas": 3}, {"campo": "cpf", "falhas": 1}, {"campo": "data_nascimento", "falhas": 1}],
+ "falhas": [{"sistema_origem": "sistema_b", "campo": "cpf", "regra": "obrigatorio", "quantidade": 1}, "..."]}
+```
+O registro guarda só sistema, campo, regra e data/hora, **nunca o valor digitado** (LGPD).
 
 ## Interface web (`/static/`)
 

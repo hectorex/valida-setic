@@ -36,7 +36,10 @@ app/
   validadores/         # uma função pura por tipo de dado, sem acesso a banco
     nome.py  cpf.py  email.py  data.py  telefone.py  municipio.py
   dados/municipios_ro.py   # lista oficial dos 52 municípios de Rondônia (IBGE)
-  servicos/validacao.py    # orquestra: lê regras do banco, roda validadores, registra falhas
+  servicos/validacao.py    # validar_dados: roda os validadores conforme a configuração (sem banco)
+  servicos/regras.py       # REGRAS_PADRAO e leitura/alteração de regras_campo
+  servicos/registro.py     # validar_e_registrar: lê a config, valida e grava em validacoes/falhas_validacao
+  servicos/painel.py       # agregações do GET /painel/erros
   rotas/               # validar.py, regras.py, painel.py, cadastros.py
   seed.py              # histórico fictício para o painel (as regras padrão são criadas na subida do app)
 static/
@@ -92,6 +95,15 @@ Os dois valores ficam guardados de forma independente, para que reativar restaur
 
 ### `GET /painel/erros`
 Agrega falhas por sistema, campo e regra (contagem), mais totais de validações e taxa de bloqueio por sistema.
+Todo `POST /validar` com payload válido é registrado (aprovado ou não); 422 não é registrado.
+```json
+{"total_validacoes": 3, "total_bloqueadas": 2, "taxa_bloqueio": 66.7,
+ "por_sistema": [{"sistema_origem": "sistema_a", "validacoes": 2, "bloqueadas": 1, "taxa_bloqueio": 50.0}],
+ "por_campo": [{"campo": "email", "falhas": 3}],
+ "falhas": [{"sistema_origem": "sistema_a", "campo": "email", "regra": "dominio_valido", "quantidade": 1}]}
+```
+`taxa_bloqueio` é percentual (0 a 100, uma casa). `por_sistema` em ordem alfabética; `por_campo` e `falhas`
+do mais frequente para o menos (empate em ordem alfabética). `sistema_origem` tem no máximo 50 caracteres.
 
 ### `POST /cadastros` e `GET /cadastros`
 Representam o backend do "Sistema A" de exemplo: chamam o serviço de validação e só gravam se aprovado,
@@ -127,6 +139,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `validacoes`: id, sistema_origem, aprovado, data_hora.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
 - `cadastros`: dados padronizados do Sistema A de exemplo (fictícios).
+- `python -m app.seed` apaga só `validacoes`/`falhas_validacao` e recria 200 validações fictícias (semente fixa).
+  Não mexe em `regras_campo` nem em `cadastros`.
 
 ## LGPD (inegociável)
 - `validacoes` e `falhas_validacao` **nunca** guardam o valor digitado: só sistema, campo, regra e data/hora.
