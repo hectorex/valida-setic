@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import obter_sessao
-from app.schemas import CampoPainel, FalhaPainel, RespostaPainel, SistemaPainel
+from app.schemas import CampoPainel, FalhaPainel, Recomendacao, RespostaPainel, SistemaPainel
 from app.servicos.painel import resumo_erros
 
 router = APIRouter(prefix="/painel", tags=["painel"])
@@ -32,6 +32,18 @@ EXEMPLO_PAINEL = RespostaPainel(
     ],
     tempo_medio_ms=1.84,  # varia a cada execução: é medido de verdade
     medicoes_tempo=3,
+    # Com só 3 validações nenhuma falha chega a 3 ocorrências; o exemplo mostra uma recomendação típica
+    onde_agir=[
+        Recomendacao(
+            sistema_origem="sistema_a",
+            campo="data_nascimento",
+            regra="formato",
+            quantidade=16,
+            percentual=21.3,
+            diagnostico="Sistema A: 21,3% das falhas são de data de nascimento fora do formato (16 de 75).",
+            sugestao="Sugestão: use máscara DD/MM/AAAA no campo de data, para o usuário digitar só os números.",
+        )
+    ],
 ).model_dump()
 
 

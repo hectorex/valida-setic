@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models import FalhaValidacao, Validacao
 from app.schemas import CampoPainel, FalhaPainel, RespostaPainel, SistemaPainel
+from app.servicos.onde_agir import gerar_recomendacoes
 
 
 def taxa(bloqueadas: int, total: int) -> float:
@@ -38,6 +39,11 @@ def resumo_erros(sessao: Session) -> RespostaPainel:
     # Só validações medidas de verdade (o histórico do seed não tem tempo)
     medicoes, media = sessao.execute(select(func.count(Validacao.duracao_ms), func.avg(Validacao.duracao_ms))).one()
 
+    falhas = [
+        FalhaPainel(sistema_origem=sistema, campo=campo, regra=regra, quantidade=qtd)
+        for sistema, campo, regra, qtd in linhas_falha
+    ]
+
     total = sum(s.validacoes for s in por_sistema)
     bloqueadas = sum(s.bloqueadas for s in por_sistema)
     return RespostaPainel(
@@ -46,10 +52,8 @@ def resumo_erros(sessao: Session) -> RespostaPainel:
         taxa_bloqueio=taxa(bloqueadas, total),
         por_sistema=por_sistema,
         por_campo=[CampoPainel(campo=campo, falhas=qtd) for campo, qtd in linhas_campo],
-        falhas=[
-            FalhaPainel(sistema_origem=sistema, campo=campo, regra=regra, quantidade=qtd)
-            for sistema, campo, regra, qtd in linhas_falha
-        ],
+        falhas=falhas,
         tempo_medio_ms=round(media, 2) if media is not None else None,
         medicoes_tempo=medicoes,
+        onde_agir=gerar_recomendacoes(falhas),
     )

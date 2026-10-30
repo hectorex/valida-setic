@@ -84,6 +84,16 @@ class FalhaPainel(BaseModel):
     quantidade: int
 
 
+class Recomendacao(BaseModel):
+    sistema_origem: str
+    campo: str
+    regra: str
+    quantidade: int
+    percentual: float = Field(description="Parte das falhas do sistema que é desta regra (0 a 100, uma casa).")
+    diagnostico: str = Field(description="O que está acontecendo, em português simples.")
+    sugestao: str = Field(description="Ajuste sugerido no formulário daquele sistema.")
+
+
 class RespostaPainel(BaseModel):
     total_validacoes: int
     total_bloqueadas: int
@@ -96,6 +106,10 @@ class RespostaPainel(BaseModel):
         "Só de validações medidas de verdade; null se ainda não houver nenhuma."
     )
     medicoes_tempo: int = Field(description="Quantas validações entraram na média de tempo.")
+    onde_agir: list[Recomendacao] = Field(
+        description="Recomendações para a CAGD: em cada sistema, as falhas com pelo menos 3 ocorrências e 15% das "
+        "falhas dele (no máximo 2 por sistema), da mais frequente para a menos. Regras simples, sem IA."
+    )
 
 
 # Cadastros do Sistema A de exemplo (POST/GET /cadastros)
