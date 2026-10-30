@@ -789,6 +789,21 @@ input.input-error:focus { box-shadow: 0 0 0 3px rgba(247, 90, 104, 0.25); }
 .numero-valor { font-size: 1.75rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
 .numero-rotulo { font-size: 0.78rem; color: var(--text-muted); }
 
+.secao-onde-agir { margin-bottom: 1.75rem; }
+.lista-onde-agir { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+
+.onde-agir-item {
+  padding: 0.85rem 1rem;
+  background: rgba(242, 193, 78, 0.06);
+  border: 1px solid rgba(242, 193, 78, 0.25);
+  border-left: 3px solid #F2C14E;
+  border-radius: var(--radius-sm);
+}
+
+.onde-agir-item strong { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.onde-agir-item p { margin-top: 0.25rem; font-size: 0.85rem; color: var(--text-muted); }
+.onde-agir-vazio { font-size: 0.85rem; color: var(--text-muted); }
+
 .painel-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; margin-bottom: 1.75rem; }
 .painel-secao h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.9rem; color: var(--text); }
 
