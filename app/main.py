@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
-
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
@@ -38,6 +38,12 @@ app.include_router(regras.router)
 # Frontend (HTML/CSS/JS) servido pelo próprio FastAPI: mesma origem, sem problema de CORS
 PASTA_STATIC = Path(__file__).resolve().parent.parent / "static"
 app.mount("/static", StaticFiles(directory=PASTA_STATIC, html=True), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def inicio():
+    # Quem abre só o endereço do servidor (ex.: pelo QR code) cai na página inicial
+    return RedirectResponse("/static/")
 
 
 @app.get("/saude", tags=["sistema"])
