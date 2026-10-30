@@ -155,8 +155,23 @@ mesmo endereço da página, então funciona em qualquer porta, IP ou no celular.
 | Página | O que é |
 |---|---|
 | `/static/` (`index.html`) | Página inicial com os links |
-| `/static/sistema-a.html` | Sistema A: cadastro de cidadão |
-| `/static/cagd.html` | CAGD: gestão de regras |
+| `/static/sistema-a.html` | Sistema A: cadastro de cidadão + banco do Sistema A (simulado) |
+| `/static/cagd.html` | CAGD: gestão de regras + painel de erros |
 
-- **Sistema A**: formulário de cadastro de cidadão que busca a configuração em `GET /regras` (asterisco nos obrigatórios, ajuda + formato esperado no ícone `i` e campos inativos desabilitados) e envia os dados para `POST /validar`, exibindo os erros embaixo de cada campo ou o modal com os dados padronizados.
-- **Gestão de Regras (CAGD)**: painel com interruptores de **Obrigatório** e **Ativo** por campo, que chamam `PUT /regras/{campo}` e já valem na próxima validação.
+- **Sistema A**: formulário de cadastro de cidadão que busca a configuração em `GET /regras` (asterisco nos
+  obrigatórios, ajuda + formato esperado no ícone `i` e campos inativos desabilitados) e envia os dados para o
+  próprio backend, `POST /cadastros`, que valida e só grava se aprovado. Os erros aparecem embaixo de cada campo;
+  se gravar, abre o modal com o dado padronizado. Abaixo, **Banco do Sistema A (simulado)** lista o
+  `GET /cadastros`: na vida real esse banco é do próprio sistema, o Valida SETIC não guarda dados do cidadão.
+- **CAGD**: interruptores de **Obrigatório** e **Ativo** por campo (`PUT /regras/{campo}`, valem na próxima
+  validação) e o **Painel de Erros** (`GET /painel/erros`): totais, taxa de bloqueio por sistema, campos que mais
+  erram e as falhas mais frequentes. O painel se atualiza ao voltar para a aba.
+
+### Roteiro da demo pela interface
+1. `python -m app.seed` (painel com histórico) e suba o servidor.
+2. **Sistema A**: e-mail `maria@` e data `31/02/1990` → erros embaixo dos campos; o banco continua vazio.
+3. Corrija e salve → o cadastro aparece no banco já padronizado (data `1990-02-28`, CPF só dígitos).
+4. **CAGD**: ligue "Obrigatório" em telefone → no Sistema A aparece o asterisco e o envio sem telefone é bloqueado.
+5. **CAGD**: o painel mostra as falhas novas somadas ao histórico.
+
+Para recomeçar do zero (regras padrão, sem cadastros), pare o servidor, apague o `valida.db` e rode o seed.

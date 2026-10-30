@@ -48,8 +48,11 @@ static/
   sistema-b.html       # segundo sistema, campos diferentes, mesmas regras
   cagd.html            # regras + painel de erros
   js/comum.js          # chamadas à API (endereço relativo), toasts, alertas
-  js/formulario.js     # formulário genérico; a página diz o sistema em <form data-sistema="sistema_a">
-  js/cagd.js           # interruptores das regras (+ painel)
+  js/formulario.js     # formulário genérico: <form data-sistema="sistema_a" data-rota="/cadastros">
+                       #   data-rota opcional; sem ela envia para POST /validar (Sistema B)
+  js/banco-sistema-a.js  # lista "Banco do Sistema A (simulado)" (GET /cadastros)
+  js/cagd.js           # interruptores das regras
+  js/painel.js         # painel de erros da CAGD (GET /painel/erros)
   css/style.css
 tests/
 ```
@@ -160,6 +163,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - O JS chama a API por caminho relativo (`API_BASE_URL = ''`), nunca por endereço fixo, para funcionar no celular.
 - Erros aparecem embaixo de cada campo, todos de uma vez, vindos da API.
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
+- `sistema-a.html` envia para `POST /cadastros` (o backend dele) e mostra a lista "Banco do Sistema A (simulado)",
+  deixando claro que esse banco é do sistema, não do Valida SETIC.
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
