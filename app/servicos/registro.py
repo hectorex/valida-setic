@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from app.models import FalhaValidacao, Validacao
+from app.models import FalhaValidacao, Validacao, agora_utc
 from app.schemas import RespostaValidacao
 from app.servicos.regras import carregar_config
 from app.servicos.validacao import validar_dados
@@ -12,7 +12,7 @@ def registrar_validacao(
     sessao: Session, sistema_origem: str, resposta: RespostaValidacao, data_hora: datetime | None = None
 ) -> Validacao:
     """Grava a validação e uma linha por regra violada. LGPD: nunca grava o valor digitado."""
-    data_hora = data_hora or datetime.now()
+    data_hora = data_hora or agora_utc()
     validacao = Validacao(sistema_origem=sistema_origem, aprovado=resposta.valido, data_hora=data_hora)
     sessao.add(validacao)
     sessao.flush()  # gera o id da validação para ligar as falhas

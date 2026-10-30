@@ -1,9 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+
+
+def agora_utc() -> datetime:
+    """Horário em UTC. O servidor pode estar em qualquer fuso (o Render usa UTC); quem mostra converte
+    para o fuso de quem está vendo. Sem isso, o horário aparecia 4 h adiantado em Rondônia."""
+    return datetime.now(timezone.utc)
 
 
 class RegraCampo(Base):
@@ -29,7 +35,7 @@ class Validacao(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     sistema_origem: Mapped[str] = mapped_column(String(50), index=True)
     aprovado: Mapped[bool]
-    data_hora: Mapped[datetime] = mapped_column(default=datetime.now)
+    data_hora: Mapped[datetime] = mapped_column(default=agora_utc)
 
 
 class FalhaValidacao(Base):
@@ -42,7 +48,7 @@ class FalhaValidacao(Base):
     sistema_origem: Mapped[str] = mapped_column(String(50), index=True)
     campo: Mapped[str] = mapped_column(String(50))
     regra: Mapped[str] = mapped_column(String(50))
-    data_hora: Mapped[datetime] = mapped_column(default=datetime.now)
+    data_hora: Mapped[datetime] = mapped_column(default=agora_utc)
 
 
 class Cadastro(Base):
@@ -59,4 +65,4 @@ class Cadastro(Base):
     telefone: Mapped[str | None] = mapped_column(String(20))
     municipio: Mapped[str | None] = mapped_column(String(100))
     municipio_codigo_ibge: Mapped[str | None] = mapped_column(String(7))
-    criado_em: Mapped[datetime] = mapped_column(default=datetime.now)
+    criado_em: Mapped[datetime] = mapped_column(default=agora_utc)

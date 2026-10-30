@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class DadosEntrada(BaseModel):
@@ -107,7 +107,14 @@ class CadastroSaida(BaseModel):
     telefone: str | None
     municipio: str | None
     municipio_codigo_ibge: str | None
-    criado_em: datetime
+    criado_em: datetime = Field(description="Em UTC, com fuso no texto (ex.: 2026-11-03T20:30:00Z).")
+
+    @field_validator("criado_em")
+    @classmethod
+    def em_utc(cls, valor: datetime) -> datetime:
+        # O SQLite devolve o horário sem fuso; ele foi gravado em UTC, então marcamos como UTC
+        # para o navegador converter para o horário local (em RO, UTC-4)
+        return valor if valor.tzinfo else valor.replace(tzinfo=timezone.utc)
 
 
 class RespostaCadastro(BaseModel):
