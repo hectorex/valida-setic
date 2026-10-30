@@ -69,6 +69,8 @@ python -m pytest
 | `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato esperado, ajuda) |
 | `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação |
 | `GET` | `/painel/erros` | Onde os sistemas mais erram: totais, taxa de bloqueio por sistema e falhas por campo e regra |
+| `POST` | `/cadastros` | Backend do Sistema A de exemplo: valida e só grava se aprovado, já padronizado |
+| `GET` | `/cadastros` | Cadastros gravados pelo Sistema A, mais recentes primeiro |
 | `GET` | `/` | Redireciona para a página inicial do frontend (`/static/`) |
 | `GET` | `/static/...` | Páginas do frontend (veja abaixo) |
 
@@ -122,6 +124,28 @@ Depois de três validações (Sistema A bloqueado e aprovado, Sistema B bloquead
  "falhas": [{"sistema_origem": "sistema_b", "campo": "cpf", "regra": "obrigatorio", "quantidade": 1}, "..."]}
 ```
 O registro guarda só sistema, campo, regra e data/hora, **nunca o valor digitado** (LGPD).
+
+### Exemplo: `POST /cadastros`
+Representa o backend de um sistema qualquer (o "Sistema A"): antes de gravar, chama a validação central.
+Entrada (os mesmos campos de `dados` do `/validar`, sem `sistema_origem`):
+```json
+{"nome": "Maria  da silva", "cpf": "123.456.789-09", "email": "maria@", "data_nascimento": "31/02/1990"}
+```
+Bloqueado (HTTP 200), nada é gravado e o `GET /cadastros` continua vazio:
+```json
+{"gravado": false,
+ "erros": [{"campo": "email", "regra": "dominio_valido", "mensagem": "...", "formato_esperado": "nome@dominio.com"},
+           {"campo": "data_nascimento", "regra": "data_existente", "mensagem": "...", "formato_esperado": "DD/MM/AAAA"}],
+ "cadastro": null}
+```
+Com os dados corrigidos (HTTP 201), o registro é gravado já padronizado:
+```json
+{"gravado": true, "erros": [],
+ "cadastro": {"id": 1, "nome": "Maria da Silva", "cpf": "12345678909", "email": "maria@exemplo.com",
+              "data_nascimento": "1990-02-28", "telefone": null, "municipio": "Porto Velho",
+              "municipio_codigo_ibge": "1100205", "criado_em": "2026-11-03T16:30:00"}}
+```
+Para zerar os cadastros, pare o servidor e apague o `valida.db` (depois rode o seed de novo).
 
 ## Interface web (`/static/`)
 

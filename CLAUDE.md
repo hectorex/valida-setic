@@ -108,6 +108,13 @@ do mais frequente para o menos (empate em ordem alfabética). `sistema_origem` t
 ### `POST /cadastros` e `GET /cadastros`
 Representam o backend do "Sistema A" de exemplo: chamam o serviço de validação e só gravam se aprovado,
 gravando o dado **padronizado**. Existe só para provar na demo que o dado inválido não entra no banco.
+- Entrada do `POST`: os campos de `dados` do `/validar` direto no corpo (sem `sistema_origem`, que é sempre
+  `sistema_a`; a validação entra no painel como `sistema_a`).
+- Gravado → HTTP 201 `{"gravado": true, "erros": [], "cadastro": {...}}`.
+- Bloqueado → HTTP 200 `{"gravado": false, "erros": [...mesmos do /validar], "cadastro": null}`.
+- `cadastro`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, criado_em
+  (campos não enviados ou inativos vêm `null`). `GET /cadastros` devolve a lista, mais recentes primeiro.
+- Sem checagem de CPF repetido, de propósito: a demo é ensaiada várias vezes com os mesmos dados.
 
 ## Regras de validação (ids usados no campo `regra`)
 
@@ -138,7 +145,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Testes usam SQLite em memória (`tests/conftest.py`), nunca o `valida.db`.
 - `validacoes`: id, sistema_origem, aprovado, data_hora.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
-- `cadastros`: dados padronizados do Sistema A de exemplo (fictícios).
+- `cadastros`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, criado_em.
+  Dados padronizados do Sistema A de exemplo (fictícios).
 - `python -m app.seed` apaga só `validacoes`/`falhas_validacao` e recria 200 validações fictícias (semente fixa).
   Não mexe em `regras_campo` nem em `cadastros`.
 
