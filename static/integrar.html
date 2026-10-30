@@ -71,32 +71,19 @@
             <button type="button" class="btn btn-ghost btn-copiar" id="btn-copiar">Copiar</button>
           </div>
           <div class="codigo-corpo">
-            <pre><code id="codigo-exemplo"></code></pre>
+            <pre id="codigo-leitura"><code id="codigo-exemplo"></code></pre>
+            <textarea id="codigo-js" class="codigo-editavel hidden" rows="18" spellcheck="false" aria-label="Código JavaScript editável"></textarea>
+          </div>
+          <div class="codigo-rodape">
+            <p class="muted small" id="dica-linguagem"></p>
+            <div class="acoes-codigo">
+              <button type="button" class="btn btn-ghost btn-pequeno hidden" id="btn-restaurar">Restaurar exemplo</button>
+              <button type="button" class="btn btn-primary btn-pequeno hidden" id="btn-executar">Executar este código</button>
+            </div>
           </div>
         </div>
+        <pre class="resposta-exemplo hidden" id="saida-codigo" aria-live="polite"></pre>
         <p class="muted small">O endereço nos exemplos é o deste servidor. Contrato completo e outros exemplos no <a href="/docs">Swagger (/docs)</a>.</p>
-      </div>
-
-      <div class="card glass card-wide">
-        <div class="card-header card-header-row">
-          <div>
-            <span class="chip">teste agora</span>
-            <h2>Teste você mesmo</h2>
-            <p class="muted">Edite a requisição como quiser (troque o e-mail, a data, o CPF...) e envie: a resposta vem da API na hora, para os dados que você digitou.</p>
-          </div>
-        </div>
-        <div class="atalhos-exemplo">
-          <span class="muted small">Preencher com:</span>
-          <button type="button" class="btn btn-ghost btn-pequeno" data-exemplo="erro">exemplo com erro</button>
-          <button type="button" class="btn btn-ghost btn-pequeno" data-exemplo="correto">exemplo corrigido</button>
-        </div>
-        <label class="rotulo-requisicao" for="requisicao-exemplo">Requisição (JSON) para <code>POST /validar</code></label>
-        <textarea id="requisicao-exemplo" class="requisicao-exemplo" rows="9" spellcheck="false"></textarea>
-        <div class="form-actions acoes-exemplo">
-          <button type="button" class="btn btn-primary" id="btn-enviar-exemplo">Enviar para a API</button>
-        </div>
-        <div class="alert alert-error hidden" id="exemplo-alerta" role="alert"></div>
-        <pre class="resposta-exemplo hidden" id="resposta-exemplo" aria-live="polite"></pre>
       </div>
     </section>
   </main>

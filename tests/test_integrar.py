@@ -41,10 +41,18 @@ def test_pagina_explica_os_tres_passos(html):
         assert trecho in html
 
 
-def test_teste_voce_mesmo_tem_requisicao_editavel(html):
-    # A pessoa edita o JSON e envia: a resposta depende do que foi digitado, não há resposta pronta
-    assert '<textarea id="requisicao-exemplo"' in html
-    assert 'id="btn-enviar-exemplo"' in html
+def test_codigo_javascript_e_editavel_e_executavel(html):
+    # A pessoa edita valores dentro do código JS e executa de verdade no navegador
+    assert '<textarea id="codigo-js"' in html
+    assert 'id="btn-executar"' in html
+    assert "requisicao-exemplo" not in html  # a caixa de JSON solto saiu: agora é código de verdade
+
+
+def test_exemplo_javascript_roda_sem_modulo(html):
+    # O editor executa o texto como corpo de uma função async: não pode ter import/export
+    codigo = exemplo(html, "javascript")
+    assert "import " not in codigo and "export " not in codigo
+    assert "await fetch('{{URL}}/validar'" in codigo
 
 
 def test_api_responde_ao_que_foi_digitado(cliente):

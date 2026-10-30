@@ -892,31 +892,44 @@ code {
 
 .codigo-corpo pre code { padding: 0; background: none; font-size: inherit; }
 
-.acoes-exemplo { justify-content: flex-start; margin-bottom: 1rem; }
-
-.atalhos-exemplo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem; }
 .btn-pequeno { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
 
-.rotulo-requisicao { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 500; color: var(--text); }
-
-.requisicao-exemplo {
+/* Editor do exemplo JavaScript: mesmo visual do código só leitura */
+.codigo-editavel {
+  display: block;
   width: 100%;
-  margin-bottom: 0.9rem;
-  padding: 0.9rem 1rem;
+  margin: 0;
+  padding: 1rem 1.1rem;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   line-height: 1.55;
   color: var(--text);
   background: var(--surface-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border: none;
   resize: vertical;
+  white-space: pre;
+  tab-size: 2;
 }
 
-.requisicao-exemplo:focus { outline: none; border-color: var(--primary-active); box-shadow: 0 0 0 3px var(--primary-glow); }
+.codigo-editavel:focus { outline: 2px solid var(--primary-active); outline-offset: -2px; }
+
+.codigo-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.codigo-rodape p { flex: 1 1 18rem; }
+.acoes-codigo { display: flex; gap: 0.5rem; }
 
 .resposta-exemplo {
   max-height: 24rem;
+  margin-bottom: 0.75rem;
   background: var(--surface-input);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
