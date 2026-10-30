@@ -21,8 +21,8 @@ from app.servicos.regras import inicializar_regras
 DIAS_DE_HISTORICO = 7
 
 # Para cada sistema: quantas validações, que fração é bloqueada e quais falhas
-# aparecem com mais frequência (campo, regra, peso). Os campos do Sistema B são
-# diferentes dos do A, como na demo.
+# aparecem com mais frequência (campo, regra, peso). Cada sistema só erra nos
+# campos que tem: o Sistema B não tem município, e erra mais no telefone.
 PERFIS = {
     "sistema_a": {
         "validacoes": 120,
@@ -50,7 +50,8 @@ PERFIS = {
             ("telefone", "celular_com_9", 6),
             ("telefone", "formato", 5),
             ("telefone", "obrigatorio", 4),
-            ("municipio", "municipio_ro", 7),
+            ("email", "dominio_valido", 5),
+            ("data_nascimento", "formato", 4),
             ("cpf", "digitos_verificadores", 4),
             ("cpf", "formato", 3),
             ("nome", "tamanho_minimo", 2),
