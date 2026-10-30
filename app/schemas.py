@@ -114,3 +114,8 @@ class RespostaCadastro(BaseModel):
     gravado: bool = Field(description="true: o dado foi aprovado e gravado já padronizado (HTTP 201).")
     erros: list[ErroValidacao] = Field(description="Mesmos erros do POST /validar; vazio quando gravado.")
     cadastro: CadastroSaida | None = Field(description="O registro gravado; null quando bloqueado.")
+
+
+class MunicipioSaida(BaseModel):
+    nome: str = Field(description="Nome oficial, como o POST /validar devolve.")
+    codigo_ibge: str = Field(description="Código IBGE de 7 dígitos.")
