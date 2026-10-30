@@ -35,6 +35,9 @@ def resumo_erros(sessao: Session) -> RespostaPainel:
         .order_by(quantidade.desc(), FalhaValidacao.sistema_origem, FalhaValidacao.campo, FalhaValidacao.regra)
     ).all()
 
+    # Só validações medidas de verdade (o histórico do seed não tem tempo)
+    medicoes, media = sessao.execute(select(func.count(Validacao.duracao_ms), func.avg(Validacao.duracao_ms))).one()
+
     total = sum(s.validacoes for s in por_sistema)
     bloqueadas = sum(s.bloqueadas for s in por_sistema)
     return RespostaPainel(
@@ -47,4 +50,6 @@ def resumo_erros(sessao: Session) -> RespostaPainel:
             FalhaPainel(sistema_origem=sistema, campo=campo, regra=regra, quantidade=qtd)
             for sistema, campo, regra, qtd in linhas_falha
         ],
+        tempo_medio_ms=round(media, 2) if media is not None else None,
+        medicoes_tempo=medicoes,
     )

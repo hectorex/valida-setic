@@ -91,6 +91,11 @@ class RespostaPainel(BaseModel):
     por_sistema: list[SistemaPainel] = Field(description="Em ordem alfabética de sistema.")
     por_campo: list[CampoPainel] = Field(description="Campos que mais erram primeiro.")
     falhas: list[FalhaPainel] = Field(description="Contagem por sistema, campo e regra; as mais frequentes primeiro.")
+    tempo_medio_ms: float | None = Field(
+        description="Tempo médio da verificação (ler a configuração + validar), em milissegundos, duas casas. "
+        "Só de validações medidas de verdade; null se ainda não houver nenhuma."
+    )
+    medicoes_tempo: int = Field(description="Quantas validações entraram na média de tempo.")
 
 
 # Cadastros do Sistema A de exemplo (POST/GET /cadastros)

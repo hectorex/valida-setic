@@ -36,6 +36,9 @@ class Validacao(Base):
     sistema_origem: Mapped[str] = mapped_column(String(50), index=True)
     aprovado: Mapped[bool]
     data_hora: Mapped[datetime] = mapped_column(default=agora_utc)
+    # Tempo que a verificação levou (ler a configuração + rodar os validadores). Nulo no histórico do seed:
+    # o painel só mostra tempos medidos de verdade, nunca inventados.
+    duracao_ms: Mapped[float | None]
 
 
 class FalhaValidacao(Base):

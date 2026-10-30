@@ -7,7 +7,8 @@ LINGUAGENS = ["curl", "python", "javascript", "php", "java", "csharp"]
 
 
 def exemplo(html, linguagem):
-    return re.search(rf'<script type="text/plain" id="exemplo-{linguagem}">\n(.*?)</script>', html, re.S).group(1)
+    # \r?\n: no Windows o git pode trazer o arquivo com quebras de linha CRLF
+    return re.search(rf'<script type="text/plain" id="exemplo-{linguagem}">\r?\n(.*?)</script>', html, re.S).group(1)
 
 
 @pytest.fixture

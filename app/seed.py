@@ -14,7 +14,7 @@ from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
-from app.database import Base, SessionLocal, engine
+from app.database import SessionLocal, atualizar_tabelas
 from app.models import FalhaValidacao, Validacao, agora_utc
 from app.servicos.regras import inicializar_regras
 
@@ -107,7 +107,7 @@ def popular(sessao: Session, agora: datetime | None = None, semente: int = 42) -
 
 
 def main() -> None:
-    Base.metadata.create_all(engine)
+    atualizar_tabelas()
     with SessionLocal() as sessao:
         inicializar_regras(sessao)
         contagem = popular(sessao)

@@ -5,15 +5,15 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
-from app.database import Base, SessionLocal, engine
+from app.database import SessionLocal, atualizar_tabelas
 from app.rotas import cadastros, municipios, painel, regras, validar
 from app.servicos.regras import inicializar_regras
 
 
 @asynccontextmanager
 async def ciclo_de_vida(app: FastAPI):
-    # Ao subir: cria as tabelas que ainda não existem e a configuração inicial dos campos
-    Base.metadata.create_all(engine)
+    # Ao subir: cria as tabelas (e colunas novas) que ainda não existem e a configuração inicial dos campos
+    atualizar_tabelas()
     with SessionLocal() as sessao:
         inicializar_regras(sessao)
     yield

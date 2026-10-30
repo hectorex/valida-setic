@@ -47,7 +47,8 @@ def test_payload_malformado_nao_registra(cliente, sessao):
 
 def test_tabelas_de_log_so_tem_sistema_campo_regra_e_data(sessao):
     colunas = lambda tabela: {c["name"] for c in inspect(sessao.bind).get_columns(tabela)}  # noqa: E731
-    assert colunas("validacoes") == {"id", "sistema_origem", "aprovado", "data_hora"}
+    # duracao_ms é só o tempo da verificação em milissegundos: nenhum dado do cidadão
+    assert colunas("validacoes") == {"id", "sistema_origem", "aprovado", "data_hora", "duracao_ms"}
     assert colunas("falhas_validacao") == {"id", "validacao_id", "sistema_origem", "campo", "regra", "data_hora"}
 
 
