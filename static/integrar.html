@@ -85,6 +85,28 @@
         <pre class="resposta-exemplo hidden" id="saida-codigo" aria-live="polite"></pre>
         <p class="muted small">O endereço nos exemplos é o deste servidor. Contrato completo e outros exemplos no <a href="/docs">Swagger (/docs)</a>.</p>
       </div>
+      <div class="card glass card-wide">
+        <div class="card-header">
+          <span class="chip">antes e depois</span>
+          <h2>O que muda no sistema</h2>
+          <p class="muted">Um cadastro em PHP que já grava no banco. Para passar a validar, entram 9 linhas antes do <code>insert</code>, que bloqueiam o dado errado, e 3 linhas passam a gravar o dado padronizado. Nada mais no sistema muda.</p>
+        </div>
+        <div class="antes-depois">
+          <div class="codigo-caixa">
+            <div class="rotulo-codigo">Antes: grava o que o usuário digitou</div>
+            <div class="codigo-corpo"><pre><code><span>// o sistema já tem os dados e vai gravar</span><span>$sql-&gt;insert('cidadao', [</span><span>    'nome' =&gt; $nome,</span><span>    'cpf' =&gt; $cpf,</span><span>    'nascimento' =&gt; $nascimento,</span><span>]);</span></code></pre></div>
+          </div>
+          <div class="codigo-caixa">
+            <div class="rotulo-codigo">Depois: <span class="destaque-novo">+9 linhas</span> e <span class="destaque-alterado">3 alteradas</span></div>
+            <div class="codigo-corpo"><pre><code><span>// o sistema já tem os dados e vai gravar</span><span class="linha-nova">$resposta = valida_setic([</span><span class="linha-nova">    'nome' =&gt; $nome,</span><span class="linha-nova">    'cpf' =&gt; $cpf,</span><span class="linha-nova">    'data_nascimento' =&gt; $nascimento,</span><span class="linha-nova">]);</span><span class="linha-nova">if (!$resposta['valido']) {</span><span class="linha-nova">    return mostrar_erros($resposta['erros']);</span><span class="linha-nova">}</span><span class="linha-nova">$d = $resposta['dados_padronizados'];</span><span>$sql-&gt;insert('cidadao', [</span><span class="linha-alterada">    'nome' =&gt; $d['nome'],</span><span class="linha-alterada">    'cpf' =&gt; $d['cpf'],</span><span class="linha-alterada">    'nascimento' =&gt; $d['data_nascimento'],</span><span>]);</span></code></pre></div>
+          </div>
+        </div>
+        <ul class="numeros-integracao">
+          <li><strong>~10 linhas</strong> por formulário: <code>valida_setic()</code> é o exemplo PHP acima, colado uma vez no sistema.</li>
+          <li><strong>Menos de 1 hora</strong> de desenvolvimento para integrar um formulário: colar, ligar os nomes dos campos e testar.</li>
+          <li><strong>Zero linhas</strong> quando a regra muda: a CAGD altera num lugar só e vale para todos os sistemas integrados.</li>
+        </ul>
+      </div>
     </section>
   </main>
 

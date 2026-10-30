@@ -66,3 +66,10 @@ def test_api_responde_ao_que_foi_digitado(cliente):
         ("nome", "tamanho_minimo"),
         ("email", "dominio_valido"),
     ]
+
+
+def test_antes_e_depois_destaca_as_linhas_novas(html):
+    assert "antes e depois" in html
+    assert html.count('class="linha-nova"') == 9  # o texto da página diz "+9 linhas"
+    assert html.count('class="linha-alterada"') == 3  # e "3 alteradas"
+    assert "+9 linhas" in html and "3 alteradas" in html
