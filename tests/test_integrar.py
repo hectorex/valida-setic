@@ -73,3 +73,11 @@ def test_antes_e_depois_destaca_as_linhas_novas(html):
     assert html.count('class="linha-nova"') == 9  # o texto da página diz "+9 linhas"
     assert html.count('class="linha-alterada"') == 3  # e "3 alteradas"
     assert "+9 linhas" in html and "3 alteradas" in html
+
+
+def test_funcao_usada_no_depois_existe_na_aba_php(html):
+    # O "Antes e depois" chama valida_setic(): a aba PHP precisa definir essa função, senão o exemplo não roda
+    assert "valida_setic(" in html.split("antes e depois")[1]
+    php = exemplo(html, "php")
+    assert "function valida_setic(array $dados)" in php
+    assert "$resposta = valida_setic([" in php
