@@ -40,7 +40,7 @@ app/
   servicos/regras.py       # REGRAS_PADRAO e leitura/alteração de regras_campo
   servicos/registro.py     # validar_e_registrar: lê a config, valida e grava em validacoes/falhas_validacao
   servicos/painel.py       # agregações do GET /painel/erros
-  rotas/               # validar.py, regras.py, painel.py, cadastros.py
+  rotas/               # validar.py, regras.py, painel.py, cadastros.py, municipios.py
   seed.py              # histórico fictício para o painel (as regras padrão são criadas na subida do app)
 static/
   index.html           # página inicial com links para as outras
@@ -96,6 +96,11 @@ atributo desconhecido → 422. Não cria campos novos. O `/validar` lê a config
 **Inativo prevalece:** com `ativo=false` o campo não é cobrado nem validado, mesmo com `obrigatorio=true`.
 Os dois valores ficam guardados de forma independente, para que reativar restaure a configuração anterior.
 
+### `GET /municipios`
+Lista `[{"nome": "Alta Floresta D'Oeste", "codigo_ibge": "1100015"}, ...]` (os 52 de RO, ordem alfabética sem
+acento), da mesma fonte do validador. Serve para o formulário sugerir enquanto o usuário digita (`<datalist>`);
+o campo continua livre e quem valida é o `POST /validar`.
+
 ### `GET /painel/erros`
 Agrega falhas por sistema, campo e regra (contagem), mais totais de validações e taxa de bloqueio por sistema.
 Todo `POST /validar` com payload válido é registrado (aprovado ou não); 422 não é registrado.
@@ -144,7 +149,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `regras_campo`: campo (pk), obrigatorio, ativo, formato_esperado, ajuda. A configuração inicial fica em
   `REGRAS_PADRAO` (`app/servicos/regras.py`) e é inserida na subida só para os campos que faltam, sem
   sobrescrever o que a CAGD mudou. Obrigatórios: nome, cpf, email, data_nascimento; opcionais: telefone, municipio.
-  Campo configurado sem validador (telefone, até a etapa 7) passa só por `obrigatorio` e trim.
+  Todos os campos têm validador; um campo configurado sem validador passaria só por `obrigatorio` e trim.
 - Testes usam SQLite em memória (`tests/conftest.py`), nunca o `valida.db`.
 - `validacoes`: id, sistema_origem, aprovado, data_hora.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
@@ -165,6 +170,10 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
 - `sistema-a.html` envia para `POST /cadastros` (o backend dele) e mostra a lista "Banco do Sistema A (simulado)",
   deixando claro que esse banco é do sistema, não do Valida SETIC.
+- `sistema-b.html` (Agendamento de Atendimento): só `POST /validar`, campos nome, cpf, telefone, data_nascimento,
+  email e um campo próprio não enviado ("Serviço"); cor própria (`body.tema-sistema-b`). Precisa ter todos os
+  campos obrigatórios por padrão, senão seria sempre bloqueado (as regras valem para todos os sistemas).
+- Campo município com sugestões do `GET /municipios` (`<datalist>`), preenchidas pelo `formulario.js`.
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
