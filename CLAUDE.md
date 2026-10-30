@@ -190,7 +190,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Corrigir dados antigos já gravados (o próprio desafio exclui).
 - Editor genérico de regras (regras técnicas ficam no código; o banco guarda só a configuração).
 - Validação dentro do banco (o desafio pede escolher API **ou** banco; escolhemos API).
-- Login completo. Se sobrar tempo: chave por sistema no header `X-API-Key` e token simples para `cagd.html`.
+- Login completo (a CAGD terá só uma senha simples, etapa 8; chave por sistema `X-API-Key` só se sobrar tempo).
 
 ## Como trabalhar neste repositório
 1. Uma etapa por vez. Antes de codar uma etapa, apresente o plano e espere aprovação.
@@ -211,24 +211,42 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
    decisão mudou. A documentação vai num commit próprio do tipo docs, na mesma branch e PR da etapa.
 
 ## Etapas (ordem de prioridade)
-1. Validadores puros + testes (nome, cpf, email, data).
-2. `POST /validar` com erros em camadas e `dados_padronizados`.
-3. Banco + `regras_campo` + `GET/PUT /regras`; validação passa a ler a configuração.
-4. Registro em `validacoes`/`falhas_validacao` + `GET /painel/erros` + `seed.py`.
-5. `POST/GET /cadastros` (Sistema A grava só se aprovado).
-6. Frontend: `sistema-a.html`, `cagd.html`.
-7. telefone + municipio + `sistema-b.html` (dois sistemas, mesmas regras).
-8. **Meta: municípios do Brasil inteiro.** Queremos atingir isto depois do plano principal (etapas 1 a 7
-   prontas e estáveis) e antes dos extras da etapa 9. Hoje o município é só de RO, o que vale para cadastros
-   estaduais (residência, atendimento), mas bloqueia, por exemplo, cidadão de outro estado atendido em RO
-   ou naturalidade. Como fazer:
-   - tabela nacional do IBGE (cerca de 5.570 municípios) em `app/dados/`, com nome oficial, UF e código;
-     continua offline;
-   - campo opcional `uf` em `dados`; sem `uf`, vale RO, então a demo e os sistemas atuais não mudam;
-   - a UF é necessária porque há nomes repetidos entre estados (ex.: vários "Bom Jesus");
-   - saída mantém `municipio` e `municipio_codigo_ibge`, e ganha `municipio_uf`;
-   - mesma comparação (sem acento, caixa, apóstrofo, hífen e espaços) e sugestão por `difflib` dentro da UF.
-9. Extras se sobrar tempo: `X-API-Key`, hospedagem com QR code, tempo de resposta no painel.
+1. ✅ Validadores puros + testes (nome, cpf, email, data).
+2. ✅ `POST /validar` com erros em camadas e `dados_padronizados`.
+3. ✅ Banco + `regras_campo` + `GET/PUT /regras`; validação passa a ler a configuração.
+4. ✅ Registro em `validacoes`/`falhas_validacao` + `GET /painel/erros` + `seed.py`.
+5. ✅ `POST/GET /cadastros` (Sistema A grava só se aprovado).
+6. ✅ Frontend: `sistema-a.html`, `cagd.html`.
+7. ✅ telefone + municipio + `sistema-b.html` (dois sistemas, mesmas regras). Também prontos: hospedagem no
+   Render, páginas na raiz, máscaras, lista de municípios e identidade da equipe.
+8. **Diferenciais (objetivo atual, não é extra: vamos fazer).** Escolhidos pela equipe em 30/10, nesta ordem:
+   1. **Página "Como integrar"**: o mesmo exemplo de chamada ao `POST /validar` em curl, Python, JavaScript,
+      PHP e Java/C#, para mostrar que qualquer sistema legado integra em poucas linhas (restrições "sistemas
+      legados" e "tecnologias variadas" do desafio).
+   2. **Tempo de resposta no painel**: medir cada `/validar` e mostrar o tempo médio (restrição "desempenho":
+      a verificação não pode deixar o cadastro lento).
+   3. **"Onde agir" no painel**: recomendações a partir das contagens, por regras simples no código, sem IA
+      (ex.: "Sistema A: a maioria das falhas de data é de formato; sugestão: máscara DD/MM/AAAA").
+   4. **Senha simples na CAGD**: proteger o `PUT /regras/{campo}` e a tela da CAGD, porque o link hospedado é
+      público. Não é login completo: uma senha só, configurada por variável de ambiente.
+   5. **Histórico de mudanças de regra**: cada alteração da CAGD registrada (campo, atributo, valor anterior,
+      valor novo, data/hora) e exibida na tela da CAGD (governança e auditoria).
+9. **Em espera (decisão de 30/10):** só depois da etapa 8 pronta e estável, e se houver tempo.
+   - **Municípios do Brasil inteiro.** Hoje o município é só de RO, o que vale para cadastros estaduais
+     (residência, atendimento), mas bloqueia, por exemplo, cidadão de outro estado atendido em RO ou
+     naturalidade. Como fazer:
+     - tabela nacional do IBGE (cerca de 5.570 municípios) em `app/dados/`, com nome oficial, UF e código;
+       continua offline;
+     - campo opcional `uf` em `dados`; sem `uf`, vale RO, então a demo e os sistemas atuais não mudam;
+     - a UF é necessária porque há nomes repetidos entre estados (ex.: vários "Bom Jesus");
+     - saída mantém `municipio` e `municipio_codigo_ibge`, e ganha `municipio_uf`;
+     - mesma comparação (sem acento, caixa, apóstrofo, hífen e espaços) e sugestão por `difflib` dentro da UF;
+     - `GET /municipios` passa a aceitar `?uf=`.
+   - **Dockerfile**: "roda em qualquer servidor da SETIC com um comando" (argumento de viabilidade).
+10. Extras se sobrar tempo: chave por sistema no header `X-API-Key`.
+
+Ideias descartadas por agora (citar no pitch como próximos passos): regras diferentes por sistema; IA para
+sugerir correções (contradiz o princípio de não adivinhar o que o usuário quis digitar).
 
 Congelar funcionalidades em 02/11. Daí em diante só correção de bug e ensaio.
 
