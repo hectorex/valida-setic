@@ -1,16 +1,19 @@
 /* ==========================================================================
    Como integrar
-   Mostra o mesmo exemplo de chamada ao POST /validar em várias linguagens e
-   permite executá-lo de verdade. Requer comum.js.
+   Mostra o mesmo exemplo de chamada ao POST /validar em várias linguagens.
+   O exemplo em JavaScript é editável e roda de verdade no navegador; os das
+   outras linguagens são para copiar e rodar no terminal. Requer comum.js.
    ========================================================================== */
 
 // Endereço de onde a página foi aberta (o link do Render ou o servidor local do notebook)
 const ENDERECO = window.location.origin;
 
-const DADOS_EXEMPLO = {
-  erro: { nome: 'Maria da Silva', cpf: '123.456.789-09', email: 'maria@', data_nascimento: '31/02/1990' },
-  correto: { nome: 'Maria da Silva', cpf: '123.456.789-09', email: 'maria@exemplo.com', data_nascimento: '28/02/1990' },
+const DICAS = {
+  javascript: 'Este código roda de verdade no seu navegador: troque qualquer valor dentro dele (o e-mail, a data, o CPF...) e clique em Executar.',
+  outras: 'Para testar, copie e rode no terminal: o endereço já é o deste servidor. Só o JavaScript roda aqui na página, porque o navegador só executa JavaScript.',
 };
+
+let linguagemAtual = 'javascript';
 
 /** Os exemplos ficam em <script type="text/plain"> no HTML, sem precisar escapar < e >. */
 function textoDoExemplo(linguagem) {
@@ -18,54 +21,76 @@ function textoDoExemplo(linguagem) {
   return fonte ? fonte.textContent.trim().replaceAll('{{URL}}', ENDERECO) : '';
 }
 
+const editorJs = () => document.querySelector('#codigo-js');
+
 function mostrarLinguagem(linguagem) {
+  linguagemAtual = linguagem;
+  const ehJs = linguagem === 'javascript';
   document.querySelectorAll('.aba-codigo').forEach((aba) => {
     const ativa = aba.dataset.linguagem === linguagem;
     aba.classList.toggle('active', ativa);
     aba.setAttribute('aria-selected', String(ativa));
   });
-  document.querySelector('#codigo-exemplo').textContent = textoDoExemplo(linguagem);
+
+  // JavaScript: editor de texto (as edições ficam guardadas ao trocar de aba). Outras: só leitura.
+  document.querySelector('#codigo-leitura').classList.toggle('hidden', ehJs);
+  editorJs().classList.toggle('hidden', !ehJs);
+  if (!ehJs) document.querySelector('#codigo-exemplo').textContent = textoDoExemplo(linguagem);
+  document.querySelector('#btn-executar').classList.toggle('hidden', !ehJs);
+  document.querySelector('#btn-restaurar').classList.toggle('hidden', !ehJs);
+  document.querySelector('#dica-linguagem').textContent = ehJs ? DICAS.javascript : DICAS.outras;
+}
+
+function codigoAtual() {
+  return linguagemAtual === 'javascript' ? editorJs().value : document.querySelector('#codigo-exemplo').textContent;
 }
 
 async function copiarCodigo() {
-  const texto = document.querySelector('#codigo-exemplo').textContent;
   try {
-    await navigator.clipboard.writeText(texto);
+    await navigator.clipboard.writeText(codigoAtual());
     mostrarToast('Código copiado');
   } catch {
     mostrarToast('Não foi possível copiar. Selecione o texto e copie manualmente.', 'error');
   }
 }
 
-const caixaRequisicao = () => document.querySelector('#requisicao-exemplo');
-
-/** Preenche a caixa com um dos exemplos. A pessoa pode editar à vontade antes de enviar. */
-function preencherExemplo(tipo) {
-  const requisicao = { sistema_origem: 'sistema_exemplo', dados: DADOS_EXEMPLO[tipo] };
-  caixaRequisicao().value = JSON.stringify(requisicao, null, 2);
+function restaurarExemplo() {
+  editorJs().value = textoDoExemplo('javascript');
+  document.querySelector('#saida-codigo').classList.add('hidden');
 }
 
-/** Envia exatamente o que está na caixa: a resposta depende do que foi digitado, não há resposta pronta. */
-async function enviarRequisicao() {
-  esconderAlerta('#exemplo-alerta');
-  const saida = document.querySelector('#resposta-exemplo');
-  let requisicao;
+/* --------------------------------------------------------------------------
+   Execução de verdade do código JavaScript editado
+   Roda só no navegador de quem clicou, como o console do próprio navegador:
+   nada do que é digitado aqui é executado no servidor.
+   -------------------------------------------------------------------------- */
+
+// Construtor de funções async: permite o "await" solto que o exemplo usa
+const FuncaoAssincrona = Object.getPrototypeOf(async function () {}).constructor;
+
+function formatarParte(parte) {
+  return typeof parte === 'string' ? parte : JSON.stringify(parte, null, 2);
+}
+
+async function executarCodigo() {
+  const saida = document.querySelector('#saida-codigo');
+  const botao = document.querySelector('#btn-executar');
+  const linhas = [];
+  // O console.log do código vai para a tela, em vez do console escondido do navegador
+  const imprimir = (...partes) => linhas.push(partes.map(formatarParte).join(' '));
+  const consoleDaPagina = { log: imprimir, info: imprimir, warn: imprimir, error: imprimir };
+
+  botao.disabled = true;
   try {
-    requisicao = JSON.parse(caixaRequisicao().value);
-  } catch {
-    saida.classList.add('hidden');
-    mostrarAlerta('#exemplo-alerta', 'O texto não é um JSON válido. Confira aspas, vírgulas e chaves.');
-    return;
-  }
-  try {
-    const { data } = await apiFetch('/validar', 'POST', requisicao);
-    saida.textContent = `POST ${ENDERECO}/validar → ${data.valido ? 'aprovado' : 'bloqueado'}\n\n${JSON.stringify(data, null, 2)}`;
-    saida.classList.remove('hidden');
+    await new FuncaoAssincrona('console', editorJs().value)(consoleDaPagina);
+    saida.textContent = `Saída do código:\n\n${linhas.length ? linhas.join('\n') : '(o código rodou sem imprimir nada)'}`;
   } catch (erro) {
-    // Ex.: sem sistema_origem a API responde 422, como faria com qualquer sistema
-    saida.classList.add('hidden');
-    mostrarAlerta('#exemplo-alerta', `A API recusou a requisição: ${erro.message}`);
+    const ate = linhas.length ? `${linhas.join('\n')}\n\n` : '';
+    saida.textContent = `Saída do código:\n\n${ate}Erro ao executar: ${erro.message}`;
+  } finally {
+    botao.disabled = false;
   }
+  saida.classList.remove('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,10 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
     aba.addEventListener('click', () => mostrarLinguagem(aba.dataset.linguagem));
   });
   document.querySelector('#btn-copiar').addEventListener('click', copiarCodigo);
-  document.querySelectorAll('[data-exemplo]').forEach((botao) => {
-    botao.addEventListener('click', () => preencherExemplo(botao.dataset.exemplo));
-  });
-  document.querySelector('#btn-enviar-exemplo').addEventListener('click', enviarRequisicao);
-  mostrarLinguagem('curl');
-  preencherExemplo('erro');
+  document.querySelector('#btn-executar').addEventListener('click', executarCodigo);
+  document.querySelector('#btn-restaurar').addEventListener('click', restaurarExemplo);
+  editorJs().value = textoDoExemplo('javascript');
+  mostrarLinguagem('javascript');
 });
