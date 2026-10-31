@@ -87,7 +87,7 @@ A CAGD altera as regras num lugar só e acompanha num painel onde os sistemas ma
 | 30/10 | ✅ R1 a R9, I1 a I3 e hospedagem prontos |
 | 31/10 a 01/11 | Diferenciais D1 a D5, depois ensaio da demo e correções |
 | 02/11 | **Congelamento.** Só correção de bug, slides e ensaio cronometrado |
-| 03/11 | Credenciamento e apresentação (16h–19h) |
+| 03/11 | Credenciamento e apresentação (15h–18h, regulamento item 5.1) |
 
 ## 8. Demo (5 min)
 1. Sistema A: e-mail `maria@` e data `31/02/1990` → erros em camadas.

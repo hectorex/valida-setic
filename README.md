@@ -332,6 +332,9 @@ injection, XSS, leitura de arquivos do servidor, força bruta, textos gigantes).
 `tests/test_seguranca_ataques.py`: se alguma mudança reabrir uma porta, o teste quebra.
 
 ## 10. Arquitetura
+> Para o passo a passo do código (por onde passa uma requisição, como acrescentar um validador), veja o
+> **[Guia de arquitetura](docs/ARQUITETURA.md)**.
+
 **Tecnologias:** Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, SQLite, pytest. Frontend em HTML, CSS e
 JavaScript puro, sem frameworks e sem etapa de build, servido pelo próprio FastAPI. Trocar SQLite por PostgreSQL é só
 mudar a variável `VALIDA_DB_URL`.
