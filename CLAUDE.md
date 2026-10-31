@@ -113,6 +113,8 @@ quem estava logado (null com a CAGD sem login).
   judson e banca (Banca Avaliadora, para o jurado testar).
 - `POST /cagd/login {"usuario", "senha"}` → `{"token", "usuario", "nome", "expira_em"}` (8 h); errado → 401 "Usuário ou
   senha incorretos." (sem dizer qual errou; comparação em tempo constante, inclusive para usuário inexistente).
+- Força bruta: 5 senhas erradas seguidas para um usuário (inclusive inexistente) → bloqueio de 5 min, HTTP 429 com
+  `Retry-After`, até para a senha certa (`TENTATIVAS_ERRADAS`/`BLOQUEADOS_ATE` em `seguranca.py`, na memória).
 - O token vai em `Authorization: Bearer <token>` (no Swagger: botão Authorize). Sessões na memória do servidor:
   reiniciar pede login de novo. `POST /cagd/sair` invalida na hora; usuário tirado da variável perde o acesso.
 - Exigem login: `PUT /regras/{campo}`, `GET /regras/historico`, `GET /painel/erros`, `GET /cagd/eu`. Públicos sempre:
@@ -200,6 +202,15 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   Dados padronizados do Sistema A de exemplo (fictícios).
 - `python -m app.seed` apaga só `validacoes`/`falhas_validacao` e recria 200 validações fictícias (semente fixa).
   Não mexe em `regras_campo` nem em `cadastros`.
+
+## Segurança
+- Cabeçalhos de segurança em todas as respostas (`CABECALHOS_DE_SEGURANCA` em `main.py`): X-Frame-Options DENY,
+  CSP `frame-ancestors 'none'`, nosniff, Referrer-Policy, Permissions-Policy, HSTS. Não pôr CSP de scripts: a página
+  Como integrar executa o JS editado (precisaria de `unsafe-eval`).
+- Schemas de entrada que alteram dados com `extra="forbid"` (ex.: `RegraAtualizacao`); valores calculados (resultado
+  da validação, cadastro, autor do histórico) nunca vêm do cliente.
+- Telas: dado vindo da API entra só por `textContent`; `innerHTML` só para ícones fixos (`ICONE_*`).
+- `tests/test_seguranca_ataques.py` é o teste de invasão: ataques que precisam continuar falhando.
 
 ## LGPD (inegociável)
 - `validacoes` e `falhas_validacao` **nunca** guardam o valor digitado: só sistema, campo, regra e data/hora.

@@ -309,10 +309,25 @@ O `cadastro` traz o dado padronizado e o `criado_em` em UTC (`...Z`), que o nave
   - A senha é comparada em tempo constante.
   - A sessão expira em 8 horas, e o Sair encerra na hora.
   - Quem sai da lista de usuários perde o acesso na hora.
-- **Auditoria:** cada mudança de regra registra quem, quando e o quê.
+  - **Contra força bruta:** 5 senhas erradas seguidas bloqueiam o login daquele usuário por 5 minutos (até para a
+    senha certa). Vale também para usuários que não existem, para não revelar quais existem.
+- **Auditoria:** cada mudança de regra registra quem, quando e o quê. O autor vem do login, nunca da requisição.
+- **Só aceita o que conhece (contra "admin": true):** mudar regra aceita só 4 atributos; qualquer outro é recusado
+  (422). O resultado da validação e o cadastro gravado são calculados pelo servidor: campos extras mandados pelo
+  cliente são ignorados. Não existe papel de "admin" para alguém tentar virar.
+- **Cabeçalhos de segurança** em todas as respostas: nenhum outro site pode abrir nossas telas dentro dele
+  (clickjacking), o navegador não executa texto como script (`nosniff`), e há `Referrer-Policy`,
+  `Permissions-Policy` e HSTS.
+- **SQL injection e XSS:** o banco é acessado pelo SQLAlchemy, sem montar SQL com texto do usuário. As telas mostram
+  dados sempre como texto (`textContent`), então um "script" mandado como dado aparece escrito, não executa.
 - **Código digitado na página "Como integrar"** roda só no navegador de quem clicou, nunca no servidor.
 - **Só dados fictícios** em testes, seed e demo. Os CPFs de teste são gerados por algoritmo. As telas avisam para
   não digitar dados reais, porque o link é público.
+
+**Teste de invasão.** Atacamos o próprio sistema com 23 ataques clássicos (mass assignment, chave forjada, SQL
+injection, XSS, leitura de arquivos do servidor, força bruta, textos gigantes). Os dois pontos fracos encontrados
+(força bruta e cabeçalhos) foram corrigidos, e os ataques viraram testes automáticos em
+`tests/test_seguranca_ataques.py`: se alguma mudança reabrir uma porta, o teste quebra.
 
 ## 10. Arquitetura
 **Tecnologias:** Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, SQLite, pytest. Frontend em HTML, CSS e
@@ -399,13 +414,14 @@ Formato: `usuario:Nome que aparece no histórico:senha`, vários separados por `
 ```bash
 python -m pytest
 ```
-São **266 testes automáticos**, que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
+São **311 testes automáticos**, que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
 - cada validador com casos válidos e inválidos (29/02/2024 aceito; 31/02/1990, 00/00/0000, 1985-03-15, CPF
   111.111.111-11, e-mail sem domínio bloqueados…);
 - os erros em camadas e as rotas;
 - as regras da CAGD e o histórico;
 - o painel, o Onde agir e o tempo;
-- o login (senha errada, sessão expirada, usuário removido…);
+- o login (senha errada, sessão expirada, usuário removido, bloqueio por força bruta…);
+- o teste de invasão: 31 ataques que precisam continuar falhando, e os cabeçalhos de segurança;
 - a LGPD: as tabelas de log não têm onde guardar o valor digitado;
 - as páginas, e se os exemplos do Swagger e da página "Como integrar" batem com a resposta real da API.
 
@@ -441,6 +457,8 @@ A demo oficial roda no notebook, sem depender de internet. O link serve para tes
   coleta e-mail).
 - **Sem chave por sistema.** Hoje qualquer um pode chamar `/validar` e dizer qualquer `sistema_origem`. Próximo passo:
   uma chave por sistema (cabeçalho `X-API-Key`), para o painel ter certeza de quem chamou.
+- **Limites por endereço (IP).** O bloqueio de força bruta é por usuário e fica na memória do servidor. Em produção,
+  somar um limite de requisições por IP no servidor de entrada (proxy) da SETIC.
 - **Implantação gradual.** Uma ideia é começar num sistema piloto em "modo observação" (registra no painel sem
   bloquear) e depois ligar o bloqueio.
 - **Dados antigos** já gravados ficam como estão (fora do escopo do desafio): o foco é impedir que dados novos fora do
