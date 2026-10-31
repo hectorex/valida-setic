@@ -310,7 +310,9 @@ O `cadastro` traz o dado padronizado e o `criado_em` em UTC (`...Z`), que o nave
   - A sessão expira em 8 horas, e o Sair encerra na hora.
   - Quem sai da lista de usuários perde o acesso na hora.
   - **Contra força bruta:** 5 senhas erradas seguidas bloqueiam o login daquele usuário por 5 minutos (até para a
-    senha certa). Vale também para usuários que não existem, para não revelar quais existem.
+    senha certa). Vale também para usuários que não existem, para não revelar quais existem. Na tela, o botão
+    Entrar fica desativado para aquele usuário, com contagem regressiva ("Tente de novo em 4:59"). O bloqueio é por
+    usuário: os outros continuam entrando.
 - **Auditoria:** cada mudança de regra registra quem, quando e o quê. O autor vem do login, nunca da requisição.
 - **Só aceita o que conhece (contra "admin": true):** mudar regra aceita só 4 atributos; qualquer outro é recusado
   (422). O resultado da validação e o cadastro gravado são calculados pelo servidor: campos extras mandados pelo
