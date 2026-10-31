@@ -32,6 +32,7 @@ Fluxo do desafio, que a demo precisa mostrar de ponta a ponta:
 ```
 app/
   main.py              # cria o app, inclui rotas, monta static/, cria tabelas
+  seguranca.py         # senha simples da CAGD (VALIDA_SENHA_CAGD, cabeçalho X-Senha-CAGD)
   database.py          # engine, sessão, Base
   models.py            # tabelas SQLAlchemy
   schemas.py           # modelos Pydantic de entrada e saída
@@ -55,6 +56,7 @@ static/
   js/formulario.js     # formulário genérico: <form data-sistema="sistema_a" data-rota="/cadastros">
                        #   data-rota opcional; sem ela envia para POST /validar (Sistema B)
   js/banco-sistema-a.js  # lista "Banco do Sistema A (simulado)" (GET /cadastros)
+  js/senha-cagd.js     # pede a senha da CAGD, guarda na aba e libera a tela (vem antes de cagd.js/painel.js)
   js/cagd.js           # interruptores das regras
   js/painel.js         # painel de erros da CAGD (GET /painel/erros)
   js/integrar.js       # abas de linguagem, copiar, editar e executar o exemplo JS; troca {{URL}} por location.origin
@@ -98,6 +100,9 @@ Configuração por campo: `obrigatorio`, `ativo`, `formato_esperado`, `ajuda` (t
 O formulário monta asteriscos e textos de ajuda a partir do `GET /regras`, nunca de texto fixo.
 O `PUT` é parcial: só os atributos enviados mudam (ex.: `{"obrigatorio": true}`). Campo inexistente → 404;
 atributo desconhecido → 422. Não cria campos novos. O `/validar` lê a configuração do banco a cada chamada.
+**Senha da CAGD:** `PUT /regras/{campo}` e `GET /painel/erros` exigem o cabeçalho `X-Senha-CAGD` quando o servidor
+tem `VALIDA_SENHA_CAGD` (401 sem a senha certa). Sem a variável (notebook da demo), ficam abertos. `GET /regras`,
+`/municipios`, `/validar` e `/cadastros` são sempre públicos: os sistemas dependem deles.
 **Inativo prevalece:** com `ativo=false` o campo não é cobrado nem validado, mesmo com `obrigatorio=true`.
 Os dois valores ficam guardados de forma independente, para que reativar restaure a configuração anterior.
 
@@ -197,6 +202,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   estilizar), montada pelo `formulario.js`.
 - Máscaras por `data-mascara="cpf"`/`"telefone"`/`"data"` no input, só no Sistema A. O Sistema B fica sem, de
   propósito (sistema legado): é nele que a demo mostra a API bloqueando `1985-03-15`.
+- `cagd.html` começa com `body.cagd-verificando` (nada aparece); `senha-cagd.js` testa o acesso no
+  `GET /painel/erros`: liberado → mostra tudo; 401 → card de senha. A senha fica no `sessionStorage` (some ao
+  fechar a aba). As telas registram o carregamento com `quandoLiberada()` e tratam 401 com `tratarSenhaRecusada()`.
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
@@ -214,7 +222,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Corrigir dados antigos já gravados (o próprio desafio exclui).
 - Editor genérico de regras (regras técnicas ficam no código; o banco guarda só a configuração).
 - Validação dentro do banco (o desafio pede escolher API **ou** banco; escolhemos API).
-- Login completo (a CAGD terá só uma senha simples, etapa 8; chave por sistema `X-API-Key` só se sobrar tempo).
+- Login completo (a CAGD tem só uma senha simples; chave por sistema `X-API-Key` só se sobrar tempo).
 
 ## Como trabalhar neste repositório
 1. Uma etapa por vez. Antes de codar uma etapa, apresente o plano e espere aprovação.
@@ -251,7 +259,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
       a verificação não pode deixar o cadastro lento).
    3. ✅ **"Onde agir" no painel**: recomendações a partir das contagens, por regras simples no código, sem IA
       (ex.: "Sistema A: a maioria das falhas de data é de formato; sugestão: máscara DD/MM/AAAA").
-   4. **Senha simples na CAGD**: proteger o `PUT /regras/{campo}` e a tela da CAGD, porque o link hospedado é
+   4. ✅ **Senha simples na CAGD**: proteger o `PUT /regras/{campo}` e a tela da CAGD, porque o link hospedado é
       público. Não é login completo: uma senha só, configurada por variável de ambiente.
    5. **Histórico de mudanças de regra**: cada alteração da CAGD registrada (campo, atributo, valor anterior,
       valor novo, data/hora) e exibida na tela da CAGD (governança e auditoria).
