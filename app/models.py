@@ -69,3 +69,17 @@ class Cadastro(Base):
     municipio: Mapped[str | None] = mapped_column(String(100))
     municipio_codigo_ibge: Mapped[str | None] = mapped_column(String(7))
     criado_em: Mapped[datetime] = mapped_column(default=agora_utc)
+
+
+class HistoricoRegra(Base):
+    """Uma mudança feita pela CAGD numa regra (auditoria): o que mudou, de quê para quê e quando."""
+
+    __tablename__ = "historico_regras"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campo: Mapped[str] = mapped_column(String(50), index=True)
+    atributo: Mapped[str] = mapped_column(String(30))  # obrigatorio, ativo, formato_esperado ou ajuda
+    # Como texto: "true"/"false" para os interruptores, o próprio texto para formato e ajuda
+    valor_anterior: Mapped[str | None] = mapped_column(String(300))
+    valor_novo: Mapped[str | None] = mapped_column(String(300))
+    data_hora: Mapped[datetime] = mapped_column(default=agora_utc)

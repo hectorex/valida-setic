@@ -139,6 +139,7 @@ async function alternarRegra(campo, atributo, sw, estado, aoAtualizar) {
       estado.ativo = regraAtualizada.ativo ?? (atributo === 'ativo' ? novoValor : estado.ativo);
       sw.input.setAttribute('aria-checked', String(novoValor));
       mostrarToast('Regra atualizada com sucesso');
+      document.dispatchEvent(new CustomEvent('regra-alterada')); // o histórico se atualiza
     }
   } catch (erro) {
     sw.input.checked = !novoValor;

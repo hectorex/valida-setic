@@ -52,6 +52,27 @@ class RegraSaida(BaseModel):
     ajuda: str | None
 
 
+def marcar_utc(valor: datetime) -> datetime:
+    # O SQLite devolve o horário sem fuso; ele foi gravado em UTC, então marcamos como UTC
+    # para o navegador converter para o horário local (em RO, UTC-4)
+    return valor if valor.tzinfo else valor.replace(tzinfo=timezone.utc)
+
+
+class HistoricoRegraSaida(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    campo: str
+    atributo: str = Field(description="obrigatorio, ativo, formato_esperado ou ajuda.")
+    valor_anterior: str | None = Field(description='"true"/"false" nos interruptores; o texto em formato e ajuda.')
+    valor_novo: str | None
+    data_hora: datetime = Field(description="Em UTC, com fuso no texto (ex.: 2026-11-03T20:30:00Z).")
+
+    @field_validator("data_hora")
+    @classmethod
+    def em_utc(cls, valor: datetime) -> datetime:
+        return marcar_utc(valor)
+
+
 class RegraAtualizacao(BaseModel):
     # Todos opcionais: só o que for enviado muda. Atributo desconhecido gera 422.
     model_config = ConfigDict(extra="forbid")
@@ -131,9 +152,7 @@ class CadastroSaida(BaseModel):
     @field_validator("criado_em")
     @classmethod
     def em_utc(cls, valor: datetime) -> datetime:
-        # O SQLite devolve o horário sem fuso; ele foi gravado em UTC, então marcamos como UTC
-        # para o navegador converter para o horário local (em RO, UTC-4)
-        return valor if valor.tzinfo else valor.replace(tzinfo=timezone.utc)
+        return marcar_utc(valor)
 
 
 class RespostaCadastro(BaseModel):

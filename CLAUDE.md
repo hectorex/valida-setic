@@ -57,7 +57,8 @@ static/
                        #   data-rota opcional; sem ela envia para POST /validar (Sistema B)
   js/banco-sistema-a.js  # lista "Banco do Sistema A (simulado)" (GET /cadastros)
   js/senha-cagd.js     # pede a senha da CAGD, guarda na aba e libera a tela (vem antes de cagd.js/painel.js)
-  js/cagd.js           # interruptores das regras
+  js/cagd.js           # interruptores das regras (dispara o evento regra-alterada)
+  js/historico.js      # histórico de mudanças das regras (GET /regras/historico)
   js/painel.js         # painel de erros da CAGD (GET /painel/erros)
   js/integrar.js       # abas de linguagem, copiar, editar e executar o exemplo JS; troca {{URL}} por location.origin
   css/style.css
@@ -100,7 +101,11 @@ Configuração por campo: `obrigatorio`, `ativo`, `formato_esperado`, `ajuda` (t
 O formulário monta asteriscos e textos de ajuda a partir do `GET /regras`, nunca de texto fixo.
 O `PUT` é parcial: só os atributos enviados mudam (ex.: `{"obrigatorio": true}`). Campo inexistente → 404;
 atributo desconhecido → 422. Não cria campos novos. O `/validar` lê a configuração do banco a cada chamada.
-**Senha da CAGD:** `PUT /regras/{campo}` e `GET /painel/erros` exigem o cabeçalho `X-Senha-CAGD` quando o servidor
+**Histórico:** cada atributo que o `PUT` realmente muda vira uma linha em `historico_regras` (gravada junto com a
+mudança; mandar o mesmo valor não conta). `GET /regras/historico?limite=50` devolve
+`[{"campo": "telefone", "atributo": "obrigatorio", "valor_anterior": "false", "valor_novo": "true",
+"data_hora": "2026-11-03T20:30:00Z"}]`, mais recentes primeiro. Não registra quem: a CAGD usa uma senha só.
+**Senha da CAGD:** `PUT /regras/{campo}`, `GET /regras/historico` e `GET /painel/erros` exigem o cabeçalho `X-Senha-CAGD` quando o servidor
 tem `VALIDA_SENHA_CAGD` (401 sem a senha certa). Sem a variável (notebook da demo), ficam abertos. `GET /regras`,
 `/municipios`, `/validar` e `/cadastros` são sempre públicos: os sistemas dependem deles.
 **Inativo prevalece:** com `ativo=false` o campo não é cobrado nem validado, mesmo com `obrigatorio=true`.
@@ -178,6 +183,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Colunas novas em tabela existente: `atualizar_tabelas()` (`database.py`) faz o `create_all` e acrescenta a
   coluna que faltar (`ALTER TABLE`), para o `valida.db` de quem já rodava o projeto não quebrar.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
+- `historico_regras`: id, campo, atributo, valor_anterior, valor_novo (texto: "true"/"false" ou o texto), data_hora.
 - `cadastros`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, criado_em.
   Dados padronizados do Sistema A de exemplo (fictícios).
 - `python -m app.seed` apaga só `validacoes`/`falhas_validacao` e recria 200 validações fictícias (semente fixa).
@@ -261,8 +267,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
       (ex.: "Sistema A: a maioria das falhas de data é de formato; sugestão: máscara DD/MM/AAAA").
    4. ✅ **Senha simples na CAGD**: proteger o `PUT /regras/{campo}` e a tela da CAGD, porque o link hospedado é
       público. Não é login completo: uma senha só, configurada por variável de ambiente.
-   5. **Histórico de mudanças de regra**: cada alteração da CAGD registrada (campo, atributo, valor anterior,
+   5. ✅ **Histórico de mudanças de regra**: cada alteração da CAGD registrada (campo, atributo, valor anterior,
       valor novo, data/hora) e exibida na tela da CAGD (governança e auditoria).
+   - **Pendente (pedido em 31/10):** botão de olho no campo de senha da CAGD, para mostrar/esconder a senha.
 9. **Em espera (decisão de 30/10):** só depois da etapa 8 pronta e estável, e se houver tempo.
    - **Municípios do Brasil inteiro.** Hoje o município é só de RO, o que vale para cadastros estaduais
      (residência, atendimento), mas bloqueia, por exemplo, cidadão de outro estado atendido em RO ou

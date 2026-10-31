@@ -78,8 +78,20 @@ Depois disso, cada merge na `main` publica de novo sozinho. No plano grátis:
 
 A demo oficial roda no notebook (funciona sem internet); o link serve para testes e para a banca pelo QR code.
 
+### Histórico de mudanças das regras
+Cada mudança feita pela CAGD fica registrada e aparece no card **Histórico de mudanças** da tela da CAGD
+(ex.: "Telefone · Obrigatório: não → sim"). Pela API:
+```json
+GET /regras/historico?limite=50
+[{"campo": "telefone", "atributo": "obrigatorio", "valor_anterior": "false", "valor_novo": "true",
+  "data_hora": "2026-11-03T20:30:00Z"}]
+```
+Mandar o mesmo valor não conta como mudança. Como a CAGD usa uma senha só, o histórico registra o quê e quando,
+não quem.
+
 ### Senha da CAGD
-Mudar regras (`PUT /regras/{campo}`) e ver o painel (`GET /painel/erros`) exigem a senha quando a variável
+Mudar regras (`PUT /regras/{campo}`), ver o histórico (`GET /regras/historico`) e o painel (`GET /painel/erros`)
+exigem a senha quando a variável
 `VALIDA_SENHA_CAGD` está definida. Ela vai no cabeçalho `X-Senha-CAGD` (no Swagger, preencha o campo do cabeçalho).
 Sem a variável, como no notebook da demo, tudo fica aberto. Para testar localmente com senha:
 
@@ -103,6 +115,7 @@ python -m pytest
 | `POST` | `/validar` | Verifica e padroniza os dados; não grava os dados, só registra o resultado para o painel |
 | `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato esperado, ajuda) |
 | `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação (🔒 senha da CAGD) |
+| `GET` | `/regras/historico` | Histórico das mudanças da CAGD: campo, atributo, antes, depois e quando (🔒 senha da CAGD) |
 | `GET` | `/painel/erros` | Onde os sistemas mais erram: totais, taxa de bloqueio, falhas, tempo e Onde agir (🔒 senha da CAGD) |
 | `POST` | `/cadastros` | Backend do Sistema A de exemplo: valida e só grava se aprovado, já padronizado |
 | `GET` | `/cadastros` | Cadastros gravados pelo Sistema A, mais recentes primeiro |

@@ -131,6 +131,21 @@
           </div>
         </section>
       </div>
+      <!-- Histórico de mudanças das regras (GET /regras/historico) -->
+      <div class="card glass card-wide card-protegido">
+        <div class="card-header">
+          <span class="chip">auditoria</span>
+          <h2>Histórico de mudanças</h2>
+          <p class="muted">Toda mudança nas regras fica registrada: o que mudou, de quê para quê e quando. Como a CAGD usa uma senha só, o histórico não diz quem mudou.</p>
+        </div>
+        <div class="alert alert-error hidden" id="historico-alerta" role="alert"></div>
+        <div class="tabela-rolagem">
+          <table class="tabela" id="tabela-historico">
+            <thead><tr><th>Quando</th><th>Campo</th><th>O que mudou</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -147,5 +162,6 @@
   <script src="js/senha-cagd.js"></script>
   <script src="js/cagd.js"></script>
   <script src="js/painel.js"></script>
+  <script src="js/historico.js"></script>
 </body>
 </html>
