@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="cagd-verificando">
   <div class="bg-glow" aria-hidden="true"></div>
 
   <!-- Cabeçalho com navegação entre as páginas -->
@@ -47,17 +47,35 @@
 
   <main class="container">
     <section class="view active" id="view-cagd">
-      <div class="card glass card-wide">
+      <!-- Senha da CAGD: aparece só quando o servidor tem senha configurada (senha-cagd.js) -->
+      <div class="card glass card-login" id="cagd-login">
+        <div class="card-header">
+          <span class="chip">CAGD</span>
+          <h2>Acesso da CAGD</h2>
+          <p class="muted">Mudar regras e ver o painel de erros é só para a CAGD. Digite a senha para continuar.</p>
+        </div>
+        <div class="alert alert-error hidden" id="login-alerta" role="alert"></div>
+        <form id="form-login-cagd" class="form-login">
+          <label for="senha-cagd">Senha</label>
+          <input type="password" id="senha-cagd" name="senha" autocomplete="current-password" required>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+      </div>
+
+      <div class="card glass card-wide card-protegido">
         <div class="card-header card-header-row">
           <div>
             <span class="chip">CAGD</span>
             <h2>Gestão de Regras</h2>
             <p class="muted">Defina quais campos são obrigatórios. A mudança vale na próxima validação de todos os sistemas.</p>
           </div>
-          <button type="button" class="btn btn-ghost" id="btn-recarregar-regras" aria-label="Recarregar regras">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg>
-            Recarregar
-          </button>
+          <div class="acoes-cabecalho">
+            <button type="button" class="btn btn-ghost hidden" id="btn-sair-cagd">Sair</button>
+            <button type="button" class="btn btn-ghost" id="btn-recarregar-regras" aria-label="Recarregar regras">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg>
+              Recarregar
+            </button>
+          </div>
         </div>
 
         <div class="alert alert-error hidden" id="regras-alerta" role="alert"></div>
@@ -68,7 +86,7 @@
       </div>
 
       <!-- Painel de erros: onde os sistemas mais erram (GET /painel/erros) -->
-      <div class="card glass card-wide">
+      <div class="card glass card-wide card-protegido">
         <div class="card-header card-header-row">
           <div>
             <span class="chip">painel</span>
@@ -126,6 +144,7 @@
   <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
   <script src="js/comum.js"></script>
+  <script src="js/senha-cagd.js"></script>
   <script src="js/cagd.js"></script>
   <script src="js/painel.js"></script>
 </body>

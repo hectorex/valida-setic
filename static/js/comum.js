@@ -27,12 +27,13 @@ const ROTULOS = {
  * @param {string} endpoint  Caminho da rota (ex.: '/regras')
  * @param {string} [method='GET']
  * @param {object|null} [body=null]  Objeto que será enviado como JSON
+ * @param {object} [cabecalhos={}]  Cabeçalhos extras (ex.: senha da CAGD)
  * @returns {Promise<{ok: boolean, status: number, data: any}>}
  */
-async function apiFetch(endpoint, method = 'GET', body = null) {
+async function apiFetch(endpoint, method = 'GET', body = null, cabecalhos = {}) {
   const opcoes = {
     method,
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...cabecalhos },
   };
 
   if (body !== null) {

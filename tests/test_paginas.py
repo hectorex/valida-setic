@@ -27,7 +27,7 @@ def test_paginas_do_frontend_abrem(cliente, pagina):
     assert "text/html" in resposta.headers["content-type"]
 
 
-@pytest.mark.parametrize("script", ["comum.js", "formulario.js", "cagd.js", "banco-sistema-a.js", "painel.js", "integrar.js"])
+@pytest.mark.parametrize("script", ["comum.js", "formulario.js", "cagd.js", "banco-sistema-a.js", "painel.js", "integrar.js", "senha-cagd.js"])
 def test_js_nao_fixa_endereco_da_api(cliente, script):
     # O JS chama a API pelo mesmo endereço da página, para funcionar no celular e em outra porta
     resposta = cliente.get(f"/js/{script}")
@@ -105,3 +105,11 @@ def test_painel_da_cagd_mostra_o_tempo_medio(cliente):
 
 def test_painel_da_cagd_tem_onde_agir(cliente):
     assert 'id="painel-onde-agir"' in cliente.get("/cagd.html").text
+
+
+def test_cagd_pede_senha_antes_de_mostrar(cliente):
+    html = cliente.get("/cagd.html").text
+    assert 'id="form-login-cagd"' in html and 'type="password"' in html
+    assert '<body class="cagd-verificando">' in html  # nada aparece até a verificação da senha
+    # senha-cagd.js precisa vir antes das telas que usam cabecalhosCagd() e quandoLiberada()
+    assert html.index("js/senha-cagd.js") < html.index("js/cagd.js") < html.index("js/painel.js")
