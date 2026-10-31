@@ -64,6 +64,8 @@ async function apiFetch(endpoint, method = 'GET', body = null, cabecalhos = {}) 
     const erro = new Error(extrairMensagemErro(dados, resposta.status));
     erro.status = resposta.status;
     erro.data = dados;
+    // 429 (muitas tentativas): quantos segundos esperar, do cabeçalho Retry-After
+    erro.esperarSegundos = Number(resposta.headers.get('Retry-After')) || null;
     throw erro;
   }
 
