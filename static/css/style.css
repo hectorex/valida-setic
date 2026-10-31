@@ -986,6 +986,28 @@ body.cagd-bloqueada .card-protegido { display: none; }
 .form-login input:focus { outline: none; border-color: var(--primary-active); box-shadow: 0 0 0 3px var(--primary-glow); }
 .form-login .btn { margin-top: 0.4rem; }
 
+/* Campo de senha com o botão de olho dentro, à direita */
+.campo-senha { position: relative; }
+.campo-senha input { width: 100%; padding-right: 3rem; }
+.btn-olho {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  padding: 0.4rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+}
+.btn-olho:hover { color: var(--text); }
+.btn-olho:focus-visible { outline: 2px solid var(--primary-hover); }
+/* Olho aberto = "mostrar"; olho riscado = "esconder" (quando a senha está visível) */
+.btn-olho .icone-esconder,
+.btn-olho[aria-pressed="true"] .icone-mostrar { display: none; }
+.btn-olho[aria-pressed="true"] .icone-esconder { display: block; }
+
 .card-header-row > .acoes-cabecalho { display: flex; flex: 0 0 auto; gap: 0.5rem; }
 
 /* ==========================================================================
