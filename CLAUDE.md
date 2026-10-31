@@ -303,6 +303,11 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 Ideias descartadas por agora (citar no pitch como próximos passos): regras diferentes por sistema; IA para
 sugerir correções (contradiz o princípio de não adivinhar o que o usuário quis digitar).
 
+**Pendências da equipe (fora do código):**
+- [ ] Criar `VALIDA_USUARIOS_CAGD` no Render (Environment) com os usuários celso, felipe, judson e banca, no formato
+  `usuario:Nome:senha;...`. Até lá, vale a senha única antiga como usuário `cagd`. Senhas nunca no repositório.
+- [ ] No dia 03/11, mandar ao jurado só o usuário `banca` e a senha dele.
+
 Congelar funcionalidades em 02/11. Daí em diante só correção de bug e ensaio.
 
 ## Roteiro da demo (5 min, ao vivo)
