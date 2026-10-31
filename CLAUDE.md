@@ -332,7 +332,9 @@ Congelar funcionalidades em 02/11. Daí em diante só correção de bug e ensaio
 6. Painel: campos e sistemas que mais erram.
 
 ## Contexto do hackathon
-- Apresentação 03/11, das 16h às 19h: pitch 3 min + demo ao vivo 5 min (vídeo = nota zero na demo).
+- Apresentação 03/11, das 15h às 18h (regulamento, item 5.1): pitch 3 min + demo ao vivo 5 min (vídeo = nota zero na demo).
+  Passou de 8 min, a apresentação é cortada (8.2); depois, 3 min de perguntas, somando o tempo que sobrar (8.6).
+  O regulamento permite ferramentas de IA (7.2).
 - Critérios: Aderência 25%, Demonstração/qualidade técnica 25%, Inovação 20%, Viabilidade 15%, Pitch 15%.
 - Jurados olham: aplicabilidade real, facilidade de integração, clareza para o usuário final, qualidade da demo.
 - Nada de código anterior a 28/10. Componentes de terceiros com licença compatível.
