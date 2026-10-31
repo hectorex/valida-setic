@@ -4,6 +4,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import obter_sessao
+from app.seguranca import RESPOSTA_401, exigir_senha_cagd
 from app.schemas import RegraAtualizacao, RegraSaida
 from app.servicos.regras import REGRAS_PADRAO, atualizar_regra, listar_regras
 
@@ -46,7 +47,9 @@ def listar(sessao: Session = Depends(obter_sessao)):
 @router.put(
     "/{campo}",
     response_model=RegraSaida,
+    dependencies=[Depends(exigir_senha_cagd)],
     responses={
+        **RESPOSTA_401,
         200: {
             "description": "Configuração do campo depois da alteração (exemplo: PUT /regras/telefone)",
             "content": {"application/json": {"example": EXEMPLO_ATUALIZADO.model_dump()}},
@@ -67,6 +70,8 @@ def atualizar(
     sessao: Session = Depends(obter_sessao),
 ):
     """Altera a configuração de um campo. Só os atributos enviados mudam; vale na próxima validação.
+
+    Protegido pela senha da CAGD (cabeçalho `X-Senha-CAGD`) quando o servidor tem `VALIDA_SENHA_CAGD`.
 
     Desativar não apaga o `obrigatorio`: ao reativar, o campo volta como estava.
     """
