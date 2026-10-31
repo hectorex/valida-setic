@@ -14,7 +14,11 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.7
-      # Senha da tela da CAGD. O valor NÃO fica no repositório (que é público): defina no painel do Render,
-      # em Environment. Sem ela, a CAGD fica aberta para qualquer pessoa com o link.
+      # Usuários da CAGD (usuario:Nome:senha;...). O valor NÃO fica no repositório (que é público): defina no
+      # painel do Render, em Environment. O histórico de regras registra o nome de quem fez cada mudança.
+      - key: VALIDA_USUARIOS_CAGD
+        sync: false
+      # Senha única antiga: só vale enquanto VALIDA_USUARIOS_CAGD não existir (vira o usuário "cagd").
+      # Sem nenhuma das duas, a CAGD fica aberta para qualquer pessoa com o link.
       - key: VALIDA_SENHA_CAGD
         sync: false
