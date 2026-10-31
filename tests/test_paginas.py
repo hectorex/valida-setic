@@ -119,3 +119,8 @@ def test_cagd_mostra_o_historico_de_mudancas(cliente):
     html = cliente.get("/cagd.html").text
     assert 'id="tabela-historico"' in html
     assert html.index("js/senha-cagd.js") < html.index("js/historico.js")
+
+
+def test_senha_da_cagd_tem_botao_de_olho(cliente):
+    html = cliente.get("/cagd.html").text
+    assert 'id="btn-mostrar-senha"' in html and 'aria-label="Mostrar senha"' in html

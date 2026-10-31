@@ -37,6 +37,8 @@ function pedirSenha(mensagem = '') {
   else esconderAlerta('#login-alerta');
   const campo = document.querySelector('#senha-cagd');
   campo.value = '';
+  campo.type = 'password'; // ao pedir de novo, a senha volta escondida
+  document.querySelector('#btn-mostrar-senha').setAttribute('aria-pressed', 'false');
   campo.focus();
 }
 
@@ -45,6 +47,17 @@ function tratarSenhaRecusada(erro) {
   if (erro.status !== 401) return false;
   pedirSenha('A senha não vale mais. Digite de novo.');
   return true;
+}
+
+/** Botão de olho: mostra ou esconde a senha digitada. */
+function alternarVisibilidadeSenha() {
+  const campo = document.querySelector('#senha-cagd');
+  const botao = document.querySelector('#btn-mostrar-senha');
+  const mostrar = campo.type === 'password';
+  campo.type = mostrar ? 'text' : 'password';
+  botao.setAttribute('aria-pressed', String(mostrar));
+  botao.setAttribute('aria-label', mostrar ? 'Esconder senha' : 'Mostrar senha');
+  campo.focus();
 }
 
 async function verificarAcesso(mensagemSeRecusar = '') {
@@ -64,5 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
     verificarAcesso('Senha incorreta.');
   });
   document.querySelector('#btn-sair-cagd').addEventListener('click', () => pedirSenha());
+  document.querySelector('#btn-mostrar-senha').addEventListener('click', alternarVisibilidadeSenha);
   verificarAcesso();
 });

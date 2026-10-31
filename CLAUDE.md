@@ -269,7 +269,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
       público. Não é login completo: uma senha só, configurada por variável de ambiente.
    5. ✅ **Histórico de mudanças de regra**: cada alteração da CAGD registrada (campo, atributo, valor anterior,
       valor novo, data/hora) e exibida na tela da CAGD (governança e auditoria).
-   - **Pendente (pedido em 31/10):** botão de olho no campo de senha da CAGD, para mostrar/esconder a senha.
+   - ✅ Botão de olho no campo de senha da CAGD, para mostrar/esconder a senha (pedido em 31/10).
 9. **Em espera (decisão de 30/10):** só depois da etapa 8 pronta e estável, e se houver tempo.
    - **Municípios do Brasil inteiro.** Hoje o município é só de RO, o que vale para cadastros estaduais
      (residência, atendimento), mas bloqueia, por exemplo, cidadão de outro estado atendido em RO ou
