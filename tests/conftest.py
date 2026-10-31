@@ -26,6 +26,8 @@ def sem_login_por_padrao(monkeypatch):
     monkeypatch.delenv("VALIDA_USUARIOS_CAGD", raising=False)
     monkeypatch.delenv("VALIDA_SENHA_CAGD", raising=False)
     seguranca.SESSOES.clear()
+    seguranca.TENTATIVAS_ERRADAS.clear()
+    seguranca.BLOQUEADOS_ATE.clear()
 
 
 @pytest.fixture

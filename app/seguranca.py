@@ -21,6 +21,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 DURACAO_SESSAO = timedelta(hours=8)
+# Contra força bruta: 5 senhas erradas seguidas para um usuário bloqueiam o login dele por 5 minutos
+MAXIMO_TENTATIVAS = 5
+TEMPO_BLOQUEIO = timedelta(minutes=5)
 
 
 @dataclass
@@ -37,6 +40,11 @@ class Sessao:
 
 # token → sessão (na memória: o Render roda um processo só, e reiniciar já apaga o banco também)
 SESSOES: dict[str, Sessao] = {}
+
+# usuario → quantas senhas erradas seguidas; usuario → até quando o login está bloqueado.
+# Valem também para usuários que não existem, para o bloqueio não revelar quais existem.
+TENTATIVAS_ERRADAS: dict[str, int] = {}
+BLOQUEADOS_ATE: dict[str, datetime] = {}
 
 
 def usuarios_configurados() -> dict[str, tuple[str, str]]:
@@ -63,6 +71,31 @@ def autenticar(usuario: str, senha: str) -> UsuarioCagd | None:
     nome, esperada = cadastrado or ("", secrets.token_urlsafe(16))
     senha_confere = secrets.compare_digest(senha.encode(), esperada.encode())  # tempo constante
     return UsuarioCagd(usuario=usuario, nome=nome) if cadastrado and senha_confere else None
+
+
+def segundos_de_bloqueio(usuario: str) -> int:
+    """Quantos segundos faltam para o usuário poder tentar de novo (0 se não está bloqueado)."""
+    usuario = usuario.strip().lower()
+    ate = BLOQUEADOS_ATE.get(usuario)
+    if ate is None:
+        return 0
+    restante = (ate - datetime.now(timezone.utc)).total_seconds()
+    if restante <= 0:
+        BLOQUEADOS_ATE.pop(usuario, None)
+        return 0
+    return int(restante) + 1
+
+
+def registrar_tentativa(usuario: str, acertou: bool) -> None:
+    """Acertou: zera a contagem. Errou: soma; na 5ª seguida, bloqueia o login por 5 minutos."""
+    usuario = usuario.strip().lower()
+    if acertou:
+        TENTATIVAS_ERRADAS.pop(usuario, None)
+        return
+    TENTATIVAS_ERRADAS[usuario] = TENTATIVAS_ERRADAS.get(usuario, 0) + 1
+    if TENTATIVAS_ERRADAS[usuario] >= MAXIMO_TENTATIVAS:
+        TENTATIVAS_ERRADAS.pop(usuario, None)
+        BLOQUEADOS_ATE[usuario] = datetime.now(timezone.utc) + TEMPO_BLOQUEIO
 
 
 def abrir_sessao(usuario: UsuarioCagd) -> tuple[str, datetime]:

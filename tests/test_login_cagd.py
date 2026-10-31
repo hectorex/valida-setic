@@ -147,3 +147,45 @@ def test_usuarios_mal_formados_sao_ignorados(monkeypatch):
     monkeypatch.setenv("VALIDA_USUARIOS_CAGD", "semnome;:Sem Usuario:x;ok:Ok Nome:senha;; vazio::")
     monkeypatch.delenv("VALIDA_SENHA_CAGD", raising=False)
     assert seguranca.usuarios_configurados() == {"ok": ("Ok Nome", "senha")}
+
+
+# Força bruta
+
+
+def test_cinco_senhas_erradas_bloqueiam_o_login_ate_com_a_senha_certa(cliente, com_usuarios):
+    for _ in range(4):
+        assert entrar(cliente, senha="chute").status_code == 401
+    assert entrar(cliente, senha="chute").status_code == 401  # 5ª errada: bloqueia a partir daqui
+    resposta = entrar(cliente)  # senha certa, mas bloqueado
+    assert resposta.status_code == 429
+    assert resposta.json()["detail"] == "Muitas tentativas erradas. Tente de novo em 5 minutos."
+    assert 0 < int(resposta.headers["Retry-After"]) <= 300
+
+
+def test_bloqueio_acaba_depois_de_5_minutos(cliente, com_usuarios):
+    for _ in range(5):
+        entrar(cliente, senha="chute")
+    seguranca.BLOQUEADOS_ATE["celso"] = datetime.now(timezone.utc) - timedelta(seconds=1)  # simula o tempo passando
+    assert entrar(cliente).status_code == 200
+
+
+def test_acertar_zera_a_contagem(cliente, com_usuarios):
+    for _ in range(4):
+        entrar(cliente, senha="chute")
+    assert entrar(cliente).status_code == 200
+    for _ in range(4):
+        entrar(cliente, senha="chute")
+    assert entrar(cliente).status_code == 200  # 4 + 4 erradas, mas não seguidas: não bloqueou
+
+
+def test_bloqueio_de_um_usuario_nao_afeta_os_outros(cliente, com_usuarios):
+    for _ in range(5):
+        entrar(cliente, senha="chute")
+    assert entrar(cliente, "banca", "senha:com:dois-pontos").status_code == 200
+
+
+def test_usuario_inexistente_tambem_bloqueia(cliente, com_usuarios):
+    # Mesmo comportamento para quem existe e quem não existe: o bloqueio não revela quais usuários existem
+    for _ in range(5):
+        assert entrar(cliente, "ninguem", "x").status_code == 401
+    assert entrar(cliente, "ninguem", "x").status_code == 429
