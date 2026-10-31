@@ -79,8 +79,11 @@ def como_texto(valor) -> str | None:
     return str(valor)
 
 
-def atualizar_regra(sessao: Session, campo: str, alteracoes: dict) -> RegraCampo | None:
-    """Altera só os atributos enviados e registra cada mudança no histórico. None se o campo não existir."""
+def atualizar_regra(sessao: Session, campo: str, alteracoes: dict, autor: str | None = None) -> RegraCampo | None:
+    """Altera só os atributos enviados e registra cada mudança no histórico, com quem fez (autor).
+
+    None se o campo não existir.
+    """
     regra = sessao.get(RegraCampo, campo)
     if regra is None:
         return None
@@ -96,6 +99,7 @@ def atualizar_regra(sessao: Session, campo: str, alteracoes: dict) -> RegraCampo
                 atributo=atributo,
                 valor_anterior=como_texto(anterior),
                 valor_novo=como_texto(valor),
+                usuario=autor,
                 data_hora=agora,
             )
         )

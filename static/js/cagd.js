@@ -144,7 +144,7 @@ async function alternarRegra(campo, atributo, sw, estado, aoAtualizar) {
   } catch (erro) {
     sw.input.checked = !novoValor;
     sw.input.setAttribute('aria-checked', String(!novoValor));
-    if (!tratarSenhaRecusada(erro)) mostrarToast(`Não foi possível atualizar "${campo}": ${erro.message}`, 'error');
+    if (!tratarLoginRecusado(erro)) mostrarToast(`Não foi possível atualizar "${campo}": ${erro.message}`, 'error');
   } finally {
     sw.wrapper.classList.remove('is-loading');
     sw.input.disabled = false;
@@ -158,5 +158,5 @@ async function alternarRegra(campo, atributo, sw, estado, aoAtualizar) {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#btn-recarregar-regras').addEventListener('click', carregarPainelRegras);
-  quandoLiberada(carregarPainelRegras); // só depois da senha (senha-cagd.js)
+  quandoLiberada(carregarPainelRegras); // só depois do login (login-cagd.js)
 });

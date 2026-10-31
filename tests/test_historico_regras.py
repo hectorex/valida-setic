@@ -53,16 +53,17 @@ def test_limite(cliente):
     assert cliente.get("/regras/historico", params={"limite": 0}).status_code == 422
 
 
-def test_exige_a_senha_da_cagd(cliente, monkeypatch):
-    monkeypatch.setenv("VALIDA_SENHA_CAGD", "segredo")
-    assert cliente.get("/regras/historico").status_code == 401
-    assert cliente.get("/regras/historico", headers={"X-Senha-CAGD": "segredo"}).status_code == 200
+def test_sem_login_configurado_o_autor_fica_vazio(cliente):
+    # Sem usuários (notebook da demo) não há quem registrar; com login, o nome aparece (test_login_cagd.py)
+    cliente.put("/regras/telefone", json={"obrigatorio": True})
+    assert historico(cliente)[0]["usuario"] is None
 
 
 def test_exemplo_do_swagger_bate_com_a_resposta_real(cliente):
     cliente.put("/regras/telefone", json={"obrigatorio": True})
     [mudanca] = historico(cliente)
-    sem_hora = lambda d: {k: v for k, v in d.items() if k != "data_hora"}  # noqa: E731
+    # data_hora muda a cada execução; usuario é None aqui porque os testes rodam sem login configurado
+    sem_hora = lambda d: {k: v for k, v in d.items() if k not in ("data_hora", "usuario")}  # noqa: E731
     assert sem_hora(mudanca) == sem_hora(EXEMPLO_HISTORICO[0])
 
 

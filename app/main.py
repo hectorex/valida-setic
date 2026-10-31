@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
 from app.database import SessionLocal, atualizar_tabelas
-from app.rotas import cadastros, municipios, painel, regras, validar
+from app.rotas import cadastros, cagd, municipios, painel, regras, validar
 from app.servicos.regras import inicializar_regras
 
 
@@ -35,6 +35,7 @@ app.include_router(regras.router)
 app.include_router(painel.router)
 app.include_router(cadastros.router)
 app.include_router(municipios.router)
+app.include_router(cagd.router)
 
 
 @app.get("/saude", tags=["sistema"])

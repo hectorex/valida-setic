@@ -6,7 +6,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.database import obter_sessao
-from app.seguranca import RESPOSTA_401, exigir_senha_cagd
+from app.seguranca import RESPOSTA_401, UsuarioCagd, usuario_cagd
 from app.schemas import HistoricoRegraSaida, RegraAtualizacao, RegraSaida
 from app.servicos.regras import REGRAS_PADRAO, atualizar_regra, listar_historico, listar_regras
 
@@ -52,6 +52,7 @@ EXEMPLO_HISTORICO = [
         atributo="obrigatorio",
         valor_anterior="false",
         valor_novo="true",
+        usuario="Banca Avaliadora",
         data_hora=datetime(2026, 11, 3, 20, 30, tzinfo=timezone.utc),  # 16h30 em Rondônia
     ).model_dump(mode="json")
 ]
@@ -61,16 +62,16 @@ EXEMPLO_HISTORICO = [
 @router.get(
     "/historico",
     response_model=list[HistoricoRegraSaida],
-    dependencies=[Depends(exigir_senha_cagd)],
+    dependencies=[Depends(usuario_cagd)],
     responses={200: {"content": {"application/json": {"example": EXEMPLO_HISTORICO}}}, **RESPOSTA_401},
 )
 def historico(
     limite: int = Query(default=50, ge=1, le=500, description="Quantas mudanças devolver (as mais recentes)."),
     sessao: Session = Depends(obter_sessao),
 ):
-    """Mudanças feitas pela CAGD nas regras, mais recentes primeiro: campo, atributo, antes, depois e quando.
+    """Mudanças feitas pela CAGD nas regras, mais recentes primeiro: quem, campo, atributo, antes, depois e quando.
 
-    Protegido pela senha da CAGD (cabeçalho `X-Senha-CAGD`) quando o servidor tem `VALIDA_SENHA_CAGD`.
+    Exige login na CAGD (`POST /cagd/login`) quando o servidor tem usuários configurados.
     """
     return listar_historico(sessao, limite)
 
@@ -78,7 +79,6 @@ def historico(
 @router.put(
     "/{campo}",
     response_model=RegraSaida,
-    dependencies=[Depends(exigir_senha_cagd)],
     responses={
         **RESPOSTA_401,
         200: {
@@ -99,14 +99,16 @@ def atualizar(
     campo: str,
     alteracoes: Annotated[RegraAtualizacao, Body(openapi_examples=EXEMPLOS_ATUALIZACAO)],
     sessao: Session = Depends(obter_sessao),
+    quem: UsuarioCagd | None = Depends(usuario_cagd),
 ):
     """Altera a configuração de um campo. Só os atributos enviados mudam; vale na próxima validação.
 
-    Protegido pela senha da CAGD (cabeçalho `X-Senha-CAGD`) quando o servidor tem `VALIDA_SENHA_CAGD`.
+    Exige login na CAGD (`POST /cagd/login`) quando o servidor tem usuários configurados.
 
     Desativar não apaga o `obrigatorio`: ao reativar, o campo volta como estava.
     """
-    regra = atualizar_regra(sessao, campo, alteracoes.model_dump(exclude_none=True))
+    autor = quem.nome if quem else None  # vai para o histórico: quem fez a mudança
+    regra = atualizar_regra(sessao, campo, alteracoes.model_dump(exclude_none=True), autor)
     if regra is None:
         campos = ", ".join(REGRAS_PADRAO)
         raise HTTPException(status_code=404, detail=f"Campo '{campo}' não existe. Campos: {campos}.")

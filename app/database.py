@@ -17,6 +17,13 @@ class Base(DeclarativeBase):
     pass
 
 
+# Colunas acrescentadas depois que a tabela já existia nos bancos de quem rodava o projeto
+COLUNAS_NOVAS = [
+    ("validacoes", "duracao_ms", "FLOAT"),
+    ("historico_regras", "usuario", "VARCHAR(100)"),
+]
+
+
 def atualizar_tabelas() -> None:
     """Cria as tabelas que faltam e acrescenta colunas novas em bancos criados antes delas.
 
@@ -24,10 +31,11 @@ def atualizar_tabelas() -> None:
     quebraria ao gravar uma coluna nova.
     """
     Base.metadata.create_all(engine)
-    colunas = {coluna["name"] for coluna in inspect(engine).get_columns("validacoes")}
-    if "duracao_ms" not in colunas:
-        with engine.begin() as conexao:
-            conexao.execute(text("ALTER TABLE validacoes ADD COLUMN duracao_ms FLOAT"))
+    for tabela, coluna, tipo in COLUNAS_NOVAS:
+        colunas = {c["name"] for c in inspect(engine).get_columns(tabela)}
+        if coluna not in colunas:
+            with engine.begin() as conexao:
+                conexao.execute(text(f"ALTER TABLE {tabela} ADD COLUMN {coluna} {tipo}"))
 
 
 def obter_sessao():
