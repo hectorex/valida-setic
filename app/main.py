@@ -38,6 +38,30 @@ app.include_router(municipios.router)
 app.include_router(cagd.router)
 
 
+# Cabeçalhos de segurança em todas as respostas (API, páginas e arquivos)
+CABECALHOS_DE_SEGURANCA = {
+    # Nenhum outro site pode abrir nossas telas dentro dele (evita clickjacking na CAGD)
+    "X-Frame-Options": "DENY",
+    "Content-Security-Policy": "frame-ancestors 'none'",
+    # O navegador não "adivinha" o tipo do arquivo: um texto nunca é executado como script
+    "X-Content-Type-Options": "nosniff",
+    # Ao seguir um link para outro site, não envia o endereço da nossa página
+    "Referrer-Policy": "same-origin",
+    # As telas não usam câmera, microfone nem localização
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    # Com HTTPS (Render), o navegador passa a usar só HTTPS neste endereço
+    "Strict-Transport-Security": "max-age=31536000",
+}
+
+
+@app.middleware("http")
+async def cabecalhos_de_seguranca(requisicao, chamar_proximo):
+    resposta = await chamar_proximo(requisicao)
+    for nome, valor in CABECALHOS_DE_SEGURANCA.items():
+        resposta.headers.setdefault(nome, valor)
+    return resposta
+
+
 @app.get("/saude", tags=["sistema"])
 def saude():
     return {"status": "ok"}
