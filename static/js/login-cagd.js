@@ -68,6 +68,58 @@ function alternarVisibilidadeSenha() {
   campo.focus();
 }
 
+/* --------------------------------------------------------------------------
+   Bloqueio por força bruta, visível na tela
+   O servidor bloqueia o usuário por 5 minutos depois de 5 senhas erradas (429).
+   Aqui o botão Entrar fica desativado para aquele usuário, com contagem regressiva:
+   com o botão desativado, a tela nem envia a requisição.
+   -------------------------------------------------------------------------- */
+
+const bloqueiosNaTela = {}; // usuário → instante (ms) em que o bloqueio acaba
+let relogioBloqueio = null;
+
+function usuarioDigitado() {
+  return document.querySelector('#usuario-cagd').value.trim().toLowerCase();
+}
+
+function atualizarBloqueioNaTela() {
+  const usuario = usuarioDigitado();
+  const fim = bloqueiosNaTela[usuario];
+  const restante = fim ? Math.ceil((fim - Date.now()) / 1000) : 0;
+  const botao = document.querySelector('#btn-entrar');
+  const aviso = document.querySelector('#aviso-bloqueio');
+
+  if (restante > 0) {
+    const minutos = Math.floor(restante / 60);
+    const segundos = String(restante % 60).padStart(2, '0');
+    botao.disabled = true;
+    aviso.textContent = `Usuário "${usuario}" bloqueado por segurança. Tente de novo em ${minutos}:${segundos}.`;
+    aviso.classList.remove('hidden', 'liberado');
+    return;
+  }
+  botao.disabled = false;
+  if (fim) {
+    // O tempo acabou enquanto a tela estava aberta
+    delete bloqueiosNaTela[usuario];
+    aviso.textContent = 'Bloqueio encerrado: pode tentar de novo.';
+    aviso.classList.add('liberado');
+    aviso.classList.remove('hidden');
+  } else if (!aviso.classList.contains('liberado')) {
+    aviso.classList.add('hidden');
+  }
+  if (!Object.keys(bloqueiosNaTela).length) {
+    clearInterval(relogioBloqueio);
+    relogioBloqueio = null;
+  }
+}
+
+function bloquearNaTela(usuario, segundos) {
+  bloqueiosNaTela[usuario] = Date.now() + segundos * 1000;
+  esconderAlerta('#login-alerta');
+  if (!relogioBloqueio) relogioBloqueio = setInterval(atualizarBloqueioNaTela, 1000);
+  atualizarBloqueioNaTela();
+}
+
 async function verificarAcesso() {
   try {
     const { data } = await apiFetch('/cagd/eu', 'GET', null, cabecalhosCagd());
@@ -80,6 +132,8 @@ async function verificarAcesso() {
 
 async function entrar(e) {
   e.preventDefault();
+  // Usuário bloqueado: nem envia (o servidor recusaria de qualquer jeito)
+  if ((bloqueiosNaTela[usuarioDigitado()] || 0) > Date.now()) return;
   const usuario = document.querySelector('#usuario-cagd').value;
   const senha = document.querySelector('#senha-cagd').value;
   try {
@@ -89,6 +143,10 @@ async function entrar(e) {
     esconderAlerta('#login-alerta');
     liberarCagd(data.nome);
   } catch (erro) {
+    if (erro.status === 429) {
+      bloquearNaTela(usuario.trim().toLowerCase(), erro.esperarSegundos || 300);
+      return;
+    }
     mostrarAlerta('#login-alerta', erro.status === 401 ? 'Usuário ou senha incorretos.' : erro.message);
   }
 }
@@ -106,5 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#form-login-cagd').addEventListener('submit', entrar);
   document.querySelector('#btn-sair-cagd').addEventListener('click', sair);
   document.querySelector('#btn-mostrar-senha').addEventListener('click', alternarVisibilidadeSenha);
+  // Trocar o usuário no campo: o bloqueio é só daquele usuário, então o botão volta para os outros
+  document.querySelector('#usuario-cagd').addEventListener('input', () => {
+    document.querySelector('#aviso-bloqueio').classList.remove('liberado');
+    atualizarBloqueioNaTela();
+  });
   verificarAcesso();
 });

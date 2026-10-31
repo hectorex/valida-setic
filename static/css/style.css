@@ -985,6 +985,19 @@ body.cagd-bloqueada .card-protegido { display: none; }
 }
 .form-login input:focus { outline: none; border-color: var(--primary-active); box-shadow: 0 0 0 3px var(--primary-glow); }
 .form-login .btn { margin-top: 0.4rem; }
+.form-login .btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+/* Contagem regressiva do bloqueio por força bruta */
+.aviso-bloqueio {
+  padding: 0.7rem 0.9rem;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: #F2C14E;
+  background: rgba(242, 193, 78, 0.08);
+  border: 1px solid rgba(242, 193, 78, 0.35);
+  border-radius: var(--radius-sm);
+}
+.aviso-bloqueio.liberado { color: var(--success); background: var(--success-bg); border-color: rgba(0, 179, 126, 0.35); }
 
 /* Campo de senha com o botão de olho dentro, à direita */
 .campo-senha { position: relative; }

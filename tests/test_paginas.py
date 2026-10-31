@@ -128,3 +128,9 @@ def test_senha_da_cagd_tem_botao_de_olho(cliente):
 
 def test_historico_mostra_quem_mudou(cliente):
     assert "<th>Quem</th>" in cliente.get("/cagd.html").text
+
+
+def test_login_mostra_o_bloqueio_por_forca_bruta(cliente):
+    html = cliente.get("/cagd.html").text
+    assert 'id="btn-entrar"' in html and 'id="aviso-bloqueio"' in html
+    assert "5 senhas erradas seguidas bloqueiam o usuário por 5 minutos" in html

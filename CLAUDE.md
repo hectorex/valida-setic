@@ -115,6 +115,8 @@ quem estava logado (null com a CAGD sem login).
   senha incorretos." (sem dizer qual errou; comparação em tempo constante, inclusive para usuário inexistente).
 - Força bruta: 5 senhas erradas seguidas para um usuário (inclusive inexistente) → bloqueio de 5 min, HTTP 429 com
   `Retry-After`, até para a senha certa (`TENTATIVAS_ERRADAS`/`BLOQUEADOS_ATE` em `seguranca.py`, na memória).
+  Na tela (`login-cagd.js`), o 429 desativa o botão Entrar para aquele usuário com contagem regressiva (lida do
+  `Retry-After`, exposto pelo `apiFetch` em `erro.esperarSegundos`); trocar o usuário no campo libera o botão.
 - O token vai em `Authorization: Bearer <token>` (no Swagger: botão Authorize). Sessões na memória do servidor:
   reiniciar pede login de novo. `POST /cagd/sair` invalida na hora; usuário tirado da variável perde o acesso.
 - Exigem login: `PUT /regras/{campo}`, `GET /regras/historico`, `GET /painel/erros`, `GET /cagd/eu`. Públicos sempre:
