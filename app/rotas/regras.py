@@ -1,12 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.database import obter_sessao
 from app.seguranca import RESPOSTA_401, exigir_senha_cagd
-from app.schemas import RegraAtualizacao, RegraSaida
-from app.servicos.regras import REGRAS_PADRAO, atualizar_regra, listar_regras
+from app.schemas import HistoricoRegraSaida, RegraAtualizacao, RegraSaida
+from app.servicos.regras import REGRAS_PADRAO, atualizar_regra, listar_historico, listar_regras
 
 router = APIRouter(prefix="/regras", tags=["regras"])
 
@@ -42,6 +44,35 @@ def listar(sessao: Session = Depends(obter_sessao)):
     O asterisco aparece só quando o campo está ativo **e** obrigatório: inativo prevalece.
     """
     return listar_regras(sessao)
+
+
+EXEMPLO_HISTORICO = [
+    HistoricoRegraSaida(
+        campo="telefone",
+        atributo="obrigatorio",
+        valor_anterior="false",
+        valor_novo="true",
+        data_hora=datetime(2026, 11, 3, 20, 30, tzinfo=timezone.utc),  # 16h30 em Rondônia
+    ).model_dump(mode="json")
+]
+
+
+# Declarada antes de /{campo} para "historico" não ser lido como nome de campo
+@router.get(
+    "/historico",
+    response_model=list[HistoricoRegraSaida],
+    dependencies=[Depends(exigir_senha_cagd)],
+    responses={200: {"content": {"application/json": {"example": EXEMPLO_HISTORICO}}}, **RESPOSTA_401},
+)
+def historico(
+    limite: int = Query(default=50, ge=1, le=500, description="Quantas mudanças devolver (as mais recentes)."),
+    sessao: Session = Depends(obter_sessao),
+):
+    """Mudanças feitas pela CAGD nas regras, mais recentes primeiro: campo, atributo, antes, depois e quando.
+
+    Protegido pela senha da CAGD (cabeçalho `X-Senha-CAGD`) quando o servidor tem `VALIDA_SENHA_CAGD`.
+    """
+    return listar_historico(sessao, limite)
 
 
 @router.put(

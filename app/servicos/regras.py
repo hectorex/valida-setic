@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import RegraCampo
+from app.models import HistoricoRegra, RegraCampo, agora_utc
 from app.servicos.validacao import ConfigCampo
 
 # Configuração inicial de cada campo. A ordem aqui é a ordem dos campos
@@ -70,12 +70,39 @@ def carregar_config(sessao: Session) -> dict[str, ConfigCampo]:
     }
 
 
+def como_texto(valor) -> str | None:
+    """Valor de um atributo como texto para o histórico: True → "true", textos ficam como estão."""
+    if valor is None:
+        return None
+    if isinstance(valor, bool):
+        return "true" if valor else "false"
+    return str(valor)
+
+
 def atualizar_regra(sessao: Session, campo: str, alteracoes: dict) -> RegraCampo | None:
-    """Altera só os atributos enviados. Devolve None se o campo não existir."""
+    """Altera só os atributos enviados e registra cada mudança no histórico. None se o campo não existir."""
     regra = sessao.get(RegraCampo, campo)
     if regra is None:
         return None
+    agora = agora_utc()
     for atributo, valor in alteracoes.items():
+        anterior = getattr(regra, atributo)
+        if anterior == valor:
+            continue  # enviar o mesmo valor não é mudança: não entra no histórico
         setattr(regra, atributo, valor)
-    sessao.commit()
+        sessao.add(
+            HistoricoRegra(
+                campo=campo,
+                atributo=atributo,
+                valor_anterior=como_texto(anterior),
+                valor_novo=como_texto(valor),
+                data_hora=agora,
+            )
+        )
+    sessao.commit()  # a mudança e o histórico entram juntos (ou nenhum dos dois)
     return regra
+
+
+def listar_historico(sessao: Session, limite: int = 50) -> list[HistoricoRegra]:
+    """Mudanças mais recentes primeiro."""
+    return list(sessao.scalars(select(HistoricoRegra).order_by(HistoricoRegra.id.desc()).limit(limite)))
