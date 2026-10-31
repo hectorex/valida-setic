@@ -1,6 +1,6 @@
 /* ==========================================================================
    CAGD — Histórico de mudanças das regras (auditoria)
-   Usa GET /regras/historico. Requer comum.js e senha-cagd.js.
+   Usa GET /regras/historico. Requer comum.js e login-cagd.js.
    ========================================================================== */
 
 const NOMES_ATRIBUTOS = {
@@ -24,6 +24,8 @@ function linhaHistorico(mudanca) {
   const atributo = NOMES_ATRIBUTOS[mudanca.atributo] || mudanca.atributo;
   tr.append(
     criarElemento('td', 'codigo', quando),
+    // Sem login configurado no servidor (CAGD aberta) não há quem registrar
+    criarElemento('td', '', mudanca.usuario || '(sem login)'),
     criarElemento('td', '', ROTULOS[mudanca.campo] || mudanca.campo),
     criarElemento('td', '', `${atributo}: ${valorLegivel(mudanca.valor_anterior)} → ${valorLegivel(mudanca.valor_novo)}`)
   );
@@ -39,14 +41,14 @@ async function carregarHistorico() {
     if (!mudancas.length) {
       const tr = criarElemento('tr', 'vazio');
       const td = criarElemento('td', '', 'Nenhuma mudança ainda. Quando a CAGD ligar ou desligar uma regra, ela aparece aqui.');
-      td.colSpan = 3;
+      td.colSpan = 4;
       tr.appendChild(td);
       corpo.appendChild(tr);
       return;
     }
     mudancas.forEach((mudanca) => corpo.appendChild(linhaHistorico(mudanca)));
   } catch (erro) {
-    if (!tratarSenhaRecusada(erro)) mostrarAlerta('#historico-alerta', erro.message);
+    if (!tratarLoginRecusado(erro)) mostrarAlerta('#historico-alerta', erro.message);
   }
 }
 

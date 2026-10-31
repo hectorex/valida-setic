@@ -1008,7 +1008,8 @@ body.cagd-bloqueada .card-protegido { display: none; }
 .btn-olho[aria-pressed="true"] .icone-mostrar { display: none; }
 .btn-olho[aria-pressed="true"] .icone-esconder { display: block; }
 
-.card-header-row > .acoes-cabecalho { display: flex; flex: 0 0 auto; gap: 0.5rem; }
+.card-header-row > .acoes-cabecalho { display: flex; flex: 0 0 auto; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.usuario-logado { font-size: 0.82rem; color: var(--text-muted); }
 
 /* ==========================================================================
    Página inicial (atalhos para as páginas)

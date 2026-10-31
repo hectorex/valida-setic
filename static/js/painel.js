@@ -120,7 +120,7 @@ async function carregarPainel() {
     const { data } = await apiFetch('/painel/erros', 'GET', null, cabecalhosCagd());
     desenharPainel(data);
   } catch (erro) {
-    if (!tratarSenhaRecusada(erro)) mostrarAlerta('#painel-alerta', erro.message);
+    if (!tratarLoginRecusado(erro)) mostrarAlerta('#painel-alerta', erro.message);
   }
 }
 
@@ -130,5 +130,5 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && cagdLiberada) carregarPainel();
   });
-  quandoLiberada(carregarPainel); // só depois da senha (senha-cagd.js)
+  quandoLiberada(carregarPainel); // só depois do login (login-cagd.js)
 });

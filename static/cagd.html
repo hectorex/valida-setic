@@ -47,15 +47,17 @@
 
   <main class="container">
     <section class="view active" id="view-cagd">
-      <!-- Senha da CAGD: aparece só quando o servidor tem senha configurada (senha-cagd.js) -->
+      <!-- Login da CAGD: aparece só quando o servidor tem usuários configurados (login-cagd.js) -->
       <div class="card glass card-login" id="cagd-login">
         <div class="card-header">
           <span class="chip">CAGD</span>
           <h2>Acesso da CAGD</h2>
-          <p class="muted">Mudar regras e ver o painel de erros é só para a CAGD. Digite a senha para continuar.</p>
+          <p class="muted">Mudar regras e ver o painel é só para a CAGD. Entre com o seu usuário: cada mudança fica registrada com o seu nome.</p>
         </div>
         <div class="alert alert-error hidden" id="login-alerta" role="alert"></div>
         <form id="form-login-cagd" class="form-login">
+          <label for="usuario-cagd">Usuário</label>
+          <input type="text" id="usuario-cagd" name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" required>
           <label for="senha-cagd">Senha</label>
           <div class="campo-senha">
             <input type="password" id="senha-cagd" name="senha" autocomplete="current-password" required>
@@ -76,6 +78,7 @@
             <p class="muted">Defina quais campos são obrigatórios. A mudança vale na próxima validação de todos os sistemas.</p>
           </div>
           <div class="acoes-cabecalho">
+            <span class="usuario-logado hidden" id="usuario-logado"></span>
             <button type="button" class="btn btn-ghost hidden" id="btn-sair-cagd">Sair</button>
             <button type="button" class="btn btn-ghost" id="btn-recarregar-regras" aria-label="Recarregar regras">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg>
@@ -142,12 +145,12 @@
         <div class="card-header">
           <span class="chip">auditoria</span>
           <h2>Histórico de mudanças</h2>
-          <p class="muted">Toda mudança nas regras fica registrada: o que mudou, de quê para quê e quando. Como a CAGD usa uma senha só, o histórico não diz quem mudou.</p>
+          <p class="muted">Toda mudança nas regras fica registrada: quem mudou, o quê, de quê para quê e quando.</p>
         </div>
         <div class="alert alert-error hidden" id="historico-alerta" role="alert"></div>
         <div class="tabela-rolagem">
           <table class="tabela" id="tabela-historico">
-            <thead><tr><th>Quando</th><th>Campo</th><th>O que mudou</th></tr></thead>
+            <thead><tr><th>Quando</th><th>Quem</th><th>Campo</th><th>O que mudou</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -165,7 +168,7 @@
   <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
   <script src="js/comum.js"></script>
-  <script src="js/senha-cagd.js"></script>
+  <script src="js/login-cagd.js"></script>
   <script src="js/cagd.js"></script>
   <script src="js/painel.js"></script>
   <script src="js/historico.js"></script>
