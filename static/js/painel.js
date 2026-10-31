@@ -117,10 +117,10 @@ function desenharPainel(painel) {
 async function carregarPainel() {
   esconderAlerta('#painel-alerta');
   try {
-    const { data } = await apiFetch('/painel/erros');
+    const { data } = await apiFetch('/painel/erros', 'GET', null, cabecalhosCagd());
     desenharPainel(data);
   } catch (erro) {
-    mostrarAlerta('#painel-alerta', erro.message);
+    if (!tratarSenhaRecusada(erro)) mostrarAlerta('#painel-alerta', erro.message);
   }
 }
 
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#btn-recarregar-painel').addEventListener('click', carregarPainel);
   // Na demo: ao voltar para esta aba depois de usar o Sistema A ou B, o painel já vem atualizado
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') carregarPainel();
+    if (document.visibilityState === 'visible' && cagdLiberada) carregarPainel();
   });
-  carregarPainel();
+  quandoLiberada(carregarPainel); // só depois da senha (senha-cagd.js)
 });

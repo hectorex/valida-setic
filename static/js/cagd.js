@@ -131,7 +131,7 @@ async function alternarRegra(campo, atributo, sw, estado, aoAtualizar) {
   sw.wrapper.classList.add('is-loading');
 
   try {
-    const resposta = await apiFetch(`/regras/${encodeURIComponent(campo)}`, 'PUT', { [atributo]: novoValor });
+    const resposta = await apiFetch(`/regras/${encodeURIComponent(campo)}`, 'PUT', { [atributo]: novoValor }, cabecalhosCagd());
 
     if (resposta.status === 200) {
       const regraAtualizada = resposta.data || {};
@@ -143,7 +143,7 @@ async function alternarRegra(campo, atributo, sw, estado, aoAtualizar) {
   } catch (erro) {
     sw.input.checked = !novoValor;
     sw.input.setAttribute('aria-checked', String(!novoValor));
-    mostrarToast(`Não foi possível atualizar "${campo}": ${erro.message}`, 'error');
+    if (!tratarSenhaRecusada(erro)) mostrarToast(`Não foi possível atualizar "${campo}": ${erro.message}`, 'error');
   } finally {
     sw.wrapper.classList.remove('is-loading');
     sw.input.disabled = false;
@@ -157,5 +157,5 @@ async function alternarRegra(campo, atributo, sw, estado, aoAtualizar) {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#btn-recarregar-regras').addEventListener('click', carregarPainelRegras);
-  carregarPainelRegras();
+  quandoLiberada(carregarPainelRegras); // só depois da senha (senha-cagd.js)
 });

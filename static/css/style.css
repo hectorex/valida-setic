@@ -964,6 +964,31 @@ code {
 }
 
 /* ==========================================================================
+   Senha da CAGD
+   ========================================================================== */
+/* Enquanto verifica, nada aparece; sem a senha, só o card de acesso */
+.card-login { display: none; max-width: 420px; }
+body.cagd-bloqueada .card-login { display: block; }
+body.cagd-verificando .card-protegido,
+body.cagd-bloqueada .card-protegido { display: none; }
+
+.form-login { display: flex; flex-direction: column; gap: 0.6rem; }
+.form-login label { font-size: 0.875rem; font-weight: 500; color: var(--text); }
+.form-login input {
+  height: 48px;
+  padding: 0 1rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.form-login input:focus { outline: none; border-color: var(--primary-active); box-shadow: 0 0 0 3px var(--primary-glow); }
+.form-login .btn { margin-top: 0.4rem; }
+
+.card-header-row > .acoes-cabecalho { display: flex; flex: 0 0 auto; gap: 0.5rem; }
+
+/* ==========================================================================
    Página inicial (atalhos para as páginas)
    ========================================================================== */
 .brand-title a { color: inherit; text-decoration: none; }

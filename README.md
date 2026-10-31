@@ -68,12 +68,27 @@ O `render.yaml` da raiz descreve o serviço. Para publicar pela primeira vez:
 2. **New → Blueprint**, escolha o repositório `valida-setic` e confirme (**Apply**).
 3. Ao terminar, o endereço aparece no topo do serviço (ex.: `https://valida-setic.onrender.com`).
 
+4. **Senha da CAGD:** no serviço, abra **Environment**, adicione `VALIDA_SENHA_CAGD` com a senha escolhida e
+   salve (o Render publica de novo). Sem ela, a tela da CAGD fica aberta para qualquer pessoa com o link.
+
 Depois disso, cada merge na `main` publica de novo sozinho. No plano grátis:
 - o site "dorme" após 15 min sem acesso e leva uns 30 a 60 s para acordar (abra o link um pouco antes);
 - o banco é apagado a cada reinício ou publicação: volta com as regras padrão e o histórico do seed;
-- qualquer pessoa com o link pode usar a tela da CAGD. Use apenas dados fictícios.
+- com `VALIDA_SENHA_CAGD` definida, a tela da CAGD pede a senha. Use apenas dados fictícios.
 
 A demo oficial roda no notebook (funciona sem internet); o link serve para testes e para a banca pelo QR code.
+
+### Senha da CAGD
+Mudar regras (`PUT /regras/{campo}`) e ver o painel (`GET /painel/erros`) exigem a senha quando a variável
+`VALIDA_SENHA_CAGD` está definida. Ela vai no cabeçalho `X-Senha-CAGD` (no Swagger, preencha o campo do cabeçalho).
+Sem a variável, como no notebook da demo, tudo fica aberto. Para testar localmente com senha:
+
+| Sistema | Comando |
+|---|---|
+| Windows (PowerShell) | `$env:VALIDA_SENHA_CAGD="minha-senha"; python -m uvicorn app.main:app --reload` |
+| Linux / macOS / Git Bash | `VALIDA_SENHA_CAGD=minha-senha python -m uvicorn app.main:app --reload` |
+
+`GET /regras`, `/municipios`, `/validar` e `/cadastros` continuam públicos: os sistemas dependem deles.
 
 ## Como rodar os testes
 ```bash
@@ -87,8 +102,8 @@ python -m pytest
 | `GET` | `/saude` | Confirma que a API está no ar |
 | `POST` | `/validar` | Verifica e padroniza os dados; não grava os dados, só registra o resultado para o painel |
 | `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato esperado, ajuda) |
-| `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação |
-| `GET` | `/painel/erros` | Onde os sistemas mais erram: totais, taxa de bloqueio por sistema e falhas por campo e regra |
+| `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação (🔒 senha da CAGD) |
+| `GET` | `/painel/erros` | Onde os sistemas mais erram: totais, taxa de bloqueio, falhas, tempo e Onde agir (🔒 senha da CAGD) |
 | `POST` | `/cadastros` | Backend do Sistema A de exemplo: valida e só grava se aprovado, já padronizado |
 | `GET` | `/cadastros` | Cadastros gravados pelo Sistema A, mais recentes primeiro |
 | `GET` | `/municipios` | Os 52 municípios aceitos (nome oficial e código IBGE), para sugestão nos formulários |

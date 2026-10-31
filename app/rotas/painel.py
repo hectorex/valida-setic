@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import obter_sessao
+from app.seguranca import RESPOSTA_401, exigir_senha_cagd
 from app.schemas import CampoPainel, FalhaPainel, Recomendacao, RespostaPainel, SistemaPainel
 from app.servicos.painel import resumo_erros
 
@@ -50,11 +51,13 @@ EXEMPLO_PAINEL = RespostaPainel(
 @router.get(
     "/erros",
     response_model=RespostaPainel,
-    responses={200: {"content": {"application/json": {"example": EXEMPLO_PAINEL}}}},
+    dependencies=[Depends(exigir_senha_cagd)],
+    responses={200: {"content": {"application/json": {"example": EXEMPLO_PAINEL}}}, **RESPOSTA_401},
 )
 def painel_erros(sessao: Session = Depends(obter_sessao)):
     """Onde os sistemas mais erram: totais, taxa de bloqueio por sistema e falhas por sistema, campo e regra.
 
     Só contagens: o painel não tem acesso a nenhum valor digitado.
+    Protegido pela senha da CAGD (cabeçalho `X-Senha-CAGD`) quando o servidor tem `VALIDA_SENHA_CAGD`.
     """
     return resumo_erros(sessao)
