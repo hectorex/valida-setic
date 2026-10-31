@@ -32,7 +32,7 @@ Fluxo do desafio, que a demo precisa mostrar de ponta a ponta:
 ```
 app/
   main.py              # cria o app, inclui rotas, monta static/, cria tabelas
-  seguranca.py         # senha simples da CAGD (VALIDA_SENHA_CAGD, cabeçalho X-Senha-CAGD)
+  seguranca.py         # login da CAGD: usuários de VALIDA_USUARIOS_CAGD, sessões com token Bearer
   database.py          # engine, sessão, Base
   models.py            # tabelas SQLAlchemy
   schemas.py           # modelos Pydantic de entrada e saída
@@ -44,7 +44,7 @@ app/
   servicos/registro.py     # validar_e_registrar: lê a config, valida e grava em validacoes/falhas_validacao
   servicos/painel.py       # agregações do GET /painel/erros
   servicos/onde_agir.py    # recomendações "Onde agir" a partir das contagens (regras simples, sem IA)
-  rotas/               # validar.py, regras.py, painel.py, cadastros.py, municipios.py
+  rotas/               # validar.py, regras.py, painel.py, cadastros.py, municipios.py, cagd.py (login)
   seed.py              # histórico fictício para o painel (as regras padrão são criadas na subida do app)
 static/
   index.html           # página inicial com links para as outras
@@ -56,7 +56,7 @@ static/
   js/formulario.js     # formulário genérico: <form data-sistema="sistema_a" data-rota="/cadastros">
                        #   data-rota opcional; sem ela envia para POST /validar (Sistema B)
   js/banco-sistema-a.js  # lista "Banco do Sistema A (simulado)" (GET /cadastros)
-  js/senha-cagd.js     # pede a senha da CAGD, guarda na aba e libera a tela (vem antes de cagd.js/painel.js)
+  js/login-cagd.js     # login da CAGD (usuário e senha), guarda o token na aba e libera a tela (vem antes de cagd/painel/historico)
   js/cagd.js           # interruptores das regras (dispara o evento regra-alterada)
   js/historico.js      # histórico de mudanças das regras (GET /regras/historico)
   js/painel.js         # painel de erros da CAGD (GET /painel/erros)
@@ -104,10 +104,22 @@ atributo desconhecido → 422. Não cria campos novos. O `/validar` lê a config
 **Histórico:** cada atributo que o `PUT` realmente muda vira uma linha em `historico_regras` (gravada junto com a
 mudança; mandar o mesmo valor não conta). `GET /regras/historico?limite=50` devolve
 `[{"campo": "telefone", "atributo": "obrigatorio", "valor_anterior": "false", "valor_novo": "true",
-"data_hora": "2026-11-03T20:30:00Z"}]`, mais recentes primeiro. Não registra quem: a CAGD usa uma senha só.
-**Senha da CAGD:** `PUT /regras/{campo}`, `GET /regras/historico` e `GET /painel/erros` exigem o cabeçalho `X-Senha-CAGD` quando o servidor
-tem `VALIDA_SENHA_CAGD` (401 sem a senha certa). Sem a variável (notebook da demo), ficam abertos. `GET /regras`,
-`/municipios`, `/validar` e `/cadastros` são sempre públicos: os sistemas dependem deles.
+"usuario": "Banca Avaliadora", "data_hora": "2026-11-03T20:30:00Z"}]`, mais recentes primeiro. `usuario` é o nome de
+quem estava logado (null com a CAGD sem login).
+
+### Login da CAGD (`POST /cagd/login`, `POST /cagd/sair`, `GET /cagd/eu`)
+- Usuários em `VALIDA_USUARIOS_CAGD` = `usuario:Nome para exibir:senha;outro:Outro Nome:senha` (a senha é o que vem
+  depois do 2º ":"; não pode ter ";"). Definida no painel do Render, nunca no repositório. Hoje: celso, felipe,
+  judson e banca (Banca Avaliadora, para o jurado testar).
+- `POST /cagd/login {"usuario", "senha"}` → `{"token", "usuario", "nome", "expira_em"}` (8 h); errado → 401 "Usuário ou
+  senha incorretos." (sem dizer qual errou; comparação em tempo constante, inclusive para usuário inexistente).
+- O token vai em `Authorization: Bearer <token>` (no Swagger: botão Authorize). Sessões na memória do servidor:
+  reiniciar pede login de novo. `POST /cagd/sair` invalida na hora; usuário tirado da variável perde o acesso.
+- Exigem login: `PUT /regras/{campo}`, `GET /regras/historico`, `GET /painel/erros`, `GET /cagd/eu`. Públicos sempre:
+  `GET /regras`, `/municipios`, `/validar`, `/cadastros` (os sistemas dependem deles).
+- Sem `VALIDA_USUARIOS_CAGD`, vale a senha única antiga `VALIDA_SENHA_CAGD` como usuário `cagd` (nome "CAGD"), para o
+  deploy não deixar a CAGD aberta. Sem nenhuma das duas (notebook da demo), tudo aberto e `GET /cagd/eu` →
+  `{"protegido": false}`.
 **Inativo prevalece:** com `ativo=false` o campo não é cobrado nem validado, mesmo com `obrigatorio=true`.
 Os dois valores ficam guardados de forma independente, para que reativar restaure a configuração anterior.
 
@@ -208,9 +220,10 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   estilizar), montada pelo `formulario.js`.
 - Máscaras por `data-mascara="cpf"`/`"telefone"`/`"data"` no input, só no Sistema A. O Sistema B fica sem, de
   propósito (sistema legado): é nele que a demo mostra a API bloqueando `1985-03-15`.
-- `cagd.html` começa com `body.cagd-verificando` (nada aparece); `senha-cagd.js` testa o acesso no
-  `GET /painel/erros`: liberado → mostra tudo; 401 → card de senha. A senha fica no `sessionStorage` (some ao
-  fechar a aba). As telas registram o carregamento com `quandoLiberada()` e tratam 401 com `tratarSenhaRecusada()`.
+- `cagd.html` começa com `body.cagd-verificando` (nada aparece); `login-cagd.js` pergunta `GET /cagd/eu`:
+  liberado → mostra tudo (com "Conectado como <nome>" e Sair); 401 → card de login (usuário, senha e olho). O token
+  fica no `sessionStorage` (some ao fechar a aba). As telas registram o carregamento com `quandoLiberada()` e tratam
+  401 com `tratarLoginRecusado()`. O histórico tem a coluna Quem.
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
@@ -228,7 +241,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Corrigir dados antigos já gravados (o próprio desafio exclui).
 - Editor genérico de regras (regras técnicas ficam no código; o banco guarda só a configuração).
 - Validação dentro do banco (o desafio pede escolher API **ou** banco; escolhemos API).
-- Login completo (a CAGD tem só uma senha simples; chave por sistema `X-API-Key` só se sobrar tempo).
+- Gestão de usuários pela tela (criar, trocar senha, permissões): os usuários vêm da variável de ambiente.
+  Chave por sistema `X-API-Key` só se sobrar tempo.
 
 ## Como trabalhar neste repositório
 1. Uma etapa por vez. Antes de codar uma etapa, apresente o plano e espere aprovação.
@@ -265,11 +279,13 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
       a verificação não pode deixar o cadastro lento).
    3. ✅ **"Onde agir" no painel**: recomendações a partir das contagens, por regras simples no código, sem IA
       (ex.: "Sistema A: a maioria das falhas de data é de formato; sugestão: máscara DD/MM/AAAA").
-   4. ✅ **Senha simples na CAGD**: proteger o `PUT /regras/{campo}` e a tela da CAGD, porque o link hospedado é
+   4. ✅ **Senha simples na CAGD** (evoluiu para login por pessoa, ver abaixo): proteger o `PUT /regras/{campo}` e a tela da CAGD, porque o link hospedado é
       público. Não é login completo: uma senha só, configurada por variável de ambiente.
    5. ✅ **Histórico de mudanças de regra**: cada alteração da CAGD registrada (campo, atributo, valor anterior,
       valor novo, data/hora) e exibida na tela da CAGD (governança e auditoria).
    - ✅ Botão de olho no campo de senha da CAGD, para mostrar/esconder a senha (pedido em 31/10).
+   - ✅ **Login por pessoa na CAGD** (31/10): cada um entra com o próprio usuário e o histórico registra quem
+     mudou cada regra (modelo do IXC). Inclui o usuário "banca" para o jurado testar.
 9. **Em espera (decisão de 30/10):** só depois da etapa 8 pronta e estável, e se houver tempo.
    - **Municípios do Brasil inteiro.** Hoje o município é só de RO, o que vale para cadastros estaduais
      (residência, atendimento), mas bloqueia, por exemplo, cidadão de outro estado atendido em RO ou

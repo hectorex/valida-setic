@@ -68,13 +68,14 @@ O `render.yaml` da raiz descreve o serviço. Para publicar pela primeira vez:
 2. **New → Blueprint**, escolha o repositório `valida-setic` e confirme (**Apply**).
 3. Ao terminar, o endereço aparece no topo do serviço (ex.: `https://valida-setic.onrender.com`).
 
-4. **Senha da CAGD:** no serviço, abra **Environment**, adicione `VALIDA_SENHA_CAGD` com a senha escolhida e
-   salve (o Render publica de novo). Sem ela, a tela da CAGD fica aberta para qualquer pessoa com o link.
+4. **Usuários da CAGD:** no serviço, abra **Environment**, adicione `VALIDA_USUARIOS_CAGD` no formato
+   `usuario:Nome:senha;outro:Outro Nome:senha` e salve (o Render publica de novo). Sem ela, a tela da CAGD fica aberta
+   para qualquer pessoa com o link (ou vale a senha única antiga, `VALIDA_SENHA_CAGD`, se existir).
 
 Depois disso, cada merge na `main` publica de novo sozinho. No plano grátis:
 - o site "dorme" após 15 min sem acesso e leva uns 30 a 60 s para acordar (abra o link um pouco antes);
 - o banco é apagado a cada reinício ou publicação: volta com as regras padrão e o histórico do seed;
-- com `VALIDA_SENHA_CAGD` definida, a tela da CAGD pede a senha. Use apenas dados fictícios.
+- com `VALIDA_USUARIOS_CAGD` definida, a tela da CAGD pede login, e o login cai a cada reinício. Use apenas dados fictícios.
 
 A demo oficial roda no notebook (funciona sem internet); o link serve para testes e para a banca pelo QR code.
 
@@ -84,21 +85,26 @@ Cada mudança feita pela CAGD fica registrada e aparece no card **Histórico de 
 ```json
 GET /regras/historico?limite=50
 [{"campo": "telefone", "atributo": "obrigatorio", "valor_anterior": "false", "valor_novo": "true",
-  "data_hora": "2026-11-03T20:30:00Z"}]
+  "usuario": "Banca Avaliadora", "data_hora": "2026-11-03T20:30:00Z"}]
 ```
-Mandar o mesmo valor não conta como mudança. Como a CAGD usa uma senha só, o histórico registra o quê e quando,
-não quem.
+Mandar o mesmo valor não conta como mudança. `usuario` é quem estava logado na CAGD.
 
-### Senha da CAGD
-Mudar regras (`PUT /regras/{campo}`), ver o histórico (`GET /regras/historico`) e o painel (`GET /painel/erros`)
-exigem a senha quando a variável
-`VALIDA_SENHA_CAGD` está definida. Ela vai no cabeçalho `X-Senha-CAGD` (no Swagger, preencha o campo do cabeçalho).
-Sem a variável, como no notebook da demo, tudo fica aberto. Para testar localmente com senha:
+### Login da CAGD
+Cada pessoa da CAGD entra com o próprio usuário, e o histórico registra quem fez cada mudança. Mudar regras
+(`PUT /regras/{campo}`), ver o histórico (`GET /regras/historico`) e o painel (`GET /painel/erros`) exigem login quando
+a variável `VALIDA_USUARIOS_CAGD` está definida:
+```
+VALIDA_USUARIOS_CAGD=celso:Celso Hector:senha1;banca:Banca Avaliadora:senha2
+```
+`POST /cagd/login` com `{"usuario": "banca", "senha": "..."}` devolve um `token` (vale 8 h), que vai no cabeçalho
+`Authorization: Bearer <token>` (no Swagger: botão **Authorize**). `POST /cagd/sair` encerra a sessão e
+`GET /cagd/eu` diz quem está logado. Sem a variável, como no notebook da demo, tudo fica aberto.
+Para testar localmente com login:
 
 | Sistema | Comando |
 |---|---|
-| Windows (PowerShell) | `$env:VALIDA_SENHA_CAGD="minha-senha"; python -m uvicorn app.main:app --reload` |
-| Linux / macOS / Git Bash | `VALIDA_SENHA_CAGD=minha-senha python -m uvicorn app.main:app --reload` |
+| Windows (PowerShell) | `$env:VALIDA_USUARIOS_CAGD="banca:Banca Avaliadora:teste"; python -m uvicorn app.main:app --reload` |
+| Linux / macOS / Git Bash | `VALIDA_USUARIOS_CAGD="banca:Banca Avaliadora:teste" python -m uvicorn app.main:app --reload` |
 
 `GET /regras`, `/municipios`, `/validar` e `/cadastros` continuam públicos: os sistemas dependem deles.
 
@@ -114,9 +120,12 @@ python -m pytest
 | `GET` | `/saude` | Confirma que a API está no ar |
 | `POST` | `/validar` | Verifica e padroniza os dados; não grava os dados, só registra o resultado para o painel |
 | `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato esperado, ajuda) |
-| `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação (🔒 senha da CAGD) |
-| `GET` | `/regras/historico` | Histórico das mudanças da CAGD: campo, atributo, antes, depois e quando (🔒 senha da CAGD) |
-| `GET` | `/painel/erros` | Onde os sistemas mais erram: totais, taxa de bloqueio, falhas, tempo e Onde agir (🔒 senha da CAGD) |
+| `PUT` | `/regras/{campo}` | CAGD altera a configuração de um campo; vale na próxima validação (🔒 login da CAGD) |
+| `GET` | `/regras/historico` | Histórico das mudanças da CAGD: quem, campo, atributo, antes, depois e quando (🔒 login) |
+| `POST` | `/cagd/login` | Login da CAGD com usuário e senha; devolve o token |
+| `POST` | `/cagd/sair` | Encerra a sessão da CAGD |
+| `GET` | `/cagd/eu` | Quem está logado na CAGD |
+| `GET` | `/painel/erros` | Onde os sistemas mais erram: totais, taxa de bloqueio, falhas, tempo e Onde agir (🔒 login da CAGD) |
 | `POST` | `/cadastros` | Backend do Sistema A de exemplo: valida e só grava se aprovado, já padronizado |
 | `GET` | `/cadastros` | Cadastros gravados pelo Sistema A, mais recentes primeiro |
 | `GET` | `/municipios` | Os 52 municípios aceitos (nome oficial e código IBGE), para sugestão nos formulários |
