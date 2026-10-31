@@ -65,6 +65,7 @@ class HistoricoRegraSaida(BaseModel):
     atributo: str = Field(description="obrigatorio, ativo, formato_esperado ou ajuda.")
     valor_anterior: str | None = Field(description='"true"/"false" nos interruptores; o texto em formato e ajuda.')
     valor_novo: str | None
+    usuario: str | None = Field(description="Quem fez a mudança (nome do login da CAGD); null com a CAGD sem login.")
     data_hora: datetime = Field(description="Em UTC, com fuso no texto (ex.: 2026-11-03T20:30:00Z).")
 
     @field_validator("data_hora")
@@ -164,3 +165,24 @@ class RespostaCadastro(BaseModel):
 class MunicipioSaida(BaseModel):
     nome: str = Field(description="Nome oficial, como o POST /validar devolve.")
     codigo_ibge: str = Field(description="Código IBGE de 7 dígitos.")
+
+
+# Login da CAGD (POST /cagd/login, GET /cagd/eu)
+
+
+class LoginEntrada(BaseModel):
+    usuario: str = Field(min_length=1, max_length=50, examples=["banca"])
+    senha: str = Field(min_length=1, max_length=200)
+
+
+class LoginSaida(BaseModel):
+    token: str = Field(description='Vai nas próximas chamadas no cabeçalho "Authorization: Bearer <token>".')
+    usuario: str
+    nome: str = Field(description="Nome que aparece no histórico de mudanças.")
+    expira_em: datetime
+
+
+class EuSaida(BaseModel):
+    protegido: bool = Field(description="false: o servidor está sem usuários configurados e a CAGD fica aberta.")
+    usuario: str | None
+    nome: str | None

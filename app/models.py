@@ -72,7 +72,7 @@ class Cadastro(Base):
 
 
 class HistoricoRegra(Base):
-    """Uma mudança feita pela CAGD numa regra (auditoria): o que mudou, de quê para quê e quando."""
+    """Uma mudança feita pela CAGD numa regra (auditoria): quem, o que mudou, de quê para quê e quando."""
 
     __tablename__ = "historico_regras"
 
@@ -82,4 +82,6 @@ class HistoricoRegra(Base):
     # Como texto: "true"/"false" para os interruptores, o próprio texto para formato e ajuda
     valor_anterior: Mapped[str | None] = mapped_column(String(300))
     valor_novo: Mapped[str | None] = mapped_column(String(300))
+    # Quem fez: o nome do login da CAGD. Nulo quando o servidor está sem login (CAGD aberta)
+    usuario: Mapped[str | None] = mapped_column(String(100))
     data_hora: Mapped[datetime] = mapped_column(default=agora_utc)

@@ -1,44 +1,111 @@
-"""Senha simples da CAGD (não é login completo).
+"""Login da CAGD: cada pessoa entra com o próprio usuário, e o histórico registra quem mudou cada regra.
 
-A senha vem da variável de ambiente VALIDA_SENHA_CAGD e é enviada no cabeçalho X-Senha-CAGD.
-Sem a variável (ex.: no notebook da demo), a proteção fica desligada. No Render a variável é
-definida no painel do serviço, porque o link é público.
+Usuários vêm da variável de ambiente VALIDA_USUARIOS_CAGD, no formato
+    usuario:Nome para exibir:senha;outro:Outro Nome:outra-senha
+(a senha é o que vem depois do segundo ":", então pode conter ":"; não pode conter ";").
+No Render a variável é definida no painel do serviço: as senhas nunca ficam no repositório.
+
+Sem VALIDA_USUARIOS_CAGD, vale a senha única antiga (VALIDA_SENHA_CAGD) como o usuário "cagd".
+Sem nenhuma das duas (ex.: notebook da demo), a proteção fica desligada.
+
+Ao entrar, a pessoa recebe uma chave temporária (token) que vai no cabeçalho
+"Authorization: Bearer <token>". As sessões ficam na memória do servidor: reiniciar pede login de novo.
 """
 
 import os
 import secrets
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-CABECALHO = "X-Senha-CAGD"
-
-
-def senha_configurada() -> str | None:
-    # Lida a cada requisição: trocar a variável vale sem mudar código (e os testes conseguem ligar/desligar)
-    return os.getenv("VALIDA_SENHA_CAGD") or None
+DURACAO_SESSAO = timedelta(hours=8)
 
 
-def exigir_senha_cagd(
-    senha: str | None = Header(
-        default=None,
-        alias=CABECALHO,
-        description="Senha da CAGD. Obrigatória quando o servidor tem VALIDA_SENHA_CAGD definida.",
-    ),
-) -> None:
-    esperada = senha_configurada()
-    if esperada is None:
-        return
-    # compare_digest: compara em tempo constante, sem dar pista de quantos caracteres acertou
-    if senha is None or not secrets.compare_digest(senha.encode(), esperada.encode()):
+@dataclass
+class UsuarioCagd:
+    usuario: str
+    nome: str
+
+
+@dataclass
+class Sessao:
+    usuario: UsuarioCagd
+    expira_em: datetime
+
+
+# token → sessão (na memória: o Render roda um processo só, e reiniciar já apaga o banco também)
+SESSOES: dict[str, Sessao] = {}
+
+
+def usuarios_configurados() -> dict[str, tuple[str, str]]:
+    """usuario → (nome, senha). Lido a cada chamada: trocar a variável vale sem mudar código."""
+    usuarios = {}
+    for item in (os.getenv("VALIDA_USUARIOS_CAGD") or "").split(";"):
+        partes = item.strip().split(":", 2)
+        if len(partes) == 3 and all(partes):
+            usuario, nome, senha = partes
+            usuarios[usuario.strip().lower()] = (nome.strip(), senha)
+    if not usuarios and os.getenv("VALIDA_SENHA_CAGD"):
+        usuarios["cagd"] = ("CAGD", os.environ["VALIDA_SENHA_CAGD"])
+    return usuarios
+
+
+def protecao_ligada() -> bool:
+    return bool(usuarios_configurados())
+
+
+def autenticar(usuario: str, senha: str) -> UsuarioCagd | None:
+    usuario = usuario.strip().lower()
+    cadastrado = usuarios_configurados().get(usuario)
+    # Compara mesmo quando o usuário não existe, para não dar pista de quais usuários existem pelo tempo
+    nome, esperada = cadastrado or ("", secrets.token_urlsafe(16))
+    senha_confere = secrets.compare_digest(senha.encode(), esperada.encode())  # tempo constante
+    return UsuarioCagd(usuario=usuario, nome=nome) if cadastrado and senha_confere else None
+
+
+def abrir_sessao(usuario: UsuarioCagd) -> tuple[str, datetime]:
+    token = secrets.token_urlsafe(32)
+    expira_em = datetime.now(timezone.utc) + DURACAO_SESSAO
+    SESSOES[token] = Sessao(usuario=usuario, expira_em=expira_em)
+    return token, expira_em
+
+
+def encerrar_sessao(token: str) -> None:
+    SESSOES.pop(token, None)
+
+
+esquema_bearer = HTTPBearer(
+    auto_error=False,
+    description="Chave recebida no POST /cagd/login (no Swagger: botão Authorize).",
+)
+
+
+def usuario_cagd(
+    credenciais: HTTPAuthorizationCredentials | None = Depends(esquema_bearer),
+) -> UsuarioCagd | None:
+    """Quem está fazendo a chamada. None quando a proteção está desligada (sem usuários configurados)."""
+    if not protecao_ligada():
+        return None
+    sessao = SESSOES.get(credenciais.credentials) if credenciais else None
+    if sessao is None or sessao.expira_em < datetime.now(timezone.utc):
+        if sessao is not None:
+            encerrar_sessao(credenciais.credentials)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Senha da CAGD ausente ou incorreta.",
+            detail="Faça login na CAGD (sessão ausente ou expirada).",
         )
+    # Usuário removido da variável perde o acesso mesmo com sessão aberta
+    if sessao.usuario.usuario not in usuarios_configurados():
+        encerrar_sessao(credenciais.credentials)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário sem acesso à CAGD.")
+    return sessao.usuario
 
 
 RESPOSTA_401 = {
     401: {
-        "description": "Senha da CAGD ausente ou incorreta (só quando o servidor tem senha configurada)",
-        "content": {"application/json": {"example": {"detail": "Senha da CAGD ausente ou incorreta."}}},
+        "description": "Sem login na CAGD ou sessão expirada (só quando o servidor tem usuários configurados)",
+        "content": {"application/json": {"example": {"detail": "Faça login na CAGD (sessão ausente ou expirada)."}}},
     }
 }

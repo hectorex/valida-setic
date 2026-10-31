@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app import seguranca
 from app.database import Base, obter_sessao
 from app.main import app
 from app.servicos.regras import inicializar_regras
@@ -17,6 +18,14 @@ def sessao():
     with sessionmaker(bind=engine)() as sessao:
         inicializar_regras(sessao)
         yield sessao
+
+
+@pytest.fixture(autouse=True)
+def sem_login_por_padrao(monkeypatch):
+    """Os testes começam sem usuários da CAGD e sem sessões; quem precisa de login liga no próprio teste."""
+    monkeypatch.delenv("VALIDA_USUARIOS_CAGD", raising=False)
+    monkeypatch.delenv("VALIDA_SENHA_CAGD", raising=False)
+    seguranca.SESSOES.clear()
 
 
 @pytest.fixture
