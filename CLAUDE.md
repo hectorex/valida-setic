@@ -63,6 +63,7 @@ static/
   js/integrar.js       # abas de linguagem, copiar, editar e executar o exemplo JS; troca {{URL}} por location.origin
   css/style.css
 tests/
+scripts/teste_carga.py # teste de carga do POST /validar (só biblioteca padrão; nunca contra o site hospedado)
 apresentacao/          # slides do pitch (React + Vite, do Judson), independente da API; no ar na Vercel
 ```
 
@@ -191,6 +192,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   sobrescrever o que a CAGD mudou. Obrigatórios: nome, cpf, email, data_nascimento; opcionais: telefone, municipio.
   Todos os campos têm validador; um campo configurado sem validador passaria só por `obrigatorio` e trim.
 - Testes usam SQLite em memória (`tests/conftest.py`), nunca o `valida.db`.
+- SQLite em modo WAL, `synchronous=NORMAL` e `busy_timeout` de 30 s (`ajustar_sqlite` em `database.py`): sem isso, o
+  teste de carga dava "database is locked" a partir de 20 chamadas simultâneas. Medido num notebook, um processo:
+  ~145 validações/s, 0 falhas com 50 simultâneas. Os arquivos `valida.db-wal`/`-shm` ficam fora do git.
 - Hospedagem: `render.yaml` (Render, plano grátis). O start roda `python -m app.seed` e o uvicorn em `$PORT`;
   o disco é apagado a cada reinício, então o site hospedado sempre volta às regras padrão + seed.
   Os formulários mostram o aviso "use apenas dados fictícios" (o link é público).

@@ -342,7 +342,7 @@ mudar a variável `VALIDA_DB_URL`.
 ```
 app/
   main.py                 cria o app, inclui as rotas, serve o frontend, cria as tabelas
-  database.py             conexão com o banco; acrescenta colunas novas em bancos antigos
+  database.py             conexão com o banco (SQLite em modo WAL); acrescenta colunas novas em bancos antigos
   models.py               tabelas: regras_campo, validacoes, falhas_validacao, historico_regras, cadastros
   schemas.py              formatos de entrada e saída da API
   seguranca.py            login da CAGD (usuários, sessões, token)
@@ -359,6 +359,7 @@ app/
   seed.py                 histórico fictício para o painel da demo
 static/                   index, sistema-a, sistema-b, cagd, integrar (+ js/ e css/)
 tests/                    testes automáticos (pytest)
+scripts/teste_carga.py    teste de carga do POST /validar (validações por segundo)
 apresentacao/             slides do pitch (React, à parte da API; ver apresentacao/README.md)
 render.yaml               configuração da hospedagem no Render
 ```
@@ -420,7 +421,7 @@ Formato: `usuario:Nome que aparece no histórico:senha`, vários separados por `
 ```bash
 python -m pytest
 ```
-São **311 testes automáticos**, que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
+São **316 testes automáticos**, que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
 - cada validador com casos válidos e inválidos (29/02/2024 aceito; 31/02/1990, 00/00/0000, 1985-03-15, CPF
   111.111.111-11, e-mail sem domínio bloqueados…);
 - os erros em camadas e as rotas;
@@ -430,6 +431,17 @@ São **311 testes automáticos**, que rodam em poucos segundos num banco em mem�
 - o teste de invasão: 31 ataques que precisam continuar falhando, e os cabeçalhos de segurança;
 - a LGPD: as tabelas de log não têm onde guardar o valor digitado;
 - as páginas, e se os exemplos do Swagger e da página "Como integrar" batem com a resposta real da API.
+
+**Teste de carga.** Com a API rodando, `python scripts/teste_carga.py` dispara milhares de validações reais (metade
+válidas, metade com erro), várias ao mesmo tempo, e mede quantas a API atende por segundo:
+```bash
+python scripts/teste_carga.py --total 5000 --simultaneas 50
+```
+Num notebook, com **um único processo** e SQLite: cerca de **145 validações por segundo** (mais de 500 mil por hora),
+**sem nenhuma falha com 50 chamadas ao mesmo tempo**, e resposta típica de 10 ms quando não há fila. A verificação
+em si leva cerca de 1 ms; o resto é gravar o registro do painel. O teste já mostrou o seu valor: na primeira medição, o
+SQLite travava a partir de 20 chamadas simultâneas, e isso foi corrigido (modo WAL, em `database.py`). Cada chamada
+entra no painel como `teste_carga`: rode num banco de teste, nunca no site hospedado.
 
 ## 13. Hospedagem (Render)
 O `render.yaml` descreve o serviço (plano grátis). Para publicar pela primeira vez:
