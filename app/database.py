@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 # Trocar para PostgreSQL é só mudar a URL, ex.: postgresql://usuario:senha@host/valida
@@ -11,6 +11,24 @@ argumentos = {"check_same_thread": False} if URL_BANCO.startswith("sqlite") else
 
 engine = create_engine(URL_BANCO, connect_args=argumentos)
 SessionLocal = sessionmaker(bind=engine)
+
+
+def ajustar_sqlite(conexao, _registro) -> None:
+    """Deixa o SQLite aguentar várias validações ao mesmo tempo (o teste de carga mostrou o travamento).
+
+    - WAL: ler e gravar ao mesmo tempo, sem um bloquear o outro;
+    - synchronous NORMAL: não espera o disco confirmar cada gravação (seguro com WAL);
+    - busy_timeout: quem chega enquanto outro grava espera até 30 s na fila, em vez de falhar.
+    """
+    cursor = conexao.cursor()
+    cursor.execute("PRAGMA journal_mode=WAL")
+    cursor.execute("PRAGMA synchronous=NORMAL")
+    cursor.execute("PRAGMA busy_timeout=30000")
+    cursor.close()
+
+
+if URL_BANCO.startswith("sqlite"):
+    event.listen(engine, "connect", ajustar_sqlite)
 
 
 class Base(DeclarativeBase):
