@@ -63,6 +63,7 @@ static/
   js/integrar.js       # abas de linguagem, copiar, editar e executar o exemplo JS; troca {{URL}} por location.origin
   css/style.css
 tests/
+apresentacao/          # slides do pitch (React + Vite, do Judson), independente da API; no ar na Vercel
 ```
 
 ## Contrato da API (não mudar sem combinar com a equipe: o frontend depende dele)

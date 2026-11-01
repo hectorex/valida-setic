@@ -359,6 +359,7 @@ app/
   seed.py                 histórico fictício para o painel da demo
 static/                   index, sistema-a, sistema-b, cagd, integrar (+ js/ e css/)
 tests/                    testes automáticos (pytest)
+apresentacao/             slides do pitch (React, à parte da API; ver apresentacao/README.md)
 render.yaml               configuração da hospedagem no Render
 ```
 
