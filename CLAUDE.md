@@ -321,6 +321,10 @@ sugerir correções (contradiz o princípio de não adivinhar o que o usuário q
 - [ ] Criar `VALIDA_USUARIOS_CAGD` no Render (Environment) com os usuários celso, felipe, judson e banca, no formato
   `usuario:Nome:senha;...`. Até lá, vale a senha única antiga como usuário `cagd`. Senhas nunca no repositório.
 - [ ] No dia 03/11, mandar ao jurado só o usuário `banca` e a senha dele.
+- [ ] Deixar o repositório público antes da apresentação (hoje está privado): o QR code do GitHub no slide final e
+  os links do README só abrem para a banca se ele for público. Antes, conferir o histórico inteiro atrás de senhas
+  e dados reais. Muda em Settings → General → Danger Zone → Change visibility (só o dono, hectorex).
+- [ ] Preencher o About do repositório: descrição e o link https://valida-setic.onrender.com.
 
 Congelar funcionalidades em 02/11. Daí em diante só correção de bug e ensaio.
 
