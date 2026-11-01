@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>setic_valida — Hackathon SETIC</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+:root{--blue:#3050ff;--ink:#e9ecff;--red:#ff3b4e;--grn:#2dff9a;--mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace}
+html,body{margin:0;height:100%;background:#000;overflow:hidden;color:var(--ink);font-family:var(--mono)}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:linear-gradient(120deg,#07072e 0%,#17176f 55%,#3a3aa2 100%)}
+#wave{position:absolute;left:0;top:0;width:1200px;height:1200px}
+#wave path{stroke-dasharray:1;stroke-dashoffset:0}
+#tint{position:absolute;inset:0;opacity:0;background:radial-gradient(circle at 70% 50%,rgba(255,30,60,.55),transparent 70%)}
+.s{position:absolute;inset:0;opacity:0;visibility:hidden}
+.h{position:absolute;left:120px;top:90px;width:1300px;font-size:44px;line-height:1.25}
+.cur::after{content:'▌';color:var(--blue);animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.note{position:absolute;left:120px;right:120px;bottom:60px;font-size:24px;opacity:.75;text-align:center}
+.box{position:absolute;box-sizing:border-box;border:3px solid #6f7bff;background:rgba(10,10,70,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:34px;font-weight:700;border-radius:6px;z-index:1;overflow:hidden}
+.box small{font-size:20px;font-weight:400;opacity:.8}
+.box.S{border-color:#aab3ff}
+.box.V{border-color:var(--blue);background:rgba(20,30,150,.92);box-shadow:0 0 60px rgba(48,80,255,.6)}
+.scan{position:absolute;left:0;right:0;top:0;height:4px;background:#8fa0ff;opacity:.7}
+.ln{position:absolute;left:0;top:0;width:1920px;height:1080px}
+.ln line{stroke:#6f7bff;stroke-width:3;stroke-dasharray:10 8}
+.ln.red line{stroke:var(--red)}
+.pk{position:absolute;left:0;top:0;z-index:3;padding:8px 16px;border:2px solid #6f7bff;background:rgba(40,50,160,.92);font-size:22px;white-space:nowrap;border-radius:4px}
+.pk.d{width:22px;height:22px;padding:0;border-radius:3px}
+.pk.r{background:#9d1226;border-color:var(--red)}
+.x{position:absolute;color:var(--red);font-size:54px;font-style:normal;font-weight:800}
+.gr{position:absolute}
+.tags{position:absolute;left:120px;right:120px;bottom:70px;display:flex;gap:18px;flex-wrap:wrap}
+.tags span{border:2px solid var(--red);background:rgba(120,10,30,.7);color:#ffd0d5;padding:10px 18px;font-size:26px}
+.why{position:absolute;left:660px;width:600px;top:690px;text-align:center;font-size:26px;height:40px}
+.why.bad{color:#ff6b7a}.why.ok{color:var(--grn)}
+.tb{position:absolute;left:120px;top:290px;width:1680px}
+.r{display:grid;grid-template-columns:520px 580px 580px;font-size:28px;border-bottom:1px solid #4a56d8;padding:22px 0;align-items:center}
+.r.hd{font-weight:700;font-size:30px}
+.r span:nth-child(2){color:#ffb3bb}.r span:nth-child(3){color:var(--grn)}.r.hd span:first-child{color:var(--ink)}
+.zero{font-size:64px;font-weight:800;display:inline-block}
+.hex{position:absolute;width:220px;height:250px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:800}
+.nd{position:absolute;width:360px;padding:16px 10px;text-align:center;border:2px solid #8fa0ff;background:rgba(20,30,150,.85);font-size:24px;z-index:2}
+.ttl{position:absolute;left:120px;top:370px;font-size:128px;font-weight:800;color:#3050ff;white-space:nowrap}
+.sub{position:absolute;left:200px;top:640px;font-size:26px}
+.y{position:absolute;right:300px;top:100px;font-size:26px}
+.team{position:absolute;right:120px;bottom:100px;text-align:right;font-size:24px;line-height:1.4}
+.team b{display:block;font-size:30px}
+#nav{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;opacity:.35;transition:opacity .3s;font:14px var(--mono);z-index:9}
+#nav:hover{opacity:1}
+#nav button{background:rgba(0,0,0,.4);color:#fff;border:1px solid #6f7bff;font:inherit;padding:4px 10px;cursor:pointer}
+#dots{display:flex;gap:6px}#dots button{width:12px;height:12px;padding:0;border-radius:50%}
+#dots button.on{background:var(--blue)}
+#pg{position:fixed;left:0;bottom:0;height:3px;width:100%;z-index:9}#pg i{display:block;height:100%;width:0;background:var(--blue)}
+</style></head><body>
+<div id="stage"><div id="wave"></div><div id="tint"></div></div>
+<div id="nav"><button id="pv" aria-label="Anterior">◀</button><div id="dots"></div><span id="ct"></span><button id="nx" aria-label="Próximo">▶</button><button id="fs">tela cheia</button><button id="rs">reiniciar</button></div>
+<div id="pg"><i></i></div>
+<script>
+const $=(s,r=document)=>r.querySelector(s),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const W=$('#stage'),html=(e,s)=>e.insertAdjacentHTML('beforeend',s);
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);W.style.transform=`translate(${(innerWidth-1920*s)/2}px,${(innerHeight-1080*s)/2}px) scale(${s})`}
+addEventListener('resize',fit);fit();
+// onda de fundo
+let wp='';for(let i=0;i<38;i++){let d='';for(let x=-40;x<=1240;x+=40){d+=(x==-40?'M':'L')+x+' '+(600+(i-19)*15+Math.sin(x/170+i*.13)*(90+i*3)).toFixed(0)}wp+=`<path d="${d}" pathLength="1"/>`}
+$('#wave').innerHTML=`<svg viewBox="0 0 1200 1200" width="1200" height="1200"><g id="wg" fill="none" stroke="#8f9bff" stroke-width="1.2" stroke-opacity=".5">${wp}</g></svg>`;
+if(!RM)gsap.to('#wg',{rotation:360,duration:36,ease:'none',repeat:-1,svgOrigin:'600 600'});
+const WV=[{x:-420,y:-80,scale:1,opacity:.85,draw:1},{x:820,y:-120,scale:1,opacity:.7},{x:700,y:-60,scale:1.1,opacity:.14},{x:700,y:-60,scale:1.1,opacity:.1},{x:700,y:-60,scale:1.1,opacity:.12},{x:760,y:-100,scale:1.2,opacity:.2},{x:700,y:-60,scale:1.1,opacity:.12},{x:300,y:-100,scale:1.5,opacity:.28},{x:360,y:-60,scale:1.1,opacity:.9,draw:1}];
+// helpers
+function type(el,t,sp=.045){const o={n:0};el.textContent='';return gsap.to(o,{n:t.length,duration:RM?.01:t.length*sp,ease:'none',onUpdate(){el.textContent=t.slice(0,Math.round(o.n))}})}
+const pk=(r,t)=>{const p=document.createElement('div');p.className='pk';p.textContent=t;r.appendChild(p);return p};
+const bx=(c,t,x,y,w,h)=>`<div class="box ${c}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">${t}</div>`;
+const ln=(a,c='')=>`<svg class="ln ${c}" viewBox="0 0 1920 1080">${a.map(p=>`<line x1="${p[0]}" y1="${p[1]}" x2="${p[2]}" y2="${p[3]}"/>`).join('')}</svg>`;
+const gear=(x,y,s,c)=>`<svg class="gr" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px;color:${c}" viewBox="-100 -100 200 200"><circle r="72" fill="none" stroke="currentColor" stroke-width="26" stroke-dasharray="11.9 11.9"/><circle r="56" fill="none" stroke="currentColor" stroke-width="10"/><circle r="12" fill="currentColor"/></svg>`;
+const PA={A:[420,335],B:[420,725]};
+function flow(e,val,red){const t=val?{A:[810,500],B:[810,580]}:{A:[1400,500],B:[1400,580]};
+ html(e,ln([[...PA.A,...t.A],[...PA.B,...t.B]].concat(val?[[1110,540,1400,540]]:[]),red?'red':'')+bx('A','Sistema A',120,250,300,170)+bx('B','Sistema B',120,640,300,170)+bx('S','Sistema de TI<br>da SETIC',1400,420,400,240)+(val?bx('V','VALIDA SETIC<small>validando…</small><i class="scan"></i>',810,420,300,240)+'<div class="why"></div>':''));
+ gsap.from('.box',{opacity:0,y:30,duration:.6,stagger:.1})}
+const dotRoute=(e,a,m,b,delay)=>{const p=pk(e,'');p.classList.add('d');return gsap.timeline({repeat:-1,delay}).set(p,{x:a[0],y:a[1],opacity:0,xPercent:-50,yPercent:-50,backgroundColor:'#c0182b',borderColor:'#ff3b4e'}).to(p,{opacity:1,duration:.2}).to(p,{x:m[0],y:m[1],duration:1.1,ease:'none'}).to(p,{backgroundColor:'#0f8f55',borderColor:'#2dff9a',duration:.2}).to(p,{x:b[0],y:b[1],duration:1.1,ease:'none'}).to(p,{opacity:0,duration:.2})};
+// slide 3/4: dados sem padronização
+const BAD=[['A','CPF: 111.111.111-11'],['B','CPF: 11111111111'],['A','DATA: 31/02/1980'],['B','EMAIL: usuario@'],['A','NOME: João Silva'],['B','DATA: 1980-02-31']];
+function sendP(e,from,t,bounce){const p=pk(e,t),a=PA[from],b=[1400,from=='A'?500:580];if(bounce)p.classList.add('r');
+ const tl=gsap.timeline().set(p,{x:a[0]+30,y:a[1],opacity:0,scale:.7,xPercent:-50,yPercent:-50}).to(p,{opacity:1,scale:1,duration:.3});
+ if(bounce)return tl.to(p,{x:b[0]-100,y:b[1],duration:2,ease:'none'}).to(p,{x:'+=8',yoyo:true,repeat:5,duration:.05}).to(p,{x:a[0]+30,y:a[1],duration:2.2,ease:'power2.in'}).to(p,{opacity:0,duration:.2});
+ return tl.to(p,{x:b[0],y:b[1],duration:2.2,ease:'none'}).to(p,{x:b[0]+70,opacity:0,scale:.4,duration:.3})}
+// slide 7: validação
+const IT=[['A','CPF: 123.456.789-00',0,'CPF: dígito verificador inválido'],['B','EMAIL: usuario@',0,'E-mail: formato inválido'],['A','DATA: 31/02/1980',0,'Data: não existe'],['B','NOME: (vazio)',0,'Nome: obrigatório'],['A','CPF: 529.982.247-25',1,'CPF aprovado'],['B','EMAIL: usuario@exemplo.com',1,'E-mail aprovado'],['A','DATA: 15/03/1980',1,'Data aprovada'],['B','NOME: João Silva',1,'Nome aprovado']];
+function sendV(e,it,why,V){const [f,t,ok,m]=it,p=pk(e,t),a=PA[f],v=[810,f=='A'?500:580];
+ const tl=gsap.timeline().set(p,{x:a[0]+30,y:a[1],opacity:0,scale:.7,xPercent:-50,yPercent:-50,backgroundColor:'rgba(40,50,160,.92)',borderColor:'#6f7bff'}).to(p,{opacity:1,scale:1,duration:.3}).to(p,{x:v[0]-110,y:v[1],duration:1.2,ease:'none'});
+ if(ok)return tl.to(p,{backgroundColor:'#0f8f55',borderColor:'#2dff9a',duration:.2}).call(()=>{why.textContent='✓ '+m;why.className='why ok'}).to(p,{x:1460,y:540,duration:1.6,ease:'none'}).to(p,{opacity:0,scale:.4,duration:.25});
+ return tl.to(p,{backgroundColor:'#c0182b',borderColor:'#ff3b4e',duration:.15}).to(V,{borderColor:'#ff3b4e',duration:.1,yoyo:true,repeat:1},'<').call(()=>{why.textContent='✕ '+m;why.className='why bad'}).to(p,{x:'+=14',yoyo:true,repeat:5,duration:.04}).to(p,{x:a[0]+30,y:a[1],duration:1.2,ease:'power2.inOut'}).to(p,{opacity:0,duration:.2})}
+const B=[];
+B[0]=e=>{html(e,`<div class="y">2026</div><div class="ttl cur"></div><div class="sub">Desafio 01: Qualidade de Dados | Hackathon SETIC</div><div class="team"><b>GRUPO QUEM MAIS CORP.</b>Celso Hector<br>Judson Gabriel<br>Luiz Felipe</div>`);
+ gsap.timeline({delay:.9}).add(type($('.ttl',e),'<setic_valida>',.09)).from('.sub,.team,.y',{opacity:0,y:14,duration:.6,stagger:.15},'-=.2')};
+B[1]=e=>{html(e,`<div class="h cur"></div>${ln([[380,395,760,500],[380,675,760,580],[1160,500,1540,395],[1160,580,1540,675]])}${bx('A','Sistema A',120,330,260,130)}${bx('B','Sistema B',120,610,260,130)}${bx('V','API de validação<small>regras centralizadas</small><i class="scan"></i>',760,400,400,280)}${bx('S','Banco A',1540,330,260,130)}${bx('S','Banco B',1540,610,260,130)}<div class="note">Uma só camada de regras, reutilizada por qualquer sistema.</div>`);
+ gsap.fromTo('.scan',{top:0},{top:'100%',duration:1.4,ease:'none',repeat:-1,yoyo:true});
+ type($('.h',e),'Uma camada inteligente de validação e padronização de dados, antes que eles cheguem aos sistemas.',.03);
+ gsap.from('.box,.ln,.note',{opacity:0,y:30,duration:.7,stagger:.08,delay:1.2});
+ [[[380,395],[760,500],[1540,395]],[[380,675],[760,580],[1540,675]]].forEach((r,i)=>[0,1.4].forEach(d=>dotRoute(e,r[0],r[1],r[2],2.4+i*.7+d)))};
+B[2]=e=>{html(e,`<div class="h">Hoje: cada sistema envia no seu formato, e nada padroniza antes de chegar.</div><div class="note">Diagrama conceitual do problema que o desafio quer resolver.</div>`);flow(e,0);
+ const m=gsap.timeline({repeat:-1,delay:1});BAD.forEach((b,i)=>m.add(sendP(e,b[0],b[1],0),i*1.2))};
+B[3]=e=>{html(e,`<div class="h">O problema não é receber dados. É lidar com as inconsistências depois que elas entram no fluxo.</div>`);flow(e,0,1);
+ html(e,`<i class="x" style="left:895px;top:370px">✕</i><i class="x" style="left:895px;top:650px">✕</i>${gear(1500,60,180,'#ff3b4e')}${gear(1660,200,130,'#ff3b4e')}${gear(1390,230,100,'#ff3b4e')}<div class="tags">${['Dados inconsistentes','Retrabalho','Correções manuais','Falta de padronização','Integração dificultada'].map(t=>`<span>${t}</span>`).join('')}</div>`);
+ e.querySelectorAll('.gr').forEach((g,i)=>gsap.to(g,{keyframes:[{rotation:30,duration:.3,ease:'power2.in'},{rotation:22,duration:.12},{rotation:28,duration:.1},{rotation:24,duration:.1},{rotation:0,duration:.6,ease:'power1.inOut'}],repeat:-1,repeatDelay:.2+i*.15}));
+ gsap.from('.tags span',{opacity:0,y:20,duration:.4,stagger:.35,delay:.8});gsap.to('.x',{opacity:.3,repeat:-1,yoyo:true,duration:.4});
+ const m=gsap.timeline({repeat:-1,delay:.5});BAD.slice(0,4).forEach((b,i)=>m.add(sendP(e,b[0],b[1],1),i*1.5))};
+B[4]=e=>{const R=[['Momento da identificação','Posterior','Antecipada'],['Dado inválido','Precisa ser corrigido depois','Bloqueado antes de gravar'],['Mensagem ao sistema','—','Motivo do bloqueio claro'],['Esforço operacional','Maior','Menor, para os erros detectados'],['Correção posterior dos erros detectados','Necessária','<b class="zero">0*</b>']];
+ html(e,`<div class="h">Validar antes de gravar muda onde o esforço acontece.</div>${gear(1650,70,150,'#6f7bff')}<div class="tb"><div class="r hd"><span></span><span>Sem camada central de validação</span><span>Com validação antes da gravação</span></div>${R.map(r=>`<div class="r"><span>${r[0]}</span><span>${r[1]}</span><span>${r[2]}</span></div>`).join('')}</div><div class="note" style="text-align:left;bottom:70px">* Só vale para os erros detectados e bloqueados antes da gravação. Não elimina todo o retrabalho da organização. Nenhum percentual é apresentado: não há medição de eficiência nas fontes do projeto.</div>`);
+ gsap.to('.gr',{rotation:360,duration:6,ease:'none',repeat:-1});gsap.from('.r',{opacity:0,x:-40,duration:.6,stagger:.35,delay:.5});
+ gsap.from('.zero',{scale:0,duration:.6,ease:'back.out(3)',delay:2.8});gsap.to('.zero',{textShadow:'0 0 30px #2dff9a',repeat:-1,yoyo:true,duration:.8,delay:3.4})};
+B[5]=e=>{const ys=[420,525,630];
+ html(e,`<div class="h cur" style="top:300px;width:980px;font-size:54px"></div><div class="h" style="top:640px;display:flex;align-items:center;gap:24px;font-size:44px;color:#9fb0ff;width:980px"><span id="cm">(Eles agradecem!)</span><svg id="sm" width="96" height="96" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ffd23f"/><ellipse cx="35" cy="40" rx="5" ry="8" fill="#222"/><ellipse id="eR" cx="65" cy="40" rx="5" ry="8" fill="#222" style="transform-box:fill-box;transform-origin:center"/><path d="M30 62q20 20 40 0" stroke="#222" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div>
+ <svg id="bulb" style="position:absolute;left:1335px;top:130px;width:130px;height:180px" viewBox="0 0 100 140"><circle id="gl" cx="50" cy="50" r="48" fill="#ffd23f" opacity="0"/><path id="bb" d="M50 12a34 34 0 0 1 20 61v14H30V73A34 34 0 0 1 50 12z" fill="#22226a" stroke="#ffd23f" stroke-width="4"/><rect x="34" y="94" width="32" height="8" fill="#ffd23f"/><rect x="38" y="106" width="24" height="8" fill="#ffd23f"/></svg>
+ <div class="hex" style="left:1290px;top:400px">API</div><div class="note" style="left:1130px;right:120px;bottom:230px;font-size:24px">resposta: aprovado | bloqueado + motivo</div>`);
+ const t=gsap.timeline();t.add(type($('.h',e),'Com a nossa API você pode facilitar a vida de seus programadores.',.035)).from('#cm',{opacity:0,duration:.5}).from('#sm',{opacity:0,scale:.4,duration:.4},'<').to('#eR',{scaleY:.08,duration:.12},'+=.4');
+ gsap.from('#bulb',{scale:0,transformOrigin:'50% 80%',duration:.8,ease:'back.out(2)',delay:.8});
+ gsap.to('#bb',{fill:'#ffd23f',duration:.4,delay:1.8});gsap.fromTo('#gl',{opacity:0,scale:.6,transformOrigin:'50% 50%'},{opacity:.35,scale:1.15,duration:.9,delay:1.8,yoyo:true,repeat:-1});
+ ys.forEach((y,i)=>dotRoute(e,[1130,y],[1290,525],[1700,y],1.5+i*.5))};
+B[6]=e=>{html(e,`<div class="h" style="font-size:38px;width:1500px">Com um simples script de integração, seus sistemas passam a utilizar uma camada centralizada de validação.</div><div class="note" style="font-size:22px">Demonstração conceitual: a API valida e responde aprovado ou bloqueado, com o motivo. O sistema consumidor decide o que gravar.</div>`);flow(e,1);
+ gsap.fromTo('.scan',{top:0},{top:'100%',duration:1.4,ease:'none',repeat:-1,yoyo:true});
+ const why=$('.why',e),V=$('.V',e),m=gsap.timeline({repeat:-1,delay:1});IT.forEach((it,i)=>m.add(sendV(e,it,why,V),i*1.5))};
+B[7]=e=>{const N=['mais sistemas conectados','catálogo de regras ampliado','gestão e versionamento de regras','painel por sistema e campo','monitoramento da qualidade dos dados','governança e padronização'],c=[960,620];
+ const P=N.map((_,i)=>{const a=(30+i*60)*Math.PI/180;return[c[0]+700*Math.cos(a),c[1]+230*Math.sin(a)]});
+ html(e,`<div class="h" style="left:210px;width:1500px;font-size:36px;text-align:center">Agora temos esse protótipo com o pouco tempo e recurso que tivemos. Imaginem as possibilidades futuras com a idealização certa.</div>
+ <svg class="ln" viewBox="0 0 1920 1080">${P.map(p=>`<line pathLength="1" x1="${c[0]}" y1="${c[1]}" x2="${p[0]}" y2="${p[1]}" style="stroke-dasharray:1;stroke-dashoffset:1"/>`).join('')}</svg>${bx('V','VALIDA SETIC<small>hoje: protótipo</small>',800,545,320,150)}${P.map((p,i)=>`<div class="nd" style="left:${p[0]-180}px;top:${p[1]-30}px">${N[i]}</div>`).join('')}<div class="note">Possibilidades futuras, ainda não implementadas.</div>`);
+ gsap.to('.ln line',{strokeDashoffset:0,duration:1,stagger:.2,delay:1.2});gsap.from('.nd',{opacity:0,scale:.5,duration:.5,stagger:.2,delay:1.4,ease:'back.out(2)'});
+ gsap.to('.V',{scale:1.06,repeat:-1,yoyo:true,duration:1.2,ease:'sine.inOut'});
+ P.forEach((p,i)=>dotRoute(e,p,c,c,2.5+i*.45))};
+B[8]=e=>{html(e,`<div class="h" style="left:260px;top:300px;width:1400px;text-align:center;font-size:56px">${'Nossa solução, seu problema, juntos modernizando o nosso estado.'.split(' ').map(w=>`<span class="w" style="display:inline-block;margin-right:.3em">${w}</span>`).join('')}</div><div class="ttl cur" style="left:0;right:0;top:600px;text-align:center;font-size:130px"></div><div class="team" style="left:0;right:0;bottom:70px;text-align:center;font-size:22px">GRUPO QUEM MAIS CORP. · Celso Hector · Judson Gabriel · Luiz Felipe</div>`);
+ gsap.timeline({delay:.6}).from('.w',{opacity:0,y:40,rotationX:-60,duration:.6,stagger:.15,ease:'power3.out'}).add(type($('.ttl',e),'Obrigado!',.12),'+=.3').from('.team',{opacity:0,duration:.8})};
+// navegação
+let cur=-1,ctx=null,busy=false,fin=null;
+const S=B.map((_,i)=>{const d=document.createElement('section');d.className='s';W.appendChild(d);return d});
+B.forEach((_,i)=>{const b=document.createElement('button');b.setAttribute('aria-label','Slide '+(i+1));b.onclick=()=>go(i);$('#dots').appendChild(b)});
+function go(n){if(busy||n<0||n>8||n===cur)return;
+ const run=()=>{busy=false;if(fin)fin();const old=cur>=0?S[cur]:null,oc=ctx,el=S[n];cur=n;gsap.killTweensOf(el);el.style.visibility='visible';gsap.set(el,{opacity:0});
+  ctx=gsap.context(()=>{el.innerHTML='';B[n](el)},el);gsap.to(el,{opacity:1,duration:.7});
+  if(old){const f=()=>{if(fin!==f)return;gsap.killTweensOf(old);oc.kill();if(old!==S[cur]){old.style.visibility='hidden';old.innerHTML=''}fin=null};fin=f;gsap.to(old,{opacity:0,duration:.7,onComplete:f})}else if(oc)oc.kill();
+  const w=WV[n];gsap.to('#wave',{x:w.x,y:w.y,scale:w.scale,opacity:w.opacity,duration:RM?.01:1.4,ease:'power3.inOut'});
+  if(w.draw&&!RM)gsap.fromTo('#wave path',{strokeDashoffset:1},{strokeDashoffset:0,duration:2,stagger:.03});
+  gsap.to('#tint',{opacity:n==3?.3:0,duration:1});
+  [...$('#dots').children].forEach((d,i)=>d.classList.toggle('on',i==n));$('#ct').textContent=String(n+1).padStart(2,'0')+'/09';$('#pg i').style.width=((n+1)/9*100)+'%'};
+ if(cur===0&&n===1&&!RM){busy=true;const t=$('.ttl',S[0]);gsap.timeline({onComplete:run}).to(t,{color:'#fff',textShadow:'0 0 40px #fff',duration:.06,repeat:7,yoyo:true}).to(t,{scale:1.08,duration:.12})}else run()}
+const next=()=>go(cur+1),prev=()=>go(cur-1);
+$('#nx').onclick=next;$('#pv').onclick=prev;
+$('#rs').onclick=()=>{if(cur===0){go(1);setTimeout(()=>go(0),1500)}else go(0)};
+$('#fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+addEventListener('keydown',k=>{if(k.key=='ArrowRight'||k.key==' '||k.key=='PageDown'){k.preventDefault();next()}else if(k.key=='ArrowLeft'||k.key=='PageUp')prev();else if(k.key=='Home')go(0);else if(k.key=='End')go(8);else if(k.key=='f'||k.key=='F')$('#fs').click()});
+document.fonts.ready.then(()=>go(0));
+</script></body></html>

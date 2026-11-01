@@ -1,0 +1,6 @@
+{
+  "name": "Valida SETIC — Apresentação Interativa",
+  "description": "Apresentação cinematográfica e interativa do projeto setic_valida para o Hackathon SETIC: camada inteligente de validação e padronização de dados antes da gravação.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
