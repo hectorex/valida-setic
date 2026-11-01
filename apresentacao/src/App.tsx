@@ -56,6 +56,11 @@ export default function App() {
     };
   }, [fit]);
 
+  // Slide change timing (seconds). Lower = faster; 0 = instant.
+  const TRANSITION_OUT_S = 0.12;
+  const TRANSITION_IN_S = 0.3;
+  const COVER_FLASH_MS = 360; // the cover flash blinks 6 x 0.06 s
+
   // Navigate to slide with animation
   const goToSlide = useCallback((targetIndex: number) => {
     if (targetIndex < 0 || targetIndex >= SLIDES_DATA.length || targetIndex === currentSlide) return;
@@ -66,7 +71,7 @@ export default function App() {
       setTimeout(() => {
         setIsConfirmingStreetFighter(false);
         performSlideChange(targetIndex);
-      }, 550);
+      }, COVER_FLASH_MS);
       return;
     }
 
@@ -80,14 +85,14 @@ export default function App() {
       gsap.to(slideContentRef.current, {
         opacity: 0,
         y: -15,
-        duration: 0.35,
+        duration: TRANSITION_OUT_S,
         ease: 'power2.in',
         onComplete: () => {
           setCurrentSlide(targetIndex);
           gsap.fromTo(
             slideContentRef.current,
             { opacity: 0, y: 25 },
-            { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }
+            { opacity: 1, y: 0, duration: TRANSITION_IN_S, ease: 'power3.out' }
           );
         },
       });

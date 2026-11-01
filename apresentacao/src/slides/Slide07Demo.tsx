@@ -48,7 +48,7 @@ const DEMO_ITEMS: DemoPacket[] = [
   {
     id: '5',
     from: 'A',
-    label: 'CPF: 529.982.247-25',
+    label: 'CPF: 123.456.789-09',
     isValid: true,
     message: 'CPF Aprovado',
     detail: 'Dígitos verificadores válidos & padronizados',
@@ -59,7 +59,7 @@ const DEMO_ITEMS: DemoPacket[] = [
     label: 'EMAIL: contato@setic.ro.gov.br',
     isValid: true,
     message: 'E-mail Aprovado',
-    detail: 'Estrutura RFC válida com domínio institucional',
+    detail: 'Domínio válido, padronizado em minúsculas',
   },
   {
     id: '7',

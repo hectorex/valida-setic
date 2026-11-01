@@ -6,7 +6,7 @@ import { sfx } from '../audio';
 export const Slide02Concept: React.FC = () => {
   const [typedHeadline, setTypedHeadline] = useState('');
   const fullHeadline =
-    'Uma camada inteligente de validação e padronização de dados, antes que eles cheguem aos sistemas.';
+    'Uma camada central de validação e padronização de dados, antes que eles cheguem aos sistemas.';
   const containerRef = useRef<HTMLDivElement>(null);
   const packetARef = useRef<HTMLDivElement>(null);
   const packetBRef = useRef<HTMLDivElement>(null);

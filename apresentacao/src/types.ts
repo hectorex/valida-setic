@@ -59,7 +59,7 @@ export const SLIDES_DATA: SlideInfo[] = [
       presenter: 'Celso',
       goal: 'Definir o Valida SETIC em uma única frase clara.',
       keyPoints: [
-        'Uma camada inteligente de validação e padronização antes que os dados cheguem aos sistemas e bancos.',
+        'Uma camada central de validação e padronização antes que os dados cheguem aos sistemas e bancos.',
         'Centraliza regras de negócio reutilizáveis por qualquer sistema (sistemas legados ou novos).',
         'Evita que cada time tenha que reinventar a roda de validação.'
       ],
@@ -168,7 +168,8 @@ export const SLIDES_DATA: SlideInfo[] = [
       goal: 'Mostrar ambição técnica e alinhamento com o PDTIC 2024-2027 e IN 05/2026 de Rondônia.',
       keyPoints: [
         'Entregamos um protótipo funcional no pouco tempo do hackathon.',
-        'Visão futura: painel CAGD de regras, catálogo expandido, barreira pré-Data Lake.',
+        'Painel da CAGD, Onde agir, histórico de regras e padronização já funcionam hoje: estão na demo.',
+        'Visão futura: chave por sistema, municípios do Brasil inteiro, regras por sistema, novos tipos de dado e barreira pré-Data Lake.',
         'Métricas em tempo real por órgão e sistema.'
       ],
       caution: 'Diferenciar claramente o protótipo de hoje das possibilidades futuras.'
