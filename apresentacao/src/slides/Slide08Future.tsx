@@ -45,12 +45,12 @@ const DIFFERENTIALS: Differential[] = [
   },
   {
     id: 3,
-    title: 'Chave por Sistema',
-    category: 'SEGURANÇA',
+    title: 'Cadastro de Sistemas pela CAGD',
+    category: 'GESTÃO',
     tagColor: 'bg-amber-600 text-white',
     icon: <KeyRound className="w-10 h-10 text-amber-300" />,
-    howWeHelp: 'Cada sistema chama a API com a sua própria chave de acesso.',
-    benefit: 'O painel sabe com certeza qual sistema enviou cada dado.',
+    howWeHelp: 'A CAGD cadastra cada sistema e gera ou troca a chave dele pela tela.',
+    benefit: 'Entrar um sistema novo vira um clique, sem mexer em configuração do servidor.',
   },
   {
     id: 4,
