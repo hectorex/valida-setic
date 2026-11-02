@@ -177,6 +177,7 @@ $resposta = valida_setic(['nome' => 'Maria da Silva', 'cpf' => '123.456.789-09',
 
 if ($resposta['valido']) {
     // gravar $resposta['dados_padronizados'] no SEU banco
+    echo 'Gravar no SEU banco: ' . json_encode($resposta['dados_padronizados'], JSON_UNESCAPED_UNICODE) . "\n";
 } else {
     foreach ($resposta['erros'] as $erro) {
         echo $erro['campo'] . ' - ' . $erro['mensagem'] . "\n";
@@ -227,6 +228,7 @@ var resultado = await resposta.Content.ReadFromJsonAsync<JsonElement>();
 if (resultado.GetProperty("valido").GetBoolean())
 {
     // gravar resultado.GetProperty("dados_padronizados") no SEU banco
+    Console.WriteLine($"Gravar no SEU banco: {resultado.GetProperty("dados_padronizados")}");
 }
 else
 {
