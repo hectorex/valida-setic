@@ -83,7 +83,7 @@ def test_mascaras_so_no_sistema_a(cliente):
 def test_rodape_com_a_equipe(cliente, pagina):
     html = cliente.get(pagina).text
     assert "QuemMaisCorp" in html
-    for nome in ["Celso Hector Silva Sales", "Luiz Felipe Mâcedo Alencar de Menezes", "Judson Gabriel Ferreira dos Santos"]:
+    for nome in ["Celso Hector Silva Sales", "Luiz Felipe Macêdo Alencar de Menezes", "Judson Gabriel Ferreira dos Santos"]:
         assert nome in html
 
 
