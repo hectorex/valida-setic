@@ -255,6 +255,10 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 
 ## Frontend
 - Responsivo (abrir no celular). Uma página por ator (Sistema A, Sistema B, CAGD), sem build e sem bibliotecas externas.
+  Nenhuma página pode ficar mais larga que a tela (conferido em 360, 390, 412, 768, 1280, 1366 e 1536 px em 01/11):
+  abas com `white-space: nowrap` (até 480 px, sem ícone); ações do cabeçalho (`.acoes-cabecalho`) quebram linha; até
+  900 px o balão de ajuda abre acima do campo, na largura dele (`.field` com `position: relative`). Tabelas largas
+  ficam dentro de caixa com rolagem própria. Elemento escondido (`visibility: hidden`) também alarga a página.
 - O JS chama a API por caminho relativo (`API_BASE_URL = ''`), nunca por endereço fixo, para funcionar no celular.
 - Erros aparecem embaixo de cada campo, todos de uma vez, vindos da API.
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
