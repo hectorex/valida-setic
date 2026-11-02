@@ -40,6 +40,7 @@ app/
   validadores/         # uma função pura por tipo de dado, sem acesso a banco
     nome.py  cpf.py  email.py  data.py  telefone.py  municipio.py
   dados/municipios_ro.py   # lista oficial dos 52 municípios de Rondônia (IBGE)
+  dados/municipios_brasil.json  # os 5.571 municípios do Brasil por UF (IBGE), para a UF opcional
   servicos/validacao.py    # validar_dados: roda os validadores conforme a configuração (sem banco)
   servicos/regras.py       # REGRAS_PADRAO e leitura/alteração de regras_campo
   servicos/registro.py     # validar_e_registrar: lê a config, valida e grava em validacoes/falhas_validacao
@@ -99,8 +100,12 @@ Saída aprovada (HTTP 200):
                         "municipio": "Espigão D'Oeste", "municipio_codigo_ibge": "1100098"}}
 ```
 `dados_padronizados` traz só os campos preenchidos, mais campos derivados que o validador calcula.
-Hoje o único derivado é `municipio_codigo_ibge` (código IBGE de 7 dígitos, como texto), presente quando
-`municipio` é aprovado.
+Hoje os derivados são `municipio_codigo_ibge` (código IBGE de 7 dígitos, como texto), presente quando
+`municipio` é aprovado, e `municipio_uf`, só quando a requisição manda `uf`.
+**UF opcional (`dados.uf`, ex.: `"SP"`):** com ela, o município é validado naquele estado (base de 5.571 municípios do
+IBGE) e a saída ganha `municipio_uf`; município que não é da UF → regra `municipio_existente` ("Município não
+encontrado em SP. Você quis dizer Campinas?"); UF inexistente → `uf_valida` (erro claro, não 422). **Sem `uf`, nada
+muda:** vale Rondônia, com a regra `municipio_ro` e as mesmas mensagens.
 Payload malformado (não é JSON, falta `sistema_origem`) → 422 normal do FastAPI.
 
 **Chave por sistema (`X-API-Key`):** com `VALIDA_CHAVES_SISTEMAS` = `sistema:chave;outro:chave` (`seguranca.py`,
@@ -172,7 +177,7 @@ Os dois valores ficam guardados de forma independente, para que reativar restaur
 
 ### `GET /municipios`
 Lista `[{"nome": "Alta Floresta D'Oeste", "codigo_ibge": "1100015"}, ...]` (os 52 de RO, ordem alfabética sem
-acento), da mesma fonte do validador. Serve para o formulário sugerir enquanto o usuário digita (`<datalist>`);
+acento), da mesma fonte do validador. `?uf=SP` lista os de outro estado; UF inexistente → 404. Serve para o formulário sugerir enquanto o usuário digita (`<datalist>`);
 o campo continua livre e quem valida é o `POST /validar`.
 
 ### `GET /painel/erros`
@@ -220,7 +225,7 @@ falhas de uma vez. Uma checagem que depende de outra é pulada se a anterior fal
 | email | `sem_espacos`, `possui_arroba`, `dominio_valido` (domínio com ponto e TLD ≥ 2 letras) | minúsculo |
 | data_nascimento | `formato` (DD/MM/AAAA estrito), `data_existente`, `nao_futura`, `idade_maxima` (≤ 130 anos) | ISO `AAAA-MM-DD` |
 | telefone | `formato` (10 ou 11 dígitos), `ddd_valido`, `celular_com_9` (11 dígitos começa com 9 após DDD) | só dígitos |
-| municipio | `municipio_ro` (existe em RO; compara ignorando acento, caixa, apóstrofo, hífen e espaços; se não achar, sugere o mais parecido na mensagem) | nome oficial + `municipio_codigo_ibge` |
+| municipio | `municipio_ro` (sem `uf`: existe em RO; com `uf`: `municipio_existente` na UF e `uf_valida`; compara ignorando acento, caixa, apóstrofo, hífen e espaços; se não achar, sugere o mais parecido na mensagem) | nome oficial + `municipio_codigo_ibge` |
 
 Mensagens em português simples, dizendo o que corrigir. `formato_esperado` sempre preenchido quando fizer sentido.
 Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0000") são **bloqueados** com
@@ -383,16 +388,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
    - ✅ **Login por pessoa na CAGD** (31/10): cada um entra com o próprio usuário e o histórico registra quem
      mudou cada regra (modelo do IXC). Inclui o usuário "banca" para o jurado testar.
 9. **Em espera (decisão de 30/10):** só depois da etapa 8 pronta e estável, e se houver tempo.
-   - **Municípios do Brasil inteiro.** Hoje o município é só de RO, o que vale para cadastros estaduais
-     (residência, atendimento), mas bloqueia, por exemplo, cidadão de outro estado atendido em RO ou
-     naturalidade. Como fazer:
-     - tabela nacional do IBGE (cerca de 5.570 municípios) em `app/dados/`, com nome oficial, UF e código;
-       continua offline;
-     - campo opcional `uf` em `dados`; sem `uf`, vale RO, então a demo e os sistemas atuais não mudam;
-     - a UF é necessária porque há nomes repetidos entre estados (ex.: vários "Bom Jesus");
-     - saída mantém `municipio` e `municipio_codigo_ibge`, e ganha `municipio_uf`;
-     - mesma comparação (sem acento, caixa, apóstrofo, hífen e espaços) e sugestão por `difflib` dentro da UF;
-     - `GET /municipios` passa a aceitar `?uf=`.
+   - ✅ **Municípios do Brasil inteiro** (02/11): base de 5.571 do IBGE, `uf` opcional (sem ela, RO), `municipio_uf`
+     na saída, `GET /municipios?uf=`. Nomes repetidos entre estados (vários "Bom Jesus") resolvidos pela UF.
    - **Dockerfile**: "roda em qualquer servidor da SETIC com um comando" (argumento de viabilidade).
 10. ✅ Chave por sistema no header `X-API-Key` (01/11): o painel registra o sistema dono da chave.
 
