@@ -13,7 +13,9 @@ import { Slide03Problem } from './slides/Slide03Problem';
 import { Slide04Consequences } from './slides/Slide04Consequences';
 import { Slide05Opportunity } from './slides/Slide05Opportunity';
 import { Slide06Solution } from './slides/Slide06Solution';
-import { Slide07Demo } from './slides/Slide07Demo';
+// O antigo Slide07Demo (animação da validação) saiu da sequência: fechar o pitch com uma simulação logo antes da
+// demonstração ao vivo arriscava o item 8.5 do regulamento. O arquivo continua em slides/ para voltar se preciso.
+import { Slide07Diferencial } from './slides/Slide07Diferencial';
 import { Slide08Future } from './slides/Slide08Future';
 import { Slide09Closing } from './slides/Slide09Closing';
 import { LinksHub } from './components/LinksHub';
@@ -199,7 +201,7 @@ export default function App() {
       case 5:
         return <Slide06Solution />;
       case 6:
-        return <Slide07Demo />;
+        return <Slide07Diferencial />;
       case 7:
         return <Slide08Future />;
       case 8:
