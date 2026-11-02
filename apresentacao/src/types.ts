@@ -38,7 +38,7 @@ export const SLIDES_DATA: SlideInfo[] = [
     waveTransform: { x: -380, y: -80, scale: 1.05, opacity: 0.9, draw: true },
     tintOpacity: 0,
     speakerNotes: {
-      presenter: 'Celso / Abertura',
+      presenter: 'Celso (pitch: slides 1 a 7)',
       goal: 'Apresentar o produto com impacto visual imediato e marcar a identidade da equipe.',
       keyPoints: [
         'Cumprimentar avaliadores e banca da SETIC.',
@@ -74,7 +74,7 @@ export const SLIDES_DATA: SlideInfo[] = [
     waveTransform: { x: 680, y: -60, scale: 1.1, opacity: 0.16 },
     tintOpacity: 0,
     speakerNotes: {
-      presenter: 'Judson',
+      presenter: 'Celso',
       goal: 'Mostrar visualmente o caos de receber dados em formatos divergentes e sem validação central.',
       keyPoints: [
         'Sistema A e Sistema B enviam CPF, datas e e-mails com formatos diferentes.',
@@ -92,7 +92,7 @@ export const SLIDES_DATA: SlideInfo[] = [
     waveTransform: { x: 680, y: -60, scale: 1.1, opacity: 0.12 },
     tintOpacity: 0.35,
     speakerNotes: {
-      presenter: 'Judson',
+      presenter: 'Celso',
       goal: 'Fazer o público sentir a dor do dado sujo depois que ele entra no banco.',
       keyPoints: [
         'O problema real não é só receber: é o retrabalho operacional para consertar depois.',
@@ -110,7 +110,7 @@ export const SLIDES_DATA: SlideInfo[] = [
     waveTransform: { x: 740, y: -80, scale: 1.1, opacity: 0.16 },
     tintOpacity: 0,
     speakerNotes: {
-      presenter: 'Luiz',
+      presenter: 'Celso',
       goal: 'Comparar o esforço de corrigir depois versus bloquear na porta de entrada.',
       keyPoints: [
         'Tabela direta: Sem camada central vs Com validação prévia.',
@@ -128,32 +128,33 @@ export const SLIDES_DATA: SlideInfo[] = [
     waveTransform: { x: 740, y: -100, scale: 1.2, opacity: 0.22 },
     tintOpacity: 0,
     speakerNotes: {
-      presenter: 'Luiz',
-      goal: 'Trazer a virada positiva e a conexão humana com os desenvolvedores da SETIC.',
+      presenter: 'Celso',
+      goal: 'Apresentar a solução falando com a CAGD: uma regra, todos os sistemas.',
       keyPoints: [
-        '"Com a nossa API você pode facilitar a vida de seus programadores (Eles agradecem!)"',
-        'O desenvolvedor não precisa escrever regex e regras em cada tela.',
-        'A API responde: aprovado com dados padronizados OU bloqueado com motivo claro.'
+        '"Uma regra. Todos os sistemas." A CAGD muda num lugar só, e vale para todos na hora, sem uma linha de código.',
+        'Cada sistema faz uma chamada antes de gravar; ninguém reescreve validação de CPF, e-mail e datas em cada tela.',
+        'A API responde: aprovado com dados padronizados OU bloqueado com campo, regra e formato esperado.'
       ],
       caution: 'Deixar a animação da piscadela do emoji brilhar com o timing certo.'
     }
   },
   {
     id: 7,
-    slug: 'demonstracao',
-    title: 'Demonstração do Fluxo',
-    shortDesc: 'Valida SETIC em Ação',
+    slug: 'diferencial',
+    title: 'Muito além de checar o formato',
+    shortDesc: 'Diferencial e Impacto',
     waveTransform: { x: 680, y: -60, scale: 1.1, opacity: 0.15 },
     tintOpacity: 0,
     speakerNotes: {
-      presenter: 'Celso & Judson',
-      goal: 'O momento principal: demonstrar exatamente a interceptação e o retorno.',
+      presenter: 'Celso (fecha o pitch e passa para a demo)',
+      goal: 'Fechar o pitch com o diferencial, os números e o impacto (regulamento, item 8.1).',
       keyPoints: [
-        'Dados saem dos Sistemas A e B.',
-        'Dado inválido colide com o Valida SETIC, fica vermelho, recebe o motivo e volta ao sistema de origem.',
-        'Dado válido fica verde, é padronizado e segue aprovado para o banco da SETIC.'
+        '"Checar o formato é só o começo. A SETIC precisa saber se o dado existe, se está no padrão e quem mudou a regra."',
+        'Destaque: 0 linhas quando a regra muda. ~1 ms por verificação, ~240 por segundo em PostgreSQL, 340 testes.',
+        'Impacto: "quantas pessoas têm mais de 60 anos?" vira uma consulta simples.',
+        '"Agora, ao vivo": passar para o Felipe e o Judson abrirem o sistema de verdade.'
       ],
-      caution: 'Frisar: a API não inventa correções mágicas; ela valida e devolve a resposta clara.'
+      caution: 'Não citar outras equipes nem ferramentas. A demonstração é no sistema real, não em slide (item 8.5).'
     }
   },
   {
@@ -164,15 +165,15 @@ export const SLIDES_DATA: SlideInfo[] = [
     waveTransform: { x: 300, y: -100, scale: 1.4, opacity: 0.28 },
     tintOpacity: 0,
     speakerNotes: {
-      presenter: 'Equipe',
+      presenter: 'Felipe e Judson (depois da demo ao vivo)',
       goal: 'Mostrar ambição técnica e alinhamento com o PDTIC 2024-2027 e IN 05/2026 de Rondônia.',
       keyPoints: [
         'Entregamos um protótipo funcional no pouco tempo do hackathon.',
-        'Painel da CAGD, Onde agir, histórico de regras e padronização já funcionam hoje: estão na demo.',
-        'Visão futura: chave por sistema, municípios do Brasil inteiro, regras por sistema, novos tipos de dado e barreira pré-Data Lake.',
+        'Painel da CAGD, Onde agir, histórico de regras, chave por sistema e PostgreSQL já funcionam hoje: estão na demo.',
+        'Visão futura: cadastro de sistemas pela CAGD, municípios do Brasil inteiro, regras por sistema, novos tipos de dado e barreira pré-Data Lake.',
         'Métricas em tempo real por órgão e sistema.'
       ],
-      caution: 'Diferenciar claramente o protótipo de hoje das possibilidades futuras.'
+      caution: 'Fechamento curto (slides 8 e 9 em ~45 s): os 8 minutos contam tudo. Diferenciar o protótipo de hoje do futuro.'
     }
   },
   {
@@ -183,7 +184,7 @@ export const SLIDES_DATA: SlideInfo[] = [
     waveTransform: { x: 340, y: -60, scale: 1.1, opacity: 0.9, draw: true },
     tintOpacity: 0,
     speakerNotes: {
-      presenter: 'Todos',
+      presenter: 'Felipe e Judson',
       goal: 'Fechamento memorável com a frase final obrigatória.',
       keyPoints: [
         '"Nossa solução, seu problema, juntos modernizando o nosso estado."',

@@ -5,7 +5,7 @@ import { sfx } from '../audio';
 
 export const Slide06Solution: React.FC = () => {
   const [typedHeadline, setTypedHeadline] = useState('');
-  const fullHeadline = 'Com a nossa API você pode facilitar a vida de seus programadores.';
+  const fullHeadline = 'Uma regra. Todos os sistemas.';
   const containerRef = useRef<HTMLDivElement>(null);
   const [isWinking, setIsWinking] = useState(false);
 
@@ -90,7 +90,7 @@ export const Slide06Solution: React.FC = () => {
 
           {/* Complement with Natural Winking Emoji */}
           <div className="complement-group mt-6 flex items-center gap-6 text-3xl lg:text-4xl font-extrabold text-indigo-200">
-            <span>(Eles agradecem!)</span>
+            <span>(e os programadores agradecem!)</span>
 
             {/* Clickable Natural Expressive Emoji */}
             <div
@@ -230,7 +230,7 @@ export const Slide06Solution: React.FC = () => {
               Menos Linhas de Código nos Sistemas
             </h3>
             <p className="text-lg text-slate-100 leading-relaxed font-medium">
-              O programador não perde tempo implementando regex de CPF, verificador de e-mail e regras de datas. Uma chamada HTTP padronizada resolve tudo.
+              O programador não perde tempo implementando validação de CPF, e-mail e datas em cada tela. Uma chamada HTTP antes de gravar resolve tudo.
             </p>
           </div>
 
@@ -252,31 +252,31 @@ export const Slide06Solution: React.FC = () => {
               <span className="w-3.5 h-3.5 rounded-full bg-red-500" />
               <span className="w-3.5 h-3.5 rounded-full bg-yellow-500" />
               <span className="w-3.5 h-3.5 rounded-full bg-green-500" />
-              <span className="text-white ml-3 font-black text-base">POST /api/v1/validar</span>
+              <span className="text-white ml-3 font-black text-base">POST /validar</span>
             </div>
             <span className="text-emerald-400 font-black text-base">200 OK</span>
           </div>
 
           <div className="py-4 text-base lg:text-lg leading-relaxed">
-            <div className="text-yellow-300 font-bold">// Resposta Padronizada da Valida SETIC</div>
+            <div className="text-yellow-300 font-bold">// Resposta real da API (aprovado)</div>
             <div className="text-white font-bold">&#123;</div>
             <div className="pl-6">
-              <span className="text-cyan-300 font-bold">"status"</span>: <span className="text-emerald-400 font-black">"aprovado"</span>,
+              <span className="text-cyan-300 font-bold">"valido"</span>: <span className="text-emerald-300 font-bold">true</span>,
             </div>
             <div className="pl-6">
-              <span className="text-cyan-300 font-bold">"valido"</span>: <span className="text-emerald-300 font-bold">true</span>,
+              <span className="text-cyan-300 font-bold">"erros"</span>: <span className="text-white font-bold">[]</span>,
             </div>
             <div className="pl-6">
               <span className="text-cyan-300 font-bold">"dados_padronizados"</span>: &#123;
             </div>
             <div className="pl-12 text-white font-bold">
-              <span className="text-yellow-300">"cpf"</span>: "11111111111", <span className="text-slate-400 text-sm">// limpo</span>
+              <span className="text-yellow-300">"cpf"</span>: "12345678909", <span className="text-slate-400 text-sm">// só dígitos</span>
             </div>
             <div className="pl-12 text-white font-bold">
-              <span className="text-yellow-300">"nascimento"</span>: "1980-03-15", <span className="text-slate-400 text-sm">// ISO</span>
+              <span className="text-yellow-300">"data_nascimento"</span>: "1990-02-28", <span className="text-slate-400 text-sm">// ISO</span>
             </div>
             <div className="pl-12 text-white font-bold">
-              <span className="text-yellow-300">"email"</span>: "contato@setic.ro.gov.br"
+              <span className="text-yellow-300">"email"</span>: "maria@exemplo.com" <span className="text-slate-400 text-sm">// minúsculo</span>
             </div>
             <div className="pl-6 text-white font-bold">&#125;</div>
             <div className="text-white font-bold">&#125;</div>
