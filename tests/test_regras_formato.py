@@ -136,3 +136,12 @@ def test_valor_que_nao_e_texto_no_campo_novo_e_bloqueado_sem_erro_500(cliente, l
     criar(cliente, logado)
     resposta = cliente.post("/validar", json={"sistema_origem": "x", "dados": {**DADOS, "matricula": ["RO-123456"]}})
     assert resposta.status_code == 200 and resposta.json()["valido"] is False
+
+
+def test_tela_da_cagd_tem_o_card_das_regras_de_formato(cliente):
+    html = cliente.get("/cagd.html").text
+    for trecho in ['id="form-regra-formato"', 'id="rf-molde"', 'id="rf-teste"', 'id="tabela-regras-formato"',
+                   "js/regras-formato.js"]:
+        assert trecho in html
+    # O script novo vem depois do cagd.js (usa o criarSwitch dele)
+    assert html.index("js/cagd.js") < html.index("js/regras-formato.js")
