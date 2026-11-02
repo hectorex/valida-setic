@@ -119,6 +119,7 @@ Abrindo o servidor (ou o link), a página inicial leva a todas:
 - **Sem máscaras, de propósito:** faz o papel de um sistema antigo. É nele que dá para digitar `1985-03-15` e ver a
   API bloquear. *A tela ajuda, mas quem garante é a API.*
 - Quando a CAGD torna o telefone obrigatório, o Sistema B passa a exigir telefone **sem mudar o código dele**.
+- Envia para o backend dele (`POST /agendamentos`), que valida no servidor e não grava nada.
 
 ### CAGD: gestão de regras e painel (com login)
 - **Login por pessoa:** cada integrante da CAGD entra com o próprio usuário (há também um usuário para a banca
@@ -225,6 +226,7 @@ Documentação interativa completa, com exemplos, em **`/docs`** (Swagger).
 | `POST` | `/cagd/sair` | Encerra a sessão | — |
 | `GET` | `/cagd/eu` | Quem está logado | 🔒 login |
 | `POST` | `/cadastros` | Backend do Sistema A de exemplo: valida e só grava se aprovado | público |
+| `POST` | `/agendamentos` | Backend do Sistema B de exemplo: valida no servidor (mesma resposta do `/validar`) | público |
 | `GET` | `/cadastros` | O que o Sistema A gravou, mais recentes primeiro | público |
 | `GET` | `/municipios` | Os 52 municípios de RO (nome oficial e código IBGE) | público |
 | `GET` | `/saude` | Confirma que a API está no ar | público |
@@ -323,10 +325,10 @@ O `cadastro` traz o dado padronizado e o `criado_em` em UTC (`...Z`), que o nave
   sistema **dono da chave**, não o nome que a requisição diz. Ninguém se passa por outro sistema, e só sistemas
   cadastrados entram no painel. As chaves vêm da variável `VALIDA_CHAVES_SISTEMAS` (`sistema:chave;...`) e são
   comparadas em tempo constante.
-  - **Ponto honesto da demo:** o Sistema B e a página Como integrar chamam a API pelo navegador, então as chaves
-    deles (`demo-sistema-b` e `demo-exemplo`) ficam visíveis no código da página. São chaves de demonstração. Em
-    produção, a chamada sai do servidor de cada sistema, onde a chave fica guardada, como o Sistema A já faz pelo
-    `/cadastros` (que valida por dentro, sem chave).
+  - **Nenhuma chave de sistema real vai para o navegador.** Os Sistemas A e B de exemplo falam só com o próprio
+    backend (`/cadastros` e `/agendamentos`), e é o servidor que valida, como deve ser em produção. A única chave
+    pública é a de **testes** (`demo-exemplo`, do `sistema_exemplo`), para a página Como integrar rodar os exemplos,
+    como as chaves de teste de serviços de pagamento: ela só faz aparecer "sistema_exemplo" no painel.
 - **Auditoria:** cada mudança de regra registra quem, quando e o quê. O autor vem do login, nunca da requisição.
 - **Só aceita o que conhece (contra "admin": true):** mudar regra aceita só 4 atributos; qualquer outro é recusado
   (422). O resultado da validação e o cadastro gravado são calculados pelo servidor: campos extras mandados pelo
@@ -371,7 +373,8 @@ app/
     painel.py             contagens do painel
     onde_agir.py          recomendações "Onde agir"
     cadastros.py          backend do Sistema A de exemplo
-  rotas/                  validar, regras, painel, cagd (login), cadastros, municipios
+  rotas/                  validar, regras, painel, cagd (login), cadastros (Sistema A), agendamentos (Sistema B),
+                          municipios
   seed.py                 histórico fictício para o painel da demo
 static/                   index, sistema-a, sistema-b, cagd, integrar (+ js/ e css/)
 tests/                    testes automáticos (pytest)
@@ -435,13 +438,13 @@ Formato: `usuario:Nome que aparece no histórico:senha`, vários separados por `
 
 - **Chave por sistema:** sem a variável `VALIDA_CHAVES_SISTEMAS`, o `/validar` não exige chave (vale o
   `sistema_origem` enviado). Para testar como no site hospedado, suba com
-  `VALIDA_CHAVES_SISTEMAS="sistema_b:demo-sistema-b;sistema_exemplo:demo-exemplo"` (mesmo jeito da variável acima).
+  `VALIDA_CHAVES_SISTEMAS="sistema_exemplo:demo-exemplo"` (mesmo jeito da variável acima).
 
 ## 12. Testes
 ```bash
 python -m pytest
 ```
-São **336 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
+São **340 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
 - cada validador com casos válidos e inválidos (29/02/2024 aceito; 31/02/1990, 00/00/0000, 1985-03-15, CPF
   111.111.111-11, e-mail sem domínio bloqueados…);
 - os erros em camadas e as rotas;
@@ -508,8 +511,8 @@ A demo oficial roda no notebook, sem depender de internet. O link serve para tes
   permissões.
 - **As mesmas regras para todos os sistemas.** Próximo passo: regras diferentes por sistema (ex.: um sistema que não
   coleta e-mail).
-- **Chaves de sistema numa variável de ambiente**, e as da demo visíveis no navegador (ver a seção 9). Próximo
-  passo: cadastro de sistemas e troca de chave pela tela da CAGD, com as chamadas sempre saindo do servidor.
+- **Chaves de sistema numa variável de ambiente.** Próximo passo: cadastro de sistemas e troca de chave pela tela da
+  CAGD.
 - **Limites por endereço (IP).** O bloqueio de força bruta é por usuário e fica na memória do servidor. Em produção,
   somar um limite de requisições por IP no servidor de entrada (proxy) da SETIC.
 - **Implantação gradual.** Uma ideia é começar num sistema piloto em "modo observação" (registra no painel sem
