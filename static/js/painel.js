@@ -23,6 +23,8 @@ const REGRAS_LEGIVEIS = {
   ddd_valido: 'DDD inexistente',
   celular_com_9: 'Celular sem o 9',
   municipio_ro: 'Município fora de RO',
+  municipio_existente: 'Município não existe na UF',
+  uf_valida: 'UF inexistente',
 };
 
 let falhasDoPainel = []; // guardadas para o filtro por sistema redesenhar a tabela sem chamar a API de novo

@@ -21,6 +21,10 @@ class ConfigRegraFormato:
     obrigatorio: bool
 
 
+# Campos que a API já usa além dos 6 padrão (a UF do município)
+CAMPOS_RESERVADOS = {"uf"}
+
+
 class CampoInvalido(ValueError):
     """Campo que não pode receber regra de formato (é um dos padrão ou já tem regra)."""
 
@@ -42,7 +46,7 @@ def _historico(sessao: Session, campo: str, atributo: str, anterior, novo, autor
 
 def criar_regra_formato(sessao: Session, dados: dict, autor: str | None = None) -> RegraFormato:
     campo = dados["campo"]
-    if campo in REGRAS_PADRAO:
+    if campo in REGRAS_PADRAO or campo in CAMPOS_RESERVADOS:
         raise CampoInvalido(f"O campo '{campo}' é um dos campos padrão, que já têm regras próprias.")
     if sessao.scalar(select(RegraFormato).where(RegraFormato.campo == campo)):
         raise CampoInvalido(f"O campo '{campo}' já tem uma regra de formato. Edite a regra existente.")

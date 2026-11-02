@@ -58,7 +58,8 @@ def validar_dados(dados: dict, regras: dict[str, ConfigCampo], regras_formato=()
             padronizados[campo] = valor
             continue
 
-        resultado = validador(valor)
+        # O município usa a UF opcional (sem ela, Rondônia)
+        resultado = validador(valor, dados.get("uf")) if campo == "municipio" else validador(valor)
         if resultado.valido:
             padronizados[campo] = resultado.valor
             padronizados.update(resultado.extras)  # ex.: municipio_codigo_ibge

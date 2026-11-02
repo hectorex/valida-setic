@@ -14,6 +14,8 @@ class DadosEntrada(BaseModel):
     data_nascimento: str | None = None
     telefone: str | None = None
     municipio: str | None = None
+    # Opcional: sigla do estado do município (ex.: "SP"). Sem ela, o município é validado em Rondônia.
+    uf: str | None = Field(default=None, examples=["RO"])  # UF inexistente vira erro claro, não 422
 
 
 class RequisicaoValidacao(BaseModel):
