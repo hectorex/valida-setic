@@ -118,10 +118,17 @@ export const Slide07Diferencial: React.FC = () => {
           Hoje, é preciso limpar os dados à mão. Com a data sempre no mesmo padrão,{' '}
           <strong className="text-white">vira uma consulta simples.</strong>
         </div>
-        <div className="flex items-center gap-3 shrink-0 rounded-2xl border-2 border-emerald-400 bg-emerald-950/60 px-7 py-4 text-2xl font-black text-emerald-300 shadow-[0_0_30px_rgba(45,255,154,0.35)]">
+        {/* Clicar abre o sistema de verdade numa aba nova, já no Sistema A (primeiro passo da demo) */}
+        <a
+          href="https://valida-setic.onrender.com/sistema-a.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Abrir o Valida SETIC (Sistema A) numa aba nova"
+          className="flex items-center gap-3 shrink-0 rounded-2xl border-2 border-emerald-400 bg-emerald-950/60 px-7 py-4 text-2xl font-black text-emerald-300 shadow-[0_0_30px_rgba(45,255,154,0.35)] cursor-pointer transition-colors hover:bg-emerald-900/70 hover:border-emerald-300"
+        >
           <span>Agora, ao vivo</span>
           <ArrowRight className="dif-ao-vivo-seta w-7 h-7" />
-        </div>
+        </a>
       </div>
     </div>
   );
