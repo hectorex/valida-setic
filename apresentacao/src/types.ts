@@ -150,7 +150,8 @@ export const SLIDES_DATA: SlideInfo[] = [
       goal: 'Fechar o pitch com o diferencial, os números e o impacto (regulamento, item 8.1).',
       keyPoints: [
         '"Checar o formato é só o começo. A SETIC precisa saber se o dado existe, se está no padrão e quem mudou a regra."',
-        'Destaque: 0 linhas quando a regra muda. ~1 ms por verificação, ~240 por segundo em PostgreSQL, 340 testes.',
+        'Destaque: 0 linhas quando a regra muda, e a CAGD cria regra nova para campo novo pela tela, sem programar (molde como RO-000000, com teste antes de salvar, login e histórico).',
+        '~1 ms por verificação, ~240 por segundo em PostgreSQL, 410 testes.',
         'Impacto: "quantas pessoas têm mais de 60 anos?" vira uma consulta simples.',
         '"Agora, ao vivo": passar para o Felipe e o Judson abrirem o sistema de verdade.'
       ],
