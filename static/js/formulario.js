@@ -281,6 +281,11 @@ function montarPayload() {
     const input = formulario.querySelector(`[name="${campo}"]`);
     dados[campo] = input && !input.disabled ? input.value.trim() : '';
   });
+  // Campos próprios do sistema (ex.: protocolo no Sistema B): vão junto e só são validados se a CAGD tiver
+  // criado uma regra de formato para eles; sem regra, a API ignora
+  formulario.querySelectorAll('.field[data-campo-extra] input').forEach((input) => {
+    dados[input.name] = input.value.trim();
+  });
   // Os backends dos sistemas (/cadastros, /agendamentos) recebem os campos direto; POST /validar recebe {sistema_origem, dados}
   return ROTA_ENVIO === '/validar' ? { sistema_origem: SISTEMA_ORIGEM, dados } : dados;
 }

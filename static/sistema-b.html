@@ -109,7 +109,15 @@
               <span class="error-msg" aria-live="polite"></span>
             </div>
 
-            <!-- Campo próprio do Sistema B: não é enviado à API (campos desconhecidos seriam ignorados) -->
+            <!-- Campo próprio do Sistema B, enviado à API (data-campo-extra): só é validado se a CAGD criar uma
+                 regra de formato para "protocolo"; sem regra, a API ignora. -->
+            <div class="field" data-campo="protocolo" data-campo-extra>
+              <div class="label-row"><label for="protocolo">Nº do protocolo <span class="muted small">(opcional)</span></label></div>
+              <input type="text" id="protocolo" name="protocolo" placeholder="Ex.: 2026/000123">
+              <span class="error-msg" aria-live="polite"></span>
+            </div>
+
+            <!-- Campo próprio do Sistema B: não é enviado à API -->
             <div class="field field-full">
               <div class="label-row"><label for="servico">Serviço</label></div>
               <select id="servico" name="servico" class="select">
