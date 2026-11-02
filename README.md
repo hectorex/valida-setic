@@ -241,7 +241,7 @@ Documentação interativa completa, com exemplos, em **`/docs`** (Swagger).
 | `POST` | `/cadastros` | Backend do Sistema A de exemplo: valida e só grava se aprovado | público |
 | `POST` | `/agendamentos` | Backend do Sistema B de exemplo: valida no servidor (mesma resposta do `/validar`) | público |
 | `GET` | `/cadastros` | O que o Sistema A gravou, mais recentes primeiro | público |
-| `GET` | `/municipios` | Os 52 municípios de RO (nome oficial e código IBGE) | público |
+| `GET` | `/municipios` | Os 52 municípios de RO; com `?uf=SP`, os de outro estado (5.571 no Brasil, IBGE) | público |
 | `GET` | `/saude` | Confirma que a API está no ar e diz qual banco está em uso (`postgresql` ou `sqlite`) | público |
 
 "Público" é o que os sistemas precisam para funcionar. "Login" é só da CAGD. "Chave do sistema" é o cabeçalho
@@ -457,7 +457,7 @@ Formato: `usuario:Nome que aparece no histórico:senha`, vários separados por `
 ```bash
 python -m pytest
 ```
-São **410 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
+São **426 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
 - cada validador com casos válidos e inválidos (29/02/2024 aceito; 31/02/1990, 00/00/0000, 1985-03-15, CPF
   111.111.111-11, e-mail sem domínio bloqueados…);
 - os erros em camadas e as rotas;
@@ -518,8 +518,6 @@ A demo oficial roda no notebook, sem depender de internet. O link serve para tes
 7. **Como integrar:** o "Antes e depois" e o exemplo JavaScript editado e executado ao vivo.
 
 ## 15. Limitações e próximos passos
-- **Município só de Rondônia.** Próximo passo: a tabela nacional do IBGE (cerca de 5.570 municípios), com UF opcional,
-  sem mudar os sistemas atuais.
 - **Usuários da CAGD numa variável de ambiente.** Próximo passo: tela para criar usuários, trocar senha e definir
   permissões.
 - **As mesmas regras para todos os sistemas.** Próximo passo: regras diferentes por sistema (ex.: um sistema que não
