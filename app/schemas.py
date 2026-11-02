@@ -80,8 +80,9 @@ class RegraAtualizacao(BaseModel):
 
     obrigatorio: bool | None = Field(default=None, description=DESCRICAO_OBRIGATORIO)
     ativo: bool | None = Field(default=None, description=DESCRICAO_ATIVO)
-    formato_esperado: str | None = None
-    ajuda: str | None = None
+    # Limites iguais aos das colunas: texto maior volta 422, em vez de erro ao gravar
+    formato_esperado: str | None = Field(default=None, max_length=100)
+    ajuda: str | None = Field(default=None, max_length=300)
 
 
 # Painel de erros (GET /painel/erros)
