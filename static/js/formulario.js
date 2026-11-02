@@ -23,6 +23,42 @@ async function carregarRegrasFormulario() {
   }
 }
 
+/** Campos próprios do sistema (data-campo-extra): formato, aviso e asterisco vêm da regra de formato da CAGD. */
+async function carregarRegrasExtras() {
+  const campos = formulario.querySelectorAll('.field[data-campo-extra]');
+  if (!campos.length) return;
+  try {
+    const { data: regras } = await apiFetch('/regras-formato');
+    campos.forEach((container) => aplicarRegraExtra(container, regras));
+  } catch {
+    // Sem as regras, o campo continua funcionando: quem valida é a API
+  }
+}
+
+function aplicarRegraExtra(container, regras) {
+  const input = container.querySelector('input');
+  const label = container.querySelector('label');
+  const dica = container.querySelector('.dica-extra');
+  const regra = regras.find((r) => r.campo === input.name && r.ativo);
+
+  label.querySelector('.req')?.remove();
+  input.removeAttribute('aria-required');
+  dica.classList.toggle('com-regra', Boolean(regra));
+  if (!regra) {
+    input.placeholder = '';
+    dica.textContent = 'Sem regra da CAGD: este campo ainda não é validado.';
+    return;
+  }
+  input.placeholder = regra.molde;
+  dica.textContent = `Formato ${regra.molde}, definido pela CAGD`;
+  if (regra.obrigatorio) {
+    const asterisco = criarElemento('span', 'req', '*');
+    asterisco.setAttribute('aria-hidden', 'true');
+    label.appendChild(asterisco);
+    input.setAttribute('aria-required', 'true');
+  }
+}
+
 function aplicarRegraNoCampo(regra) {
   const container = formulario.querySelector(`.field[data-campo="${regra.campo}"]`);
   if (!container) return;
@@ -416,6 +452,13 @@ document.addEventListener('DOMContentLoaded', () => {
   formulario.addEventListener('reset', () => setTimeout(limparErros, 0));
 
   carregarRegrasFormulario();
+  carregarRegrasExtras();
+  // Ao voltar para esta aba (ex.: depois de mudar uma regra na CAGD), as regras são lidas de novo, sem precisar de F5
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    carregarRegrasFormulario();
+    carregarRegrasExtras();
+  });
   iniciarMascaras();
   iniciarSugestoesMunicipio();
 });

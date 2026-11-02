@@ -1108,6 +1108,8 @@ body.cagd-bloqueada .card-protegido { display: none; }
 @media (max-width: 720px) { .dados-ficticios-grade { grid-template-columns: 1fr; } }
 
 /* Regras de formato da CAGD (campos novos) */
+.dica-extra { font-size: 0.78rem; color: var(--text-muted); }
+.dica-extra.com-regra { color: var(--primary-hover); font-weight: 600; }
 #form-regra-formato { margin-bottom: 1.25rem; }
 .teste-molde { font-size: 0.82rem; min-height: 1.1rem; }
 .teste-molde.aprovado { color: var(--success); }
