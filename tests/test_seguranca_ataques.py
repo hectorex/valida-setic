@@ -103,7 +103,7 @@ def test_xss_volta_como_texto_e_as_telas_nao_usam_innerhtml_com_dados(cliente, l
     assert payload in [s["sistema_origem"] for s in cliente.get("/painel/erros", headers=logado).json()["por_sistema"]]
     # A defesa é na tela: dado vindo da API entra sempre por textContent. O único innerHTML é de um ícone fixo.
     for script in ["comum.js", "formulario.js", "cagd.js", "painel.js", "historico.js", "banco-sistema-a.js",
-                   "login-cagd.js", "integrar.js"]:
+                   "login-cagd.js", "integrar.js", "dados-ficticios.js"]:
         codigo = cliente.get(f"/js/{script}").text
         usos = [linha.strip() for linha in codigo.splitlines() if "innerHTML" in linha]
         assert all("ICONE_" in uso for uso in usos), f"{script}: {usos}"
