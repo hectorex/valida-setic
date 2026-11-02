@@ -189,3 +189,17 @@ def test_usuario_inexistente_tambem_bloqueia(cliente, com_usuarios):
     for _ in range(5):
         assert entrar(cliente, "ninguem", "x").status_code == 401
     assert entrar(cliente, "ninguem", "x").status_code == 429
+
+
+# Maiúsculas: o usuário não diferencia (judson = JUDSON), a senha diferencia
+
+
+@pytest.mark.parametrize("usuario", ["CELSO", "Celso", " celso "])
+def test_usuario_nao_diferencia_maiusculas(cliente, com_usuarios, usuario):
+    resposta = entrar(cliente, usuario=usuario)
+    assert resposta.status_code == 200 and resposta.json()["usuario"] == "celso"
+
+
+@pytest.mark.parametrize("senha", ["SENHA-CELSO", "Senha-celso", "senha-celsO"])
+def test_senha_diferencia_maiusculas(cliente, com_usuarios, senha):
+    assert entrar(cliente, senha=senha).status_code == 401
