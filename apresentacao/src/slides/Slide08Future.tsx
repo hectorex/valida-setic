@@ -54,12 +54,12 @@ const DIFFERENTIALS: Differential[] = [
   },
   {
     id: 4,
-    title: 'Municípios do Brasil Inteiro',
-    category: 'ABRANGÊNCIA',
+    title: 'Conferência em Bases Oficiais',
+    category: 'CONFIABILIDADE',
     tagColor: 'bg-purple-600 text-white',
     icon: <MapPin className="w-10 h-10 text-purple-300" />,
-    howWeHelp: 'Tabela nacional do IBGE com a UF, além dos 52 municípios de Rondônia.',
-    benefit: 'Atende cidadão de outro estado e campos como naturalidade.',
+    howWeHelp: 'Além do formato, conferir se o dado existe: CPF na Receita, CEP nos Correios.',
+    benefit: 'Bloqueia o dado que parece certo, mas não existe de verdade.',
   },
   {
     id: 5,
