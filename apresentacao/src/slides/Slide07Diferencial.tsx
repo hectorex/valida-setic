@@ -23,6 +23,12 @@ const LINHAS: Linha[] = [
     validaSetic: '0 linhas: muda para todos',
     destaque: true,
   },
+  {
+    pergunta: 'A CAGD cria regra nova?',
+    soFormato: 'Precisa programar',
+    validaSetic: 'Pela tela, sem programar',
+    destaque: true,
+  },
   { pergunta: 'A CAGD sabe onde agir?', soFormato: 'Não', validaSetic: 'Painel, Onde agir e histórico' },
 ];
 
@@ -30,7 +36,7 @@ const NUMEROS = [
   { valor: '~1 ms', rotulo: 'por verificação' },
   { valor: '~240/s', rotulo: 'em PostgreSQL, sem falhas' },
   { valor: '0', rotulo: 'linhas quando a regra muda' },
-  { valor: '340', rotulo: 'testes automáticos' },
+  { valor: '410', rotulo: 'testes automáticos' },
   { valor: '1 chave', rotulo: 'por sistema' },
 ];
 
@@ -72,7 +78,7 @@ export const Slide07Diferencial: React.FC = () => {
           {LINHAS.map((linha) => (
             <div
               key={linha.pergunta}
-              className={`dif-linha grid grid-cols-12 px-10 py-3.5 items-center ${linha.destaque ? 'bg-indigo-950/50' : ''}`}
+              className={`dif-linha grid grid-cols-12 px-10 py-2.5 items-center ${linha.destaque ? 'bg-indigo-950/50' : ''}`}
             >
               <div className="col-span-4 text-2xl font-bold text-white">{linha.pergunta}</div>
               <div className="col-span-4 text-xl font-bold text-red-300 flex items-center gap-3">
