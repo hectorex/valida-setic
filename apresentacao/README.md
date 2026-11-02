@@ -10,14 +10,26 @@ A pasta é independente da API: nada aqui roda no Render nem entra nos testes do
 
 ## Como rodar
 
-Precisa do Node.js 20 ou mais novo.
+Precisa do Node.js 20 ou mais novo. O projeto usa o **bun** (`bun install`, como na Vercel). Com npm, instale com
+`--legacy-peer-deps`: o `package.json` pede o esbuild 0.25, e o Vite 8 prefere o 0.27 (o build funciona assim mesmo).
 
 ```bash
 cd apresentacao
-npm install
+npm install --legacy-peer-deps   # ou: bun install
 npm run dev      # abre em http://localhost:3000
 npm run build    # gera a versão final em dist/
 ```
+
+## Quem apresenta
+
+| Parte | Slides | Quem |
+|---|---|---|
+| Pitch (3 min) | 1 a 7 (o 7 fecha com o diferencial, o impacto e "Agora, ao vivo") | Celso |
+| Demonstração ao vivo | o sistema no Render | Felipe e Judson |
+| Fechamento (~45 s) | 8 (futuro) e 9 (encerramento) | Felipe e Judson |
+
+O regulamento corta aos 8 minutos no total, contando o fechamento. A demonstração precisa ser no sistema real
+(item 8.5: animação no lugar da aplicação dá nota zero em Demonstração).
 
 ## Atalhos na apresentação
 
@@ -34,6 +46,7 @@ npm run build    # gera a versão final em dist/
 src/
   App.tsx              # troca de slides e atalhos
   slides/              # um arquivo por slide (Slide01Cover ... Slide09Closing)
+                       #   o 7 é o Slide07Diferencial; o Slide07Demo (animação) está fora da sequência
   components/          # navegação, notas do apresentador, fundo animado, links com QR code
   types.ts             # título e notas do apresentador de cada slide
   audio.ts             # efeitos sonoros
