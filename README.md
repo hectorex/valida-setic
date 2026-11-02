@@ -130,6 +130,10 @@ válidos** e **Preencher com erros**. Ninguém precisa digitar dados reais no li
   avaliadora). O campo de senha tem o botão de olho.
 - **Regras:** interruptores de **Obrigatório** e **Ativo** para cada campo. Valem na próxima validação de todos os
   sistemas.
+- **Regras de formato para campos novos:** a CAGD cria uma regra para um campo que os sistemas mandam (ex.:
+  matrícula), descrevendo o formato com um **molde**: `0` = dígito, `A` = letra, `*` = letra ou dígito (ex.:
+  `RO-000000`). Sem precisar saber programar, sem regex que possa travar o servidor, com teste antes de salvar,
+  login e histórico de quem criou ou mudou. Vale na hora, para todos os sistemas.
 - **Painel de erros:** total de validações, bloqueadas, taxa de bloqueio, **tempo médio de verificação** (medido de
   verdade, menos de 1 ms), taxa por sistema, campos que mais erram e falhas mais frequentes, com **filtro por
   sistema** (útil quando forem dezenas de sistemas) e o nome de cada regra em português ("Celular sem o 9").
@@ -226,6 +230,10 @@ Documentação interativa completa, com exemplos, em **`/docs`** (Swagger).
 | `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato, ajuda) | público |
 | `PUT` | `/regras/{campo}` | CAGD altera um campo; vale na próxima validação | 🔒 login |
 | `GET` | `/regras/historico` | Mudanças da CAGD: quem, quando, campo, antes e depois | 🔒 login |
+| `GET` | `/regras-formato` | Regras de formato que a CAGD criou para campos novos | público |
+| `POST` | `/regras-formato` | CAGD cria uma regra por molde (ex.: matrícula `RO-000000`) | 🔒 login |
+| `PUT` / `DELETE` | `/regras-formato/{id}` | CAGD muda ou exclui a regra | 🔒 login |
+| `POST` | `/regras-formato/testar` | Testa um valor contra um molde, sem salvar | público |
 | `GET` | `/painel/erros` | Totais, taxa de bloqueio, falhas, tempo médio e Onde agir | 🔒 login |
 | `POST` | `/cagd/login` | Login com usuário e senha; devolve a chave (token) | público |
 | `POST` | `/cagd/sair` | Encerra a sessão | — |
@@ -449,7 +457,7 @@ Formato: `usuario:Nome que aparece no histórico:senha`, vários separados por `
 ```bash
 python -m pytest
 ```
-São **352 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
+São **410 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
 - cada validador com casos válidos e inválidos (29/02/2024 aceito; 31/02/1990, 00/00/0000, 1985-03-15, CPF
   111.111.111-11, e-mail sem domínio bloqueados…);
 - os erros em camadas e as rotas;

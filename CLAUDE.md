@@ -79,8 +79,9 @@ Entrada:
  "dados": {"nome": "Maria  da silva", "cpf": "123.456.789-09",
            "email": "Maria@Exemplo.com", "data_nascimento": "31/02/1990"}}
 ```
-Campos aceitos em `dados`: `nome`, `cpf`, `email`, `data_nascimento`, `telefone`, `municipio`.
-Campos ausentes só geram erro se a regra do campo estiver como obrigatória. Campos desconhecidos são ignorados.
+Campos padrão em `dados`: `nome`, `cpf`, `email`, `data_nascimento`, `telefone`, `municipio`.
+Campos ausentes só geram erro se a regra do campo estiver como obrigatória. Campos novos (ex.: `matricula`) são
+validados se a CAGD tiver uma **regra de formato** ativa para eles (ver abaixo); sem regra, são ignorados.
 
 Saída bloqueada (HTTP 200):
 ```json
@@ -116,6 +117,26 @@ Recebe os campos de `dados` direto no corpo (sem `sistema_origem`), valida no se
 mesma resposta do `POST /validar` (`{valido, erros, dados_padronizados}`). Não grava nada e não pede chave: é o backend
 do próprio Sistema B, como o `/cadastros` é do Sistema A. Representa a arquitetura certa de produção: o navegador fala
 com o servidor do sistema, e só o servidor conhece a chave.
+
+### Regras de formato da CAGD para campos novos (`/regras-formato`)
+A CAGD cria, pela tela e com login, uma regra para um campo novo que os sistemas mandam (ex.: matrícula), descrita por
+um **molde** (`app/validadores/molde.py`): `0` = dígito, `A` = letra (sem acento), `*` = letra ou dígito; o resto vale
+ele mesmo (`RO-000000`, `AAA-0A00`). O molde vira uma expressão sem repetições (um caractere por posição): um molde
+mal escrito não trava o servidor, ao contrário de regex livre. Padroniza letras em maiúsculas e partes fixas iguais
+às do molde (`ro-123456` → `RO-123456`).
+- `GET /regras-formato` (público) → `[{"id", "campo", "nome", "molde", "mensagem", "obrigatorio", "ativo"}]`.
+- `POST /regras-formato` (login) `{"campo", "nome", "molde", "mensagem"?, "obrigatorio"?, "ativo"?}` → 201. Campo em
+  `^[a-z][a-z0-9_]{1,49}$`; os 6 campos padrão ou campo que já tem regra → 409; molde inválido ou atributo
+  desconhecido → 422 (`extra="forbid"`).
+- `PUT /regras-formato/{id}` (login, parcial: nome, molde, mensagem, obrigatorio, ativo; o campo não muda) e
+  `DELETE /regras-formato/{id}` (login) → 404 se não existe.
+- `POST /regras-formato/testar` (público, não salva) `{"molde", "valor", "mensagem"?}` →
+  `{"valido", "valor_padronizado", "mensagem"}`. A tela da CAGD usa antes de criar.
+- No `/validar` (e nos backends `/cadastros` e `/agendamentos`), depois dos 6 campos: regra ativa e campo vazio →
+  `obrigatorio` se a regra for obrigatória; preenchido → `formato` (mensagem da CAGD ou "Use o formato {molde}.",
+  `formato_esperado` = molde). Aprovado entra em `dados_padronizados`. O `/cadastros` grava só as colunas da tabela.
+- Histórico: criação, mudança e exclusão entram em `historico_regras` (campo = campo da regra; atributo
+  `regra_criada`, `molde`, `obrigatorio`, `ativo`, `nome`, `mensagem` ou `regra_excluida`), com o autor.
 
 ### `GET /regras` e `PUT /regras/{campo}`
 Configuração por campo: `obrigatorio`, `ativo`, `formato_esperado`, `ajuda` (texto do ícone "i").
@@ -235,6 +256,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   coluna que faltar (`ALTER TABLE`), para o `valida.db` de quem já rodava o projeto não quebrar.
 - `falhas_validacao`: id, validacao_id, sistema_origem, campo, regra, data_hora.
 - `historico_regras`: id, campo, atributo, valor_anterior, valor_novo (texto: "true"/"false" ou o texto), data_hora.
+- `regras_formato`: id, campo (único, ≤50), nome (≤100), molde (≤40), mensagem (≤200), obrigatorio, ativo, criado_em,
+  atualizado_em. Criada pelo `create_all` na subida (tabela nova, sem migração).
 - `cadastros`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, criado_em.
   Dados padronizados do Sistema A de exemplo (fictícios).
 - `python -m app.seed` apaga só `validacoes`/`falhas_validacao` e recria 200 validações fictícias (semente fixa).
@@ -302,7 +325,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 
 ## Fora do escopo
 - Corrigir dados antigos já gravados (o próprio desafio exclui).
-- Editor genérico de regras (regras técnicas ficam no código; o banco guarda só a configuração).
+- Editor genérico de regras com código livre (regex). As regras técnicas dos 6 campos ficam no código; para campos
+  novos, a CAGD usa as regras de formato por molde (seguras, sem regex).
 - Validação dentro do banco (o desafio pede escolher API **ou** banco; escolhemos API).
 - Gestão de usuários pela tela (criar, trocar senha, permissões): os usuários vêm da variável de ambiente.
   Cadastro de sistemas e troca de chave pela tela (as chaves vêm da variável `VALIDA_CHAVES_SISTEMAS`).

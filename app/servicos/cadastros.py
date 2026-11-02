@@ -14,7 +14,9 @@ def cadastrar(sessao: Session, dados: dict) -> RespostaCadastro:
     if not resposta.valido:
         return RespostaCadastro(gravado=False, erros=resposta.erros, cadastro=None)
 
-    cadastro = Cadastro(**resposta.dados_padronizados)
+    # Só as colunas da tabela: um campo novo com regra da CAGD é validado, mas este banco de exemplo não o guarda
+    colunas = {coluna.key for coluna in Cadastro.__table__.columns}
+    cadastro = Cadastro(**{k: v for k, v in resposta.dados_padronizados.items() if k in colunas})
     sessao.add(cadastro)
     sessao.commit()
     return RespostaCadastro(gravado=True, erros=[], cadastro=CadastroSaida.model_validate(cadastro))
