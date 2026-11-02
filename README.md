@@ -113,6 +113,8 @@ válidos** e **Preencher com erros**. Ninguém precisa digitar dados reais no li
 - **Máscaras:** CPF, telefone e data ganham a pontuação enquanto a pessoa digita (`12345678909` → `123.456.789-09`).
 - **Município:** ao digitar "P", abre a lista de sugestões (Parecis, Pimenta Bueno, Porto Velho…). A partir de 3
   letras também acha palavras do meio ("vel" → Porto Velho).
+- **UF do município:** seletor com os 27 estados (começa em RO). Com SP, as sugestões passam a ser de São Paulo e
+  a API valida o município lá: "Campinas" passa e é gravado com a UF; "Porto Velho" é bloqueado.
 - Ao salvar, o backend do Sistema A chama a API e **só grava se aprovado**. Os erros aparecem embaixo de cada
   campo, todos de uma vez.
 - Embaixo, o **Banco do Sistema A (simulado)** mostra o que foi gravado, já padronizado. Na vida real esse banco

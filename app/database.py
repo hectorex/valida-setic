@@ -49,6 +49,7 @@ class Base(DeclarativeBase):
 COLUNAS_NOVAS = [
     ("validacoes", "duracao_ms", "FLOAT"),
     ("historico_regras", "usuario", "VARCHAR(100)"),
+    ("cadastros", "municipio_uf", "VARCHAR(2)"),
 ]
 
 

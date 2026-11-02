@@ -173,11 +173,22 @@ function filtrarMunicipios(municipios, texto) {
 async function iniciarSugestoesMunicipio() {
   const input = formulario.querySelector('[name="municipio"]');
   if (!input) return;
+  const seletorUF = formulario.querySelector('select[name="uf"]'); // só no Sistema A; sem ele, Rondônia
+
+  // Lista de cada UF, buscada uma vez (GET /municipios?uf=)
+  const listas = {};
+  async function carregarMunicipios(uf) {
+    if (!listas[uf]) {
+      listas[uf] = apiFetch(`/municipios?uf=${encodeURIComponent(uf)}`)
+        .then(({ data }) => data.map((m) => ({ nome: m.nome, chave: chaveBusca(m.nome) })));
+    }
+    return listas[uf];
+  }
+  const ufAtual = () => (seletorUF ? seletorUF.value : 'RO');
 
   let municipios;
   try {
-    const { data } = await apiFetch('/municipios');
-    municipios = data.map((m) => ({ nome: m.nome, chave: chaveBusca(m.nome) }));
+    municipios = await carregarMunicipios(ufAtual());
   } catch {
     return; // sem sugestões o campo continua funcionando normalmente
   }
@@ -222,7 +233,16 @@ async function iniciarSugestoesMunicipio() {
     input.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  function mostrar() {
+  async function mostrar() {
+    const uf = ufAtual();
+    try {
+      municipios = await carregarMunicipios(uf);
+    } catch {
+      delete listas[uf]; // tenta de novo na próxima letra
+      return;
+    }
+    // A UF mudou ou o campo perdeu o foco enquanto a lista carregava
+    if (uf !== ufAtual() || document.activeElement !== input) return;
     opcoes = filtrarMunicipios(municipios, input.value);
     lista.textContent = '';
     if (!opcoes.length || (opcoes.length === 1 && opcoes[0].nome === input.value)) {
@@ -322,6 +342,9 @@ function montarPayload() {
   formulario.querySelectorAll('.field[data-campo-extra] input').forEach((input) => {
     dados[input.name] = input.value.trim();
   });
+  // UF do município (Sistema A): a API valida o município naquele estado; sem ela, Rondônia
+  const uf = formulario.querySelector('select[name="uf"]');
+  if (uf) dados.uf = uf.value;
   // Os backends dos sistemas (/cadastros, /agendamentos) recebem os campos direto; POST /validar recebe {sistema_origem, dados}
   return ROTA_ENVIO === '/validar' ? { sistema_origem: SISTEMA_ORIGEM, dados } : dados;
 }

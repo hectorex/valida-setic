@@ -207,7 +207,7 @@ gravando o dado **padronizado**. Existe só para provar na demo que o dado invá
   `sistema_a`; a validação entra no painel como `sistema_a`).
 - Gravado → HTTP 201 `{"gravado": true, "erros": [], "cadastro": {...}}`.
 - Bloqueado → HTTP 200 `{"gravado": false, "erros": [...mesmos do /validar], "cadastro": null}`.
-- `cadastro`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, criado_em
+- `cadastro`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, municipio_uf, criado_em
   (campos não enviados ou inativos vêm `null`). `GET /cadastros` devolve a lista, mais recentes primeiro.
 - Sem checagem de CPF repetido, de propósito: a demo é ensaiada várias vezes com os mesmos dados.
 
@@ -264,7 +264,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - `historico_regras`: id, campo, atributo, valor_anterior, valor_novo (texto: "true"/"false" ou o texto), data_hora.
 - `regras_formato`: id, campo (único, ≤50), nome (≤100), molde (≤40), mensagem (≤200), obrigatorio, ativo, criado_em,
   atualizado_em. Criada pelo `create_all` na subida (tabela nova, sem migração).
-- `cadastros`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, criado_em.
+- `cadastros`: id, nome, cpf, email, data_nascimento, telefone, municipio, municipio_codigo_ibge, municipio_uf
+  (nulo sem UF; coluna acrescentada por `COLUNAS_NOVAS` em bancos antigos), criado_em.
   Dados padronizados do Sistema A de exemplo (fictícios).
 - `python -m app.seed` apaga só `validacoes`/`falhas_validacao` e recria 200 validações fictícias (semente fixa).
   Não mexe em `regras_campo` nem em `cadastros`.
@@ -299,7 +300,10 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   invalide um exemplo quebra o teste.
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
 - `sistema-a.html` envia para `POST /cadastros` (o backend dele) e mostra a lista "Banco do Sistema A (simulado)",
-  deixando claro que esse banco é do sistema, não do Valida SETIC.
+  deixando claro que esse banco é do sistema, não do Valida SETIC. Tem o seletor "UF do município"
+  (`<select name="uf">`, 27 UFs, RO marcada): o `formulario.js` manda `uf` junto e troca as sugestões
+  (`GET /municipios?uf=`, uma busca por UF); "Preencher" dos dados fictícios volta a UF para RO. O Sistema B não
+  tem município nem UF.
 - `sistema-b.html` (Agendamento de Atendimento): envia para `POST /agendamentos` (o backend dele, que só valida;
   `data-rota="/agendamentos"`), campos nome, cpf, telefone, data_nascimento,
   email, "Nº do protocolo" (opcional, `data-campo-extra`: o `formulario.js` envia; só é validado se a CAGD criar uma
