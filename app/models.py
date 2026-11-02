@@ -87,3 +87,23 @@ class HistoricoRegra(Base):
     # Quem fez: o nome do login da CAGD. Nulo quando o servidor está sem login (CAGD aberta)
     usuario: Mapped[str | None] = mapped_column(String(100))
     data_hora: Mapped[datetime] = mapped_column(default=agora_utc)
+
+
+class RegraFormato(Base):
+    """Regra de formato que a CAGD cadastra pela tela para um campo novo dos sistemas (ex.: matrícula).
+
+    O formato é um molde (0 = dígito, A = letra, * = letra ou dígito; ver app/validadores/molde.py).
+    Os 6 campos padrão não entram aqui: as regras deles ficam no código.
+    """
+
+    __tablename__ = "regras_formato"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campo: Mapped[str] = mapped_column(String(50), unique=True)
+    nome: Mapped[str] = mapped_column(String(100))
+    molde: Mapped[str] = mapped_column(String(40))
+    mensagem: Mapped[str | None] = mapped_column(String(200))
+    obrigatorio: Mapped[bool] = mapped_column(default=False)
+    ativo: Mapped[bool] = mapped_column(default=True)
+    criado_em: Mapped[datetime] = mapped_column(default=agora_utc)
+    atualizado_em: Mapped[datetime] = mapped_column(default=agora_utc)

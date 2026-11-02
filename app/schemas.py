@@ -4,8 +4,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class DadosEntrada(BaseModel):
-    # Campos desconhecidos são ignorados; número vira texto (ex.: CPF enviado como número)
-    model_config = ConfigDict(extra="ignore", coerce_numbers_to_str=True)
+    # Campos novos são aceitos: só são validados se a CAGD tiver uma regra de formato para eles (senão, ignorados).
+    # Número vira texto (ex.: CPF enviado como número)
+    model_config = ConfigDict(extra="allow", coerce_numbers_to_str=True)
 
     nome: str | None = None
     cpf: str | None = None
@@ -187,3 +188,81 @@ class EuSaida(BaseModel):
     protegido: bool = Field(description="false: o servidor está sem usuários configurados e a CAGD fica aberta.")
     usuario: str | None
     nome: str | None
+
+
+# Regras de formato da CAGD (campos novos)
+
+PADRAO_CAMPO = r"^[a-z][a-z0-9_]{1,49}$"
+DESCRICAO_MOLDE = "0 = um dígito, A = uma letra, * = letra ou dígito; os outros caracteres valem eles mesmos."
+
+
+def _conferir_molde(molde: str | None) -> str | None:
+    from app.validadores.molde import problema_no_molde
+
+    if molde is not None and (problema := problema_no_molde(molde)):
+        raise ValueError(problema)
+    return molde
+
+
+class RegraFormatoEntrada(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    campo: str = Field(pattern=PADRAO_CAMPO, description="Nome do campo novo, em minúsculas (ex.: matricula).",
+                       examples=["matricula"])
+    nome: str = Field(min_length=1, max_length=100, examples=["Matrícula do servidor"])
+    molde: str = Field(min_length=1, max_length=40, description=DESCRICAO_MOLDE, examples=["RO-000000"])
+    mensagem: str | None = Field(default=None, max_length=200, examples=["Informe a matrícula no formato RO-000000."])
+    obrigatorio: bool = False
+    ativo: bool = True
+
+    @field_validator("molde")
+    @classmethod
+    def molde_valido(cls, molde):
+        return _conferir_molde(molde)
+
+
+class RegraFormatoAtualizacao(BaseModel):
+    # Parcial: só o que for enviado muda. O campo não muda (para outro campo, crie outra regra).
+    model_config = ConfigDict(extra="forbid")
+
+    nome: str | None = Field(default=None, min_length=1, max_length=100)
+    molde: str | None = Field(default=None, min_length=1, max_length=40, description=DESCRICAO_MOLDE)
+    mensagem: str | None = Field(default=None, max_length=200)
+    obrigatorio: bool | None = None
+    ativo: bool | None = None
+
+    @field_validator("molde")
+    @classmethod
+    def molde_valido(cls, molde):
+        return _conferir_molde(molde)
+
+
+class RegraFormatoSaida(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    campo: str
+    nome: str
+    molde: str
+    mensagem: str | None
+    obrigatorio: bool
+    ativo: bool
+
+
+class TesteMolde(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    molde: str = Field(min_length=1, max_length=40, description=DESCRICAO_MOLDE, examples=["RO-000000"])
+    valor: str = Field(max_length=200, examples=["ro-123456"])
+    mensagem: str | None = Field(default=None, max_length=200)
+
+    @field_validator("molde")
+    @classmethod
+    def molde_valido(cls, molde):
+        return _conferir_molde(molde)
+
+
+class RespostaTesteMolde(BaseModel):
+    valido: bool
+    valor_padronizado: str | None
+    mensagem: str | None

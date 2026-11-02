@@ -4,6 +4,7 @@ from app.schemas import ErroValidacao, RespostaValidacao
 from app.validadores.cpf import validar_cpf
 from app.validadores.data import validar_data_nascimento
 from app.validadores.email import validar_email
+from app.validadores.molde import validar_molde
 from app.validadores.municipio import validar_municipio
 from app.validadores.nome import validar_nome
 from app.validadores.telefone import validar_telefone
@@ -27,8 +28,11 @@ class ConfigCampo:
     formato_esperado: str | None = None
 
 
-def validar_dados(dados: dict[str, str | None], regras: dict[str, ConfigCampo]) -> RespostaValidacao:
-    """Valida os campos na ordem de `regras` (vinda do banco) e devolve todos os erros de uma vez."""
+def validar_dados(dados: dict, regras: dict[str, ConfigCampo], regras_formato=()) -> RespostaValidacao:
+    """Valida os campos na ordem de `regras` (vinda do banco) e devolve todos os erros de uma vez.
+
+    Depois, os campos novos que têm regra de formato da CAGD (`regras_formato`, só as ativas).
+    """
     erros = []
     padronizados = {}
 
@@ -67,6 +71,22 @@ def validar_dados(dados: dict[str, str | None], regras: dict[str, ConfigCampo]) 
                     formato_esperado=falha.formato_esperado,
                 )
             )
+
+    for regra in regras_formato:
+        bruto = dados.get(regra.campo)
+        valor = "" if bruto is None else str(bruto).strip()
+        if not valor:
+            if regra.obrigatorio:
+                erros.append(ErroValidacao(campo=regra.campo, regra="obrigatorio",
+                                           mensagem="Campo obrigatório. Preencha antes de enviar.",
+                                           formato_esperado=regra.molde))
+            continue
+        resultado = validar_molde(valor, regra.molde, regra.mensagem)
+        if resultado.valido:
+            padronizados[regra.campo] = resultado.valor
+        for falha in resultado.falhas:
+            erros.append(ErroValidacao(campo=regra.campo, regra=falha.regra, mensagem=falha.mensagem,
+                                       formato_esperado=falha.formato_esperado))
 
     if erros:
         return RespostaValidacao(valido=False, erros=erros, dados_padronizados=None)

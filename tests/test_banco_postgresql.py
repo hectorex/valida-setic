@@ -67,9 +67,17 @@ def test_fluxo_completo_num_postgresql_de_verdade():
             sem_telefone = cliente.post("/validar", json={"sistema_origem": "sistema_b", "dados": DADOS_OK}).json()
             assert ("telefone", "obrigatorio") in [(e["campo"], e["regra"]) for e in sem_telefone["erros"]]
             assert cliente.get("/regras/historico").json()[0]["valor_novo"] == "true"
+            # regra de formato da CAGD para um campo novo, com histórico
+            regra = {"campo": "matricula", "nome": "Matrícula do servidor", "molde": "RO-000000"}
+            assert cliente.post("/regras-formato", json=regra).status_code == 201
+            com_matricula = cliente.post("/validar", json={"sistema_origem": "sistema_b",
+                                                           "dados": {**DADOS_OK, "telefone": "(69) 99999-1234",
+                                                                    "matricula": "ro-123456"}}).json()
+            assert com_matricula["dados_padronizados"]["matricula"] == "RO-123456"
+            assert cliente.get("/regras/historico").json()[0]["atributo"] == "regra_criada"
             # painel com as contagens e o tempo
             painel = cliente.get("/painel/erros").json()
-            assert painel["total_validacoes"] == 4 and painel["total_bloqueadas"] == 2
+            assert painel["total_validacoes"] == 5 and painel["total_bloqueadas"] == 2
             assert painel["tempo_medio_ms"] is not None
         finally:
             app.dependency_overrides.clear()
