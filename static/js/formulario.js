@@ -6,12 +6,10 @@
 const formulario = document.querySelector('form[data-sistema]');
 // Cada página diz qual sistema ela é e para onde envia:
 //   <form data-sistema="sistema_a" data-rota="/cadastros">  → backend do sistema, que valida e grava
-//   <form data-sistema="sistema_b">                          → só POST /validar (padrão)
+//   <form data-sistema="sistema_b" data-rota="/agendamentos"> → backend do sistema, que só valida
+//   sem data-rota                                             → POST /validar direto
 const SISTEMA_ORIGEM = formulario.dataset.sistema;
 const ROTA_ENVIO = formulario.dataset.rota || '/validar';
-// Chave do sistema no POST /validar (cabeçalho X-API-Key). Aqui é uma chave de demonstração, visível na página;
-// em produção a chamada sai do servidor do sistema, como o Sistema A faz pelo /cadastros.
-const CHAVE_SISTEMA = formulario.dataset.chave;
 
 /** Busca as regras e aplica asterisco, tooltip e estado ativo/inativo em cada campo. */
 async function carregarRegrasFormulario() {
@@ -283,13 +281,13 @@ function montarPayload() {
     const input = formulario.querySelector(`[name="${campo}"]`);
     dados[campo] = input && !input.disabled ? input.value.trim() : '';
   });
-  // POST /cadastros recebe os campos direto; POST /validar recebe {sistema_origem, dados}
+  // Os backends dos sistemas (/cadastros, /agendamentos) recebem os campos direto; POST /validar recebe {sistema_origem, dados}
   return ROTA_ENVIO === '/validar' ? { sistema_origem: SISTEMA_ORIGEM, dados } : dados;
 }
 
-/** Une as duas respostas: /validar → {valido, dados_padronizados}; /cadastros → {gravado, cadastro}. */
+/** Une as respostas: {valido, dados_padronizados} (/validar, /agendamentos) ou {gravado, cadastro} (/cadastros). */
 function lerResultado(resultado) {
-  if (ROTA_ENVIO === '/validar') {
+  if ('valido' in resultado) {
     return { aprovado: resultado.valido, erros: resultado.erros, dados: resultado.dados_padronizados };
   }
   return { aprovado: resultado.gravado, erros: resultado.erros, dados: resultado.cadastro };
@@ -308,8 +306,7 @@ async function enviarFormulario(e) {
   definirCarregando(true);
 
   try {
-    const cabecalhos = CHAVE_SISTEMA ? { 'X-API-Key': CHAVE_SISTEMA } : {};
-    const { data } = await apiFetch(ROTA_ENVIO, 'POST', montarPayload(), cabecalhos);
+    const { data } = await apiFetch(ROTA_ENVIO, 'POST', montarPayload());
     const resultado = lerResultado(data);
 
     if (resultado.aprovado === false) {

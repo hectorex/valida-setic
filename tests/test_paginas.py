@@ -48,11 +48,12 @@ def test_cagd_tem_regras_e_painel(cliente):
     assert "js/cagd.js" in html and "js/painel.js" in html
 
 
-def test_sistema_b_so_valida_e_tem_campos_proprios(cliente):
+def test_sistema_b_valida_pelo_proprio_backend_e_tem_campos_proprios(cliente):
     html = cliente.get("/sistema-b.html").text
     tag_form = html[html.index("<form"):].split(">", 1)[0]
     assert 'data-sistema="sistema_b"' in tag_form
-    assert "data-rota" not in tag_form  # sem data-rota: envia para POST /validar
+    assert 'data-rota="/agendamentos"' in tag_form  # o backend do Sistema B valida no servidor
+    assert "data-chave" not in tag_form and "X-API-Key" not in html  # nenhuma chave no navegador
     assert 'data-campo="telefone"' in html and 'data-campo="municipio"' not in html
     assert "js/formulario.js" in html and "banco-sistema-a.js" not in html
 

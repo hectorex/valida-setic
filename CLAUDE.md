@@ -45,7 +45,8 @@ app/
   servicos/registro.py     # validar_e_registrar: lê a config, valida e grava em validacoes/falhas_validacao
   servicos/painel.py       # agregações do GET /painel/erros
   servicos/onde_agir.py    # recomendações "Onde agir" a partir das contagens (regras simples, sem IA)
-  rotas/               # validar.py, regras.py, painel.py, cadastros.py, municipios.py, cagd.py (login)
+  rotas/               # validar.py, regras.py, painel.py, cadastros.py (Sistema A), agendamentos.py (Sistema B),
+                       #   municipios.py, cagd.py (login)
   seed.py              # histórico fictício para o painel (as regras padrão são criadas na subida do app)
 static/
   index.html           # página inicial com links para as outras
@@ -103,9 +104,17 @@ Payload malformado (não é JSON, falta `sistema_origem`) → 422 normal do Fast
 `sistema_chamador`), o `/validar` exige o cabeçalho; sem ele ou com chave errada → 401 "Chave do sistema ausente ou
 inválida (cabeçalho X-API-Key).", e nada é registrado. Com a chave certa, o painel registra o **sistema dono da
 chave** (o `sistema_origem` do corpo continua obrigatório, mas é ignorado). Sem a variável (notebook), não exige
-chave e vale o `sistema_origem`. O `render.yaml` define as chaves de demonstração, públicas de propósito porque
-chamam pelo navegador: `sistema_b:demo-sistema-b;sistema_exemplo:demo-exemplo` (`tests/test_integrar.py` confere que
-batem com `sistema-b.html` e com a página Como integrar). `/cadastros` (Sistema A) não usa chave: valida por dentro.
+chave e vale o `sistema_origem`. **Nenhuma chave de sistema real vai para o navegador:** os Sistemas A e B de
+exemplo validam pelo próprio backend (`/cadastros` e `/agendamentos`), no servidor, sem chave. O `render.yaml` só
+define a chave de **testes** `sistema_exemplo:demo-exemplo`, pública de propósito, para a página Como integrar rodar os
+exemplos (como as chaves de teste de serviços de pagamento). `tests/test_integrar.py` confere que é a única chave
+pública e que nenhuma página dos sistemas tem `X-API-Key`.
+
+### `POST /agendamentos` (backend do Sistema B de exemplo)
+Recebe os campos de `dados` direto no corpo (sem `sistema_origem`), valida no servidor como `sistema_b` e devolve a
+mesma resposta do `POST /validar` (`{valido, erros, dados_padronizados}`). Não grava nada e não pede chave: é o backend
+do próprio Sistema B, como o `/cadastros` é do Sistema A. Representa a arquitetura certa de produção: o navegador fala
+com o servidor do sistema, e só o servidor conhece a chave.
 
 ### `GET /regras` e `PUT /regras/{campo}`
 Configuração por campo: `obrigatorio`, `ativo`, `formato_esperado`, `ajuda` (texto do ícone "i").
@@ -251,8 +260,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
 - `sistema-a.html` envia para `POST /cadastros` (o backend dele) e mostra a lista "Banco do Sistema A (simulado)",
   deixando claro que esse banco é do sistema, não do Valida SETIC.
-- `sistema-b.html` (Agendamento de Atendimento): só `POST /validar` (com `data-chave="demo-sistema-b"` no form, que o
-  `formulario.js` manda em `X-API-Key`), campos nome, cpf, telefone, data_nascimento,
+- `sistema-b.html` (Agendamento de Atendimento): envia para `POST /agendamentos` (o backend dele, que só valida;
+  `data-rota="/agendamentos"`), campos nome, cpf, telefone, data_nascimento,
   email e um campo próprio não enviado ("Serviço"); cor própria (`body.tema-sistema-b`). Precisa ter todos os
   campos obrigatórios por padrão, senão seria sempre bloqueado (as regras valem para todos os sistemas).
 - Campo município com lista própria de sugestões do `GET /municipios` (não `<datalist>`, que não dá para
