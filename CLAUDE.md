@@ -20,13 +20,14 @@ Fluxo do desafio, que a demo precisa mostrar de ponta a ponta:
 - **Cidadão/servidor**: digita os dados no formulário do sistema.
 
 ## Stack
-- Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, SQLite, pytest.
+- Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, PostgreSQL (psycopg) ou SQLite, pytest.
 - Frontend: HTML, CSS e JavaScript puro com `fetch` (sem frameworks nem Bootstrap), servido pelo próprio FastAPI
   na raiz (`/`, `/sistema-a.html`...). `/static/...` também funciona. Os mounts ficam no fim do `main.py`, depois
   das rotas da API, para não escondê-las. Os arquivos vão com `Cache-Control: no-cache` (`ArquivosDoFrontend`), para
   o navegador pegar a versão nova logo depois de cada deploy.
 - Um único comando sobe tudo: `uvicorn app.main:app --reload`.
-- O SQLAlchemy permite trocar SQLite por PostgreSQL só mudando a URL de conexão (argumento de viabilidade).
+- O mesmo código roda em PostgreSQL e SQLite, escolhidos pela URL (`VALIDA_DB_URL`). Testado num PostgreSQL 18 de
+  verdade em 01/11 (argumento de viabilidade).
 
 ## Estrutura de pastas
 ```
@@ -193,8 +194,15 @@ Mensagens em português simples, dizendo o que corrigir. `formato_esperado` semp
 Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0000") são **bloqueados** com
 `formato`: o objetivo é que todos os sistemas gravem no mesmo padrão.
 
-## Banco (SQLite, arquivo `valida.db`, fora do git)
-- URL trocável pela variável `VALIDA_DB_URL` (padrão `sqlite:///./valida.db`). Tabelas criadas na subida do app.
+## Banco (PostgreSQL no Render; SQLite `valida.db` no notebook, fora do git)
+- URL pela variável `VALIDA_DB_URL` (padrão `sqlite:///./valida.db`). Tabelas criadas na subida do app.
+  `normalizar_url` (`database.py`) aceita a URL do Render (`postgres://` ou `postgresql://`) e usa o driver psycopg;
+  no PostgreSQL, `pool_pre_ping=True`. Diferença que importa: o PostgreSQL recusa texto maior que a coluna (o SQLite
+  ignora). Por isso `cadastros.nome`/`email` não têm limite e `RegraAtualizacao` limita `formato_esperado` (100) e
+  `ajuda` (300) na entrada (422). Coluna nova com limite: limitar também na entrada.
+- `tests/test_banco_postgresql.py`: com `VALIDA_TESTE_PG_URL`, roda o fluxo completo num PostgreSQL de verdade (apaga
+  e recria as tabelas: só banco de teste). Carga medida no PostgreSQL local: ~240 validações/s, p99 0,3 s, 0 falhas
+  com 50 simultâneas.
 - `regras_campo`: campo (pk), obrigatorio, ativo, formato_esperado, ajuda. A configuração inicial fica em
   `REGRAS_PADRAO` (`app/servicos/regras.py`) e é inserida na subida só para os campos que faltam, sem
   sobrescrever o que a CAGD mudou. Obrigatórios: nome, cpf, email, data_nascimento; opcionais: telefone, municipio.
@@ -204,7 +212,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   teste de carga dava "database is locked" a partir de 20 chamadas simultâneas. Medido num notebook, um processo:
   ~145 validações/s, 0 falhas com 50 simultâneas. Os arquivos `valida.db-wal`/`-shm` ficam fora do git.
 - Hospedagem: `render.yaml` (Render, plano grátis). O start roda `python -m app.seed` e o uvicorn em `$PORT`;
-  o disco é apagado a cada reinício, então o site hospedado sempre volta às regras padrão + seed.
+  sem `VALIDA_DB_URL`, o disco é apagado a cada reinício (volta às regras padrão + seed). Com o PostgreSQL do Render
+  (`VALIDA_DB_URL` só no painel, porque tem senha), regras e cadastros sobrevivem; o seed só refaz o painel. Antes da
+  demo, conferir as regras (telefone não obrigatório).
   Os formulários mostram o aviso "use apenas dados fictícios" (o link é público).
 - Horários (`data_hora`, `criado_em`) gravados em UTC (`agora_utc()` em `models.py`); a API devolve com fuso
   (`...Z`) e o navegador converte para o horário local. O servidor do Render está em UTC.

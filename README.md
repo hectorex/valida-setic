@@ -349,14 +349,16 @@ injection, XSS, leitura de arquivos do servidor, força bruta, textos gigantes).
 > Para o passo a passo do código (por onde passa uma requisição, como acrescentar um validador), veja o
 > **[Guia de arquitetura](docs/ARQUITETURA.md)**.
 
-**Tecnologias:** Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, SQLite, pytest. Frontend em HTML, CSS e
-JavaScript puro, sem frameworks e sem etapa de build, servido pelo próprio FastAPI. Trocar SQLite por PostgreSQL é só
-mudar a variável `VALIDA_DB_URL`.
+**Tecnologias:** Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2, PostgreSQL ou SQLite, pytest. Frontend em HTML,
+CSS e JavaScript puro, sem frameworks e sem etapa de build, servido pelo próprio FastAPI. O banco é escolhido pela
+variável `VALIDA_DB_URL`: com a URL de um PostgreSQL (inclusive como o Render entrega, `postgres://...`), usa
+PostgreSQL; sem ela, um arquivo SQLite (`valida.db`), prático no notebook. O mesmo código roda nos dois, e há um
+teste do fluxo completo num PostgreSQL de verdade (`tests/test_banco_postgresql.py`).
 
 ```
 app/
   main.py                 cria o app, inclui as rotas, serve o frontend, cria as tabelas
-  database.py             conexão com o banco (SQLite em modo WAL); acrescenta colunas novas em bancos antigos
+  database.py             conexão com o banco (PostgreSQL, ou SQLite em modo WAL); acrescenta colunas novas
   models.py               tabelas: regras_campo, validacoes, falhas_validacao, historico_regras, cadastros
   schemas.py              formatos de entrada e saída da API
   seguranca.py            login da CAGD (usuários, sessões, token)
@@ -439,7 +441,7 @@ Formato: `usuario:Nome que aparece no histórico:senha`, vários separados por `
 ```bash
 python -m pytest
 ```
-São **329 testes automáticos**, que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
+São **336 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
 - cada validador com casos válidos e inválidos (29/02/2024 aceito; 31/02/1990, 00/00/0000, 1985-03-15, CPF
   111.111.111-11, e-mail sem domínio bloqueados…);
 - os erros em camadas e as rotas;
@@ -458,8 +460,14 @@ válidas, metade com erro), várias ao mesmo tempo, e mede quantas a API atende 
 python scripts/teste_carga.py --total 5000 --simultaneas 50
 python scripts/teste_carga.py --chave demo-exemplo   # se o servidor exigir chave
 ```
-Num notebook, com **um único processo** e SQLite: cerca de **145 validações por segundo** (mais de 500 mil por hora),
-**sem nenhuma falha com 50 chamadas ao mesmo tempo**, e resposta típica de 10 ms quando não há fila. A verificação
+Num notebook, com **um único processo**, 50 chamadas ao mesmo tempo e **nenhuma falha**:
+
+| Banco | Validações por segundo | 99% das respostas em até |
+|---|---|---|
+| **PostgreSQL** | **~240** (mais de 860 mil por hora) | 0,3 s |
+| SQLite (modo WAL) | ~145 | 3,2 s |
+
+Sem fila, a resposta típica fica entre 10 e 17 ms. A verificação
 em si leva cerca de 1 ms; o resto é gravar o registro do painel. O teste já mostrou o seu valor: na primeira medição, o
 SQLite travava a partir de 20 chamadas simultâneas, e isso foi corrigido (modo WAL, em `database.py`). Cada chamada
 entra no painel como `teste_carga`: rode num banco de teste, nunca no site hospedado.
@@ -469,10 +477,16 @@ O `render.yaml` descreve o serviço (plano grátis). Para publicar pela primeira
 1. Em render.com, entre com o GitHub.
 2. **New → Blueprint**, escolha o repositório `valida-setic` e confirme (**Apply**).
 3. Em **Environment**, crie `VALIDA_USUARIOS_CAGD` com os usuários da CAGD, no formato da seção 11.
+4. **PostgreSQL (opcional, recomendado):** **New → PostgreSQL**, plano **Free**, na mesma região do serviço. Copie
+   a **Internal Database URL** e cole em `VALIDA_DB_URL` (Environment do serviço). As tabelas são criadas na subida.
+   O PostgreSQL grátis do Render dura 30 dias.
 
 Depois disso, **cada merge na `main` publica de novo sozinho**. No plano grátis:
 - o site "dorme" após 15 minutos sem acesso e leva de 30 a 60 segundos para acordar (abra o link antes);
-- o banco é apagado a cada reinício ou publicação, e volta às regras padrão com o histórico do seed;
+- **sem `VALIDA_DB_URL`**, o banco (SQLite) é apagado a cada reinício ou publicação, e volta às regras padrão com o
+  histórico do seed;
+- **com PostgreSQL**, regras e cadastros sobrevivem aos reinícios (o seed só refaz o histórico do painel). Antes de
+  uma demo, confira na CAGD se as regras estão como deveriam (ex.: telefone não obrigatório);
 - o login da CAGD também cai a cada reinício.
 
 A demo oficial roda no notebook, sem depender de internet. O link serve para testes e para a banca usar pelo celular.
