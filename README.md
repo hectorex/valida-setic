@@ -234,7 +234,7 @@ Documentação interativa completa, com exemplos, em **`/docs`** (Swagger).
 | `POST` | `/agendamentos` | Backend do Sistema B de exemplo: valida no servidor (mesma resposta do `/validar`) | público |
 | `GET` | `/cadastros` | O que o Sistema A gravou, mais recentes primeiro | público |
 | `GET` | `/municipios` | Os 52 municípios de RO (nome oficial e código IBGE) | público |
-| `GET` | `/saude` | Confirma que a API está no ar | público |
+| `GET` | `/saude` | Confirma que a API está no ar e diz qual banco está em uso (`postgresql` ou `sqlite`) | público |
 
 "Público" é o que os sistemas precisam para funcionar. "Login" é só da CAGD. "Chave do sistema" é o cabeçalho
 `X-API-Key`, exigido só quando o servidor tem chaves configuradas (no site hospedado, sim; no notebook, não).
