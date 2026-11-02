@@ -536,5 +536,9 @@ A demo oficial roda no notebook, sem depender de internet. O link serve para tes
 ## 16. Equipe
 **QuemMaisCorp**
 - Celso Hector Silva Sales
-- Luiz Felipe Mâcedo Alencar de Menezes
+- Luiz Felipe Macêdo Alencar de Menezes
 - Judson Gabriel Ferreira dos Santos
+
+## Licença
+[MIT](LICENSE): o código pode ser usado, alterado e redistribuído livremente, inclusive pela SETIC, desde que o
+aviso de copyright seja mantido.
