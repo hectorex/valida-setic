@@ -150,6 +150,10 @@ def test_tela_da_cagd_tem_o_card_das_regras_de_formato(cliente):
 def test_sistema_b_manda_o_protocolo_e_passa_a_validar_quando_a_cagd_cria_a_regra(cliente, logado):
     html = cliente.get("/sistema-b.html").text
     assert 'data-campo="protocolo" data-campo-extra' in html and 'name="protocolo"' in html
+    # Formato e aviso vêm da regra da CAGD, nunca de texto fixo no HTML
+    campo = html[html.index('id="protocolo"') - 40:html.index('id="protocolo"') + 60]
+    assert 'placeholder' not in campo and 'class="dica-extra"' in html
+    assert "/regras-formato" in cliente.get("/js/formulario.js").text
     assert "data-campo-extra" in cliente.get("/js/formulario.js").text  # o formulário envia os campos extras
     dados = {**DADOS, "telefone": "(69) 99999-1234", "protocolo": "26/1"}
     assert cliente.post("/agendamentos", json=dados).json()["valido"] is True  # sem regra: ignorado

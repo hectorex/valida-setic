@@ -112,8 +112,10 @@
             <!-- Campo próprio do Sistema B, enviado à API (data-campo-extra): só é validado se a CAGD criar uma
                  regra de formato para "protocolo"; sem regra, a API ignora. -->
             <div class="field" data-campo="protocolo" data-campo-extra>
-              <div class="label-row"><label for="protocolo">Nº do protocolo <span class="muted small">(opcional)</span></label></div>
-              <input type="text" id="protocolo" name="protocolo" placeholder="Ex.: 2026/000123">
+              <div class="label-row"><label for="protocolo">Nº do protocolo</label></div>
+              <!-- Formato, aviso e asterisco vêm da regra de formato da CAGD (GET /regras-formato), nunca de texto fixo -->
+              <span class="dica-extra" aria-live="polite"></span>
+              <input type="text" id="protocolo" name="protocolo">
               <span class="error-msg" aria-live="polite"></span>
             </div>
 

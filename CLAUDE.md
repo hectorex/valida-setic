@@ -317,6 +317,10 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   `REGRAS_LEGIVEIS` (`painel.js`); regra nova precisa de nome lá (`tests/test_painel_filtro.py` confere).
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
+- Campos extras (`data-campo-extra`, ex.: protocolo do Sistema B) se montam pelo `GET /regras-formato`: sem regra,
+  aviso "Sem regra da CAGD: este campo ainda não é validado"; com regra ativa, o molde vira texto de fundo e aviso,
+  e o asterisco aparece se for obrigatória. Nada fixo no HTML. Ao voltar para a aba (`visibilitychange`), o
+  formulário relê as regras padrão e as extras, sem F5.
 - `integrar.html` tem também o "Antes e depois" (cadastro em PHP: +9 linhas, 3 alteradas, destacadas) com os
   números do pitch: ~10 linhas por formulário, menos de 1 hora de desenvolvimento, zero linhas quando a regra muda.
 - `integrar.html`: o exemplo JavaScript fica num editor e roda de verdade no navegador (`FuncaoAssincrona`, com
