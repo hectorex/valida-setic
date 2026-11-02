@@ -55,7 +55,7 @@
         </div>
 
         <ol class="passos">
-          <li><strong>Antes de gravar</strong>, envie os dados para <code>POST /validar</code>, dizendo qual sistema é você (<code>sistema_origem</code>).</li>
+          <li><strong>Antes de gravar</strong>, envie os dados para <code>POST /validar</code>, com a <strong>chave do seu sistema</strong> no cabeçalho <code>X-API-Key</code> (cada sistema recebe a sua; nos exemplos, a chave de demonstração <code>demo-exemplo</code>).</li>
           <li><strong>Bloqueado</strong> (<code>"valido": false</code>): mostre ao usuário cada erro embaixo do campo (<code>campo</code> e <code>mensagem</code>) e não grave.</li>
           <li><strong>Aprovado</strong> (<code>"valido": true</code>): grave no <strong>seu</strong> banco os <code>dados_padronizados</code>, já no formato padrão.</li>
         </ol>
@@ -113,6 +113,7 @@
   <script type="text/plain" id="exemplo-curl">
 curl -X POST {{URL}}/validar \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: demo-exemplo" \
   -d '{"sistema_origem": "sistema_exemplo",
        "dados": {"nome": "Maria da Silva", "cpf": "123.456.789-09",
                  "email": "maria@", "data_nascimento": "31/02/1990"}}'
@@ -126,7 +127,8 @@ dados = {"nome": "Maria da Silva", "cpf": "123.456.789-09",
          "email": "maria@", "data_nascimento": "31/02/1990"}
 corpo = json.dumps({"sistema_origem": "sistema_exemplo", "dados": dados}).encode()
 requisicao = Request("{{URL}}/validar", data=corpo,
-                     headers={"Content-Type": "application/json"})
+                     headers={"Content-Type": "application/json",
+                              "X-API-Key": "demo-exemplo"})  # chave do seu sistema
 resposta = json.load(urlopen(requisicao))
 
 if resposta["valido"]:
@@ -139,7 +141,7 @@ else:
 // Navegador ou Node.js 18+ (fetch nativo)
 const resposta = await fetch('{{URL}}/validar', {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+  headers: { 'Content-Type': 'application/json', 'X-API-Key': 'demo-exemplo' }, // chave do seu sistema
   body: JSON.stringify({
     sistema_origem: 'sistema_exemplo',
     dados: { nome: 'Maria da Silva', cpf: '123.456.789-09',
@@ -162,7 +164,7 @@ function valida_setic(array $dados)
 {
     $contexto = stream_context_create(['http' => [
         'method'  => 'POST',
-        'header'  => "Content-Type: application/json\r\n",
+        'header'  => "Content-Type: application/json\r\nX-API-Key: demo-exemplo\r\n", // chave do seu sistema
         'content' => json_encode(['sistema_origem' => 'sistema_exemplo', 'dados' => $dados]),
     ]]);
     return json_decode(file_get_contents('{{URL}}/validar', false, $contexto), true);
@@ -195,6 +197,7 @@ public class ExemploValida {
 
         HttpRequest requisicao = HttpRequest.newBuilder(URI.create("{{URL}}/validar"))
             .header("Content-Type", "application/json")
+            .header("X-API-Key", "demo-exemplo") // chave do seu sistema
             .POST(HttpRequest.BodyPublishers.ofString(json))
             .build();
         HttpResponse<String> resposta = HttpClient.newHttpClient()
@@ -211,6 +214,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 var cliente = new HttpClient();
+cliente.DefaultRequestHeaders.Add("X-API-Key", "demo-exemplo"); // chave do seu sistema
 var resposta = await cliente.PostAsJsonAsync("{{URL}}/validar", new
 {
     sistema_origem = "sistema_exemplo",
