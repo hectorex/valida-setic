@@ -8,6 +8,9 @@ const NOMES_ATRIBUTOS = {
   ativo: 'Ativo',
   formato_esperado: 'Formato esperado',
   ajuda: 'Texto de ajuda',
+  molde: 'Molde',
+  nome: 'Nome',
+  mensagem: 'Mensagem',
 };
 
 /** "true"/"false" dos interruptores vira sim/não; textos aparecem entre aspas. */
@@ -16,6 +19,13 @@ function valorLegivel(valor) {
   if (valor === 'false') return 'não';
   if (valor === null || valor === '') return '(vazio)';
   return `"${valor}"`;
+}
+
+/** Regras de formato criadas ou excluídas aparecem como uma frase; o resto como "antes → depois". */
+function descreverMudanca(mudanca, atributo) {
+  if (mudanca.atributo === 'regra_criada') return `Regra de formato criada: ${mudanca.valor_novo}`;
+  if (mudanca.atributo === 'regra_excluida') return `Regra de formato excluída: ${mudanca.valor_anterior}`;
+  return `${atributo}: ${valorLegivel(mudanca.valor_anterior)} → ${valorLegivel(mudanca.valor_novo)}`;
 }
 
 function linhaHistorico(mudanca) {
@@ -27,7 +37,7 @@ function linhaHistorico(mudanca) {
     // Sem login configurado no servidor (CAGD aberta) não há quem registrar
     criarElemento('td', '', mudanca.usuario || '(sem login)'),
     criarElemento('td', '', ROTULOS[mudanca.campo] || mudanca.campo),
-    criarElemento('td', '', `${atributo}: ${valorLegivel(mudanca.valor_anterior)} → ${valorLegivel(mudanca.valor_novo)}`)
+    criarElemento('td', '', descreverMudanca(mudanca, atributo))
   );
   return tr;
 }

@@ -96,6 +96,54 @@
         </div>
       </div>
 
+      <!-- Regras de formato da CAGD para campos novos (/regras-formato) -->
+      <div class="card glass card-wide card-protegido">
+        <div class="card-header">
+          <span class="chip">regras novas</span>
+          <h2>Regras de formato para campos novos</h2>
+          <p class="muted">Crie uma regra para um campo que os sistemas mandam além dos padrão (ex.: matrícula, protocolo, placa). Descreva o formato com um <strong>molde</strong>: <code>0</code> = um dígito, <code>A</code> = uma letra, <code>*</code> = letra ou dígito; o resto vale ele mesmo. Ex.: <code>RO-000000</code>. Vale na hora, para todos os sistemas, e fica no histórico.</p>
+        </div>
+
+        <div class="alert alert-error hidden" id="formato-alerta" role="alert"></div>
+
+        <form id="form-regra-formato" novalidate autocomplete="off">
+          <div class="form-grid">
+            <div class="field">
+              <div class="label-row"><label for="rf-campo">Campo</label></div>
+              <input type="text" id="rf-campo" placeholder="matricula" maxlength="50" required>
+            </div>
+            <div class="field">
+              <div class="label-row"><label for="rf-nome">Nome</label></div>
+              <input type="text" id="rf-nome" placeholder="Matrícula do servidor" maxlength="100" required>
+            </div>
+            <div class="field">
+              <div class="label-row"><label for="rf-molde">Molde</label></div>
+              <input type="text" id="rf-molde" placeholder="RO-000000" maxlength="40" required>
+            </div>
+            <div class="field">
+              <div class="label-row"><label for="rf-mensagem">Mensagem de erro (opcional)</label></div>
+              <input type="text" id="rf-mensagem" placeholder="Informe a matrícula no formato RO-000000." maxlength="200">
+            </div>
+            <div class="field">
+              <div class="label-row"><label for="rf-teste">Testar um valor antes de salvar</label></div>
+              <input type="text" id="rf-teste" placeholder="ro-123456" maxlength="200">
+              <span class="teste-molde" id="rf-resultado" aria-live="polite"></span>
+            </div>
+            <div class="field campo-check">
+              <label class="check-linha"><input type="checkbox" id="rf-obrigatorio"> Campo obrigatório</label>
+              <button type="submit" class="btn btn-primary" id="btn-criar-regra-formato">Criar regra</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="tabela-rolagem regras-formato-lista">
+          <table class="tabela" id="tabela-regras-formato">
+            <thead><tr><th>Campo</th><th>Molde</th><th>Obrigatório</th><th>Ativo</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Painel de erros: onde os sistemas mais erram (GET /painel/erros) -->
       <div class="card glass card-wide card-protegido">
         <div class="card-header card-header-row">
@@ -181,6 +229,7 @@
   <script src="js/comum.js"></script>
   <script src="js/login-cagd.js"></script>
   <script src="js/cagd.js"></script>
+  <script src="js/regras-formato.js"></script>
   <script src="js/painel.js"></script>
   <script src="js/historico.js"></script>
 </body>

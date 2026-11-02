@@ -1107,6 +1107,19 @@ body.cagd-bloqueada .card-protegido { display: none; }
 .btn-copiar { flex: 0 0 auto; padding: 0.3rem 0.65rem; font-size: 0.75rem; }
 @media (max-width: 720px) { .dados-ficticios-grade { grid-template-columns: 1fr; } }
 
+/* Regras de formato da CAGD (campos novos) */
+#form-regra-formato { margin-bottom: 1.25rem; }
+.teste-molde { font-size: 0.82rem; min-height: 1.1rem; }
+.teste-molde.aprovado { color: var(--success); }
+.teste-molde.bloqueado { color: var(--error); }
+.campo-check { justify-content: flex-end; gap: 0.75rem; }
+.check-linha { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text); }
+.regra-formato-nome { display: block; margin-top: 0.2rem; }
+.regras-formato-lista .switch { gap: 0; }
+.btn-excluir { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+.regras-formato-lista code { white-space: nowrap; }
+@media (max-width: 720px) { .regra-formato-mensagem { display: none; } }
+
 /* Celular estreito: as quatro abas só com o nome (sem ícone), para caberem lado a lado */
 @media (max-width: 480px) {
   .topbar { gap: 0.75rem; }
