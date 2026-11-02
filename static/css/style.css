@@ -133,6 +133,7 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--text-muted);
   font-size: 0.875rem;
   font-weight: 500;
+  white-space: nowrap;
   text-decoration: none;
   transition: color var(--transition), background var(--transition), border-color var(--transition);
 }
@@ -1021,7 +1022,7 @@ body.cagd-bloqueada .card-protegido { display: none; }
 .btn-olho[aria-pressed="true"] .icone-mostrar { display: none; }
 .btn-olho[aria-pressed="true"] .icone-esconder { display: block; }
 
-.card-header-row > .acoes-cabecalho { display: flex; flex: 0 0 auto; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.card-header-row > .acoes-cabecalho { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 .usuario-logado { font-size: 0.82rem; color: var(--text-muted); }
 
 /* ==========================================================================
@@ -1057,14 +1058,35 @@ body.cagd-bloqueada .card-protegido { display: none; }
   .tabela th, .tabela td { padding: 0.55rem 0.6rem; white-space: normal; }
   .topbar { padding: 0.9rem 1rem; justify-content: center; }
   .tabs { width: 100%; }
-  .tab { flex: 1; justify-content: center; padding: 0.55rem 0.6rem; font-size: 0.8rem; }
+  .tab { flex: 1 1 0; min-width: 0; justify-content: center; padding: 0.55rem 0.6rem; font-size: 0.8rem; }
+  .card-header-row > .acoes-cabecalho { flex: 1 1 100%; }
+  .usuario-logado { flex: 1 1 100%; }
   .container { padding: 1.5rem 0.75rem 3rem; }
   .card { padding: 1.4rem; }
   .form-grid { grid-template-columns: 1fr; }
   .form-footer { flex-direction: column-reverse; align-items: stretch; }
   .form-actions { width: 100%; }
   .form-actions .btn { flex: 1; }
-  .tooltip { max-width: 220px; }
+}
+
+/* Telas menores: o balão de ajuda abre acima do campo, na largura dele. Centralizado no "i", saía pela borda
+   (o "i" muda de lugar conforme o tamanho do rótulo) e, mesmo escondido, alargava a página. */
+@media (max-width: 900px) {
+  .field { position: relative; }
+  .info-btn { position: static; }
+  .tooltip { left: 0; right: 0; bottom: calc(100% + 6px); width: auto; max-width: none; transform: translateY(6px); }
+  .info-btn:hover .tooltip,
+  .info-btn:focus-visible .tooltip,
+  .info-btn.open .tooltip { transform: translateY(0); }
+  .tooltip::after { display: none; }
+}
+
+/* Celular estreito: as quatro abas só com o nome (sem ícone), para caberem lado a lado */
+@media (max-width: 480px) {
+  .topbar { gap: 0.75rem; }
+  .tabs { gap: 0.15rem; }
+  .tab { gap: 0; padding: 0.5rem 0.35rem; font-size: 0.78rem; }
+  .tab svg { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
