@@ -1081,6 +1081,25 @@ body.cagd-bloqueada .card-protegido { display: none; }
   .tooltip::after { display: none; }
 }
 
+/* Dados fictícios para testar (Sistema A e B): painel recolhível com valores para copiar ou preencher */
+.dados-ficticios { margin: -0.5rem 0 1.5rem; border: 1px solid var(--border-soft); border-radius: var(--radius-sm); background: var(--surface); }
+.dados-ficticios summary { cursor: pointer; padding: 0.75rem 1rem; font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.dados-ficticios summary:focus-visible { outline: 2px solid var(--primary-hover); outline-offset: 2px; }
+.dados-ficticios[open] summary { border-bottom: 1px solid var(--border-soft); }
+.dados-ficticios-botoes { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.9rem 1rem 0; }
+.dados-ficticios-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 0.9rem 1rem 1rem; }
+.dados-ficticios-titulo { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+.dados-ficticios-titulo.aprovam { color: var(--success); }
+.dados-ficticios-titulo.bloqueiam { color: var(--error); }
+.dados-ficticios-lista { list-style: none; display: grid; gap: 0.4rem; }
+.dado-ficticio { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.dado-ficticio-texto { display: flex; flex-direction: column; min-width: 0; }
+.dado-ficticio-campo { font-size: 0.72rem; color: var(--text-muted); }
+.dado-ficticio-valor { font-size: 0.85rem; color: var(--text); overflow-wrap: anywhere; }
+.dado-ficticio-motivo { font-size: 0.72rem; color: var(--text-muted); font-style: italic; }
+.btn-copiar { flex: 0 0 auto; padding: 0.3rem 0.65rem; font-size: 0.75rem; }
+@media (max-width: 720px) { .dados-ficticios-grade { grid-template-columns: 1fr; } }
+
 /* Celular estreito: as quatro abas só com o nome (sem ícone), para caberem lado a lado */
 @media (max-width: 480px) {
   .topbar { gap: 0.75rem; }
