@@ -145,3 +145,15 @@ def test_tela_da_cagd_tem_o_card_das_regras_de_formato(cliente):
         assert trecho in html
     # O script novo vem depois do cagd.js (usa o criarSwitch dele)
     assert html.index("js/cagd.js") < html.index("js/regras-formato.js")
+
+
+def test_sistema_b_manda_o_protocolo_e_passa_a_validar_quando_a_cagd_cria_a_regra(cliente, logado):
+    html = cliente.get("/sistema-b.html").text
+    assert 'data-campo="protocolo" data-campo-extra' in html and 'name="protocolo"' in html
+    assert "data-campo-extra" in cliente.get("/js/formulario.js").text  # o formulário envia os campos extras
+    dados = {**DADOS, "telefone": "(69) 99999-1234", "protocolo": "26/1"}
+    assert cliente.post("/agendamentos", json=dados).json()["valido"] is True  # sem regra: ignorado
+    criar(cliente, logado, campo="protocolo", nome="Número do protocolo", molde="0000/000000",
+          mensagem="Informe o protocolo no formato 0000/000000.")
+    erros = cliente.post("/agendamentos", json=dados).json()["erros"]
+    assert [(e["campo"], e["mensagem"]) for e in erros] == [("protocolo", "Informe o protocolo no formato 0000/000000.")]

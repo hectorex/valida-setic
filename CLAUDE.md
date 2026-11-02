@@ -297,7 +297,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   deixando claro que esse banco é do sistema, não do Valida SETIC.
 - `sistema-b.html` (Agendamento de Atendimento): envia para `POST /agendamentos` (o backend dele, que só valida;
   `data-rota="/agendamentos"`), campos nome, cpf, telefone, data_nascimento,
-  email e um campo próprio não enviado ("Serviço"); cor própria (`body.tema-sistema-b`). Precisa ter todos os
+  email, "Nº do protocolo" (opcional, `data-campo-extra`: o `formulario.js` envia; só é validado se a CAGD criar uma
+  regra de formato para `protocolo`) e um campo próprio não enviado ("Serviço"); cor própria (`body.tema-sistema-b`). Precisa ter todos os
   campos obrigatórios por padrão, senão seria sempre bloqueado (as regras valem para todos os sistemas).
 - Campo município com lista própria de sugestões do `GET /municipios` (não `<datalist>`, que não dá para
   estilizar), montada pelo `formulario.js`.
@@ -411,6 +412,8 @@ Congelar funcionalidades em 02/11. Daí em diante só correção de bug e ensaio
 3. Corrigir e salvar → mostrar o dado gravado já padronizado.
 4. CAGD: tornar `telefone` obrigatório.
 5. Sistema B (outro sistema) passa a exigir telefone sem mudar uma linha de código dele.
+5b. CAGD cria a regra de formato `protocolo` (molde `0000/000000`, testando na tela) → o Sistema B, que já mandava o
+    protocolo sem validação, passa a bloquear `26/1` e aceitar `2026/000123`, sem mudar o código dele.
 6. Painel: campos e sistemas que mais erram.
 
 ## Contexto do hackathon
