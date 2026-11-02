@@ -61,9 +61,11 @@ class Cadastro(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     # Todos opcionais: a CAGD pode tornar qualquer campo opcional ou inativo
-    nome: Mapped[str | None] = mapped_column(String(200))
+    # Nome e e-mail sem limite de tamanho: o validador aceita nomes longos, e o PostgreSQL (ao contrário do SQLite)
+    # recusaria gravar mais que o limite da coluna
+    nome: Mapped[str | None] = mapped_column(String)
     cpf: Mapped[str | None] = mapped_column(String(11))
-    email: Mapped[str | None] = mapped_column(String(200))
+    email: Mapped[str | None] = mapped_column(String)
     data_nascimento: Mapped[str | None] = mapped_column(String(10))  # AAAA-MM-DD
     telefone: Mapped[str | None] = mapped_column(String(20))
     municipio: Mapped[str | None] = mapped_column(String(100))

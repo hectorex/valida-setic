@@ -3,13 +3,23 @@ import os
 from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
+def normalizar_url(url: str) -> str:
+    """Aceita a URL do PostgreSQL como o Render entrega (postgres:// ou postgresql://) e usa o driver psycopg."""
+    for prefixo in ("postgres://", "postgresql://"):
+        if url.startswith(prefixo):
+            return "postgresql+psycopg://" + url[len(prefixo):]
+    return url
+
+
 # Trocar para PostgreSQL é só mudar a URL, ex.: postgresql://usuario:senha@host/valida
-URL_BANCO = os.getenv("VALIDA_DB_URL", "sqlite:///./valida.db")
+URL_BANCO = normalizar_url(os.getenv("VALIDA_DB_URL", "sqlite:///./valida.db"))
 
-# O SQLite precisa disso para ser usado pelas várias threads do FastAPI
-argumentos = {"check_same_thread": False} if URL_BANCO.startswith("sqlite") else {}
-
-engine = create_engine(URL_BANCO, connect_args=argumentos)
+if URL_BANCO.startswith("sqlite"):
+    # O SQLite precisa disso para ser usado pelas várias threads do FastAPI
+    engine = create_engine(URL_BANCO, connect_args={"check_same_thread": False})
+else:
+    # pool_pre_ping: testa a conexão antes de usar (o PostgreSQL derruba conexões paradas há muito tempo)
+    engine = create_engine(URL_BANCO, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine)
 
 
