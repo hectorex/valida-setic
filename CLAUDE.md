@@ -58,6 +58,7 @@ static/
   js/formulario.js     # formulário genérico: <form data-sistema="sistema_a" data-rota="/cadastros">
                        #   data-rota opcional; sem ela envia para POST /validar (Sistema B)
   js/banco-sistema-a.js  # lista "Banco do Sistema A (simulado)" (GET /cadastros)
+  js/dados-ficticios.js  # painel "Dados fictícios para testar" (copiar/preencher) nos Sistemas A e B
   js/login-cagd.js     # login da CAGD (usuário e senha), guarda o token na aba e libera a tela (vem antes de cagd/painel/historico)
   js/cagd.js           # interruptores das regras (dispara o evento regra-alterada)
   js/historico.js      # histórico de mudanças das regras (GET /regras/historico)
@@ -261,6 +262,10 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   ficam dentro de caixa com rolagem própria. Elemento escondido (`visibility: hidden`) também alarga a página.
 - O JS chama a API por caminho relativo (`API_BASE_URL = ''`), nunca por endereço fixo, para funcionar no celular.
 - Erros aparecem embaixo de cada campo, todos de uma vez, vindos da API.
+- Sistemas A e B têm, abaixo do aviso de dados fictícios, o painel recolhível "Dados fictícios para testar"
+  (`js/dados-ficticios.js`, em `<div id="dados-ficticios">`): valores que aprovam e que bloqueiam (com o motivo),
+  Copiar e Preencher. `tests/test_dados_ficticios.py` lê os valores do script e confere na API: mudar uma regra que
+  invalide um exemplo quebra o teste.
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
 - `sistema-a.html` envia para `POST /cadastros` (o backend dele) e mostra a lista "Banco do Sistema A (simulado)",
   deixando claro que esse banco é do sistema, não do Valida SETIC.

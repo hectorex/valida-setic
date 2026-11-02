@@ -103,6 +103,10 @@ Abrindo o servidor (ou o link), a página inicial leva a todas:
 | `/integrar.html` | equipes de TI | Como integrar: exemplos em 6 linguagens e o "Antes e depois" |
 | `/docs` | equipes de TI | Swagger: todas as rotas, com exemplos de entrada e saída |
 
+**Dados fictícios para testar (Sistemas A e B):** abaixo do aviso de dados fictícios, um painel recolhível traz
+valores que aprovam e que bloqueiam (cada um com o motivo), com botão **Copiar** e os atalhos **Preencher com dados
+válidos** e **Preencher com erros**. Ninguém precisa digitar dados reais no link público.
+
 ### Sistema A: cadastro de cidadão
 - O formulário pergunta à API **quais campos são obrigatórios** (`GET /regras`) e mostra o asterisco e o ícone
   **"i"** com a ajuda e o formato esperado. Nada disso é texto fixo: se a CAGD muda, a tela muda.
@@ -444,7 +448,7 @@ Formato: `usuario:Nome que aparece no histórico:senha`, vários separados por `
 ```bash
 python -m pytest
 ```
-São **340 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
+São **352 testes automáticos** (mais 1 que só roda com um PostgreSQL de teste), que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
 - cada validador com casos válidos e inválidos (29/02/2024 aceito; 31/02/1990, 00/00/0000, 1985-03-15, CPF
   111.111.111-11, e-mail sem domínio bloqueados…);
 - os erros em camadas e as rotas;
