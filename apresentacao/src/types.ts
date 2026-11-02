@@ -171,7 +171,7 @@ export const SLIDES_DATA: SlideInfo[] = [
       keyPoints: [
         'Entregamos um protótipo funcional no pouco tempo do hackathon.',
         'Painel da CAGD, Onde agir, histórico de regras, chave por sistema e PostgreSQL já funcionam hoje: estão na demo.',
-        'Visão futura: cadastro de sistemas pela CAGD, municípios do Brasil inteiro, regras por sistema, novos tipos de dado e barreira pré-Data Lake.',
+        'Visão futura: cadastro de sistemas pela CAGD, conferência em bases oficiais (CPF na Receita, CEP), regras por sistema, novos tipos de dado (CNPJ, CEP) e barreira pré-Data Lake.',
         'Métricas em tempo real por órgão e sistema.'
       ],
       caution: 'Fechamento curto (slides 8 e 9 em ~45 s): os 8 minutos contam tudo. Diferenciar o protótipo de hoje do futuro.'
