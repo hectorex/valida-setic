@@ -97,8 +97,9 @@ def test_funcao_usada_no_depois_existe_na_aba_php(html):
     assert "$resposta = valida_setic([" in php
 
 
-def test_chaves_de_demonstracao_do_render_batem_com_as_paginas(cliente, html):
-    chaves = chaves_de_demonstracao()
-    assert chaves["sistema_exemplo"] == "demo-exemplo"
-    assert f'data-chave="{chaves["sistema_b"]}"' in cliente.get("/sistema-b.html").text
-    assert "sistema_a" not in chaves  # o Sistema A valida pelo /cadastros, no servidor, sem chave
+def test_so_a_chave_de_testes_fica_publica(cliente, html):
+    # A página Como integrar usa a chave de testes (sistema_exemplo). Os Sistemas A e B validam pelo próprio
+    # backend, no servidor: nenhuma chave de sistema real aparece no render.yaml nem no navegador.
+    assert chaves_de_demonstracao() == {"sistema_exemplo": "demo-exemplo"}
+    for pagina in ["/sistema-a.html", "/sistema-b.html", "/js/formulario.js", "/js/comum.js"]:
+        assert "X-API-Key" not in cliente.get(pagina).text, pagina

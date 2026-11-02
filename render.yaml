@@ -24,13 +24,13 @@ services:
       # Sem nenhuma das duas, a CAGD fica aberta para qualquer pessoa com o link.
       - key: VALIDA_SENHA_CAGD
         sync: false
-      # Chave por sistema no POST /validar (sistema:chave;...). Estas duas são de DEMONSTRAÇÃO e públicas de
-      # propósito: aparecem no código do Sistema B e da página Como integrar, que chamam a API pelo navegador.
-      # Em produção, cada sistema guarda a sua chave no próprio servidor. O Sistema A não precisa de chave
-      # (o /cadastros valida por dentro).
       # PostgreSQL: cole aqui a "Internal Database URL" do banco criado no Render (New > PostgreSQL > Free).
       # Contém senha: só no painel do Render, nunca no repositório. Apagar a variável volta para o SQLite.
       - key: VALIDA_DB_URL
         sync: false
+      # Chave por sistema no POST /validar (sistema:chave;...). Só a chave de TESTES fica aqui: a do sistema_exemplo,
+      # pública de propósito, para a página Como integrar rodar os exemplos (como as chaves de teste de serviços
+      # de pagamento). Os Sistemas A e B de exemplo validam pelo próprio backend (/cadastros, /agendamentos), no
+      # servidor, então nenhuma chave de sistema real aparece no navegador.
       - key: VALIDA_CHAVES_SISTEMAS
-        value: sistema_b:demo-sistema-b;sistema_exemplo:demo-exemplo
+        value: sistema_exemplo:demo-exemplo
