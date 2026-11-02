@@ -277,6 +277,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   fica no `sessionStorage` (some ao fechar a aba). As telas registram o carregamento com `quandoLiberada()` e tratam
   401 com `tratarLoginRecusado()`. O histórico tem a coluna Quem.
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
+  "Falhas mais frequentes" tem um seletor de sistema (`#filtro-falhas`, montado de `por_sistema`): o filtro roda na
+  tela, porque a API devolve todas as falhas (não cortar `falhas` no servidor). Regras com nome legível em
+  `REGRAS_LEGIVEIS` (`painel.js`); regra nova precisa de nome lá (`tests/test_painel_filtro.py` confere).
   O interruptor de obrigatório fica desabilitado enquanto o campo estiver inativo.
 - Formulários: asterisco só quando `ativo && obrigatorio`.
 - `integrar.html` tem também o "Antes e depois" (cadastro em PHP: +9 linhas, 3 alteradas, destacadas) com os

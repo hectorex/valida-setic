@@ -127,7 +127,8 @@ Abrindo o servidor (ou o link), a página inicial leva a todas:
 - **Regras:** interruptores de **Obrigatório** e **Ativo** para cada campo. Valem na próxima validação de todos os
   sistemas.
 - **Painel de erros:** total de validações, bloqueadas, taxa de bloqueio, **tempo médio de verificação** (medido de
-  verdade, menos de 1 ms), taxa por sistema, campos que mais erram e falhas mais frequentes.
+  verdade, menos de 1 ms), taxa por sistema, campos que mais erram e falhas mais frequentes, com **filtro por
+  sistema** (útil quando forem dezenas de sistemas) e o nome de cada regra em português ("Celular sem o 9").
 - **Onde agir:** recomendações geradas das contagens. Ex.: *"Sistema A: 21,9% das falhas são de data de nascimento
   fora do formato. Sugestão: use máscara DD/MM/AAAA no campo de data."* São regras simples no código, sem IA.
 - **Histórico de mudanças:** quem mudou, quando, qual campo e o quê (*"Banca Avaliadora · Telefone · Obrigatório:

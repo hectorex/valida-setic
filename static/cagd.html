@@ -133,13 +133,22 @@
         </div>
 
         <section class="painel-secao" aria-labelledby="titulo-falhas">
-          <h3 id="titulo-falhas">Falhas mais frequentes</h3>
+          <div class="secao-cabecalho">
+            <h3 id="titulo-falhas">Falhas mais frequentes</h3>
+            <label class="filtro-sistema">
+              <span>Sistema</span>
+              <select id="filtro-falhas" class="select" aria-label="Ver as falhas de qual sistema">
+                <option value="">Todos os sistemas</option>
+              </select>
+            </label>
+          </div>
           <div class="tabela-rolagem">
             <table class="tabela" id="tabela-falhas">
               <thead><tr><th>Sistema</th><th>Campo</th><th>Regra</th><th class="numero">Quantidade</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
+          <p class="muted small" id="falhas-resumo"></p>
         </section>
       </div>
       <!-- Histórico de mudanças das regras (GET /regras/historico) -->

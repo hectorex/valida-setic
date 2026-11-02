@@ -6,6 +6,27 @@
 
 const MAX_FALHAS_NA_TABELA = 10;
 
+// Nome legível de cada regra (o id técnico continua no title, ao passar o mouse)
+const REGRAS_LEGIVEIS = {
+  obrigatorio: 'Campo vazio',
+  tamanho_minimo: 'Nome incompleto',
+  caracteres_validos: 'Caracteres inválidos',
+  formato: 'Fora do formato',
+  digitos_repetidos: 'Dígitos todos iguais',
+  digitos_verificadores: 'Dígito verificador errado',
+  sem_espacos: 'Espaço no e-mail',
+  possui_arroba: 'Sem @ ou com mais de um',
+  dominio_valido: 'Domínio inválido',
+  data_existente: 'Data inexistente',
+  nao_futura: 'Data no futuro',
+  idade_maxima: 'Mais de 130 anos',
+  ddd_valido: 'DDD inexistente',
+  celular_com_9: 'Celular sem o 9',
+  municipio_ro: 'Município fora de RO',
+};
+
+let falhasDoPainel = []; // guardadas para o filtro por sistema redesenhar a tabela sem chamar a API de novo
+
 function formatarNumero(valor) {
   return Number(valor).toLocaleString('pt-BR');
 }
@@ -92,26 +113,52 @@ function desenharPainel(painel) {
     campos.appendChild(linhaBarra(rotulo, c.falhas / maior, formatarNumero(c.falhas), `${rotulo}: ${c.falhas} falhas`));
   });
 
-  // Tabela: as falhas mais frequentes por sistema, campo e regra
+  // Tabela: as falhas mais frequentes, de todos os sistemas ou só do escolhido no filtro
+  falhasDoPainel = painel.falhas;
+  preencherFiltroSistemas(painel.por_sistema);
+  desenharFalhas();
+}
+
+/** Opções do filtro a partir dos sistemas do painel, mantendo a escolha atual se o sistema ainda existir. */
+function preencherFiltroSistemas(sistemas) {
+  const filtro = document.querySelector('#filtro-falhas');
+  const escolhido = filtro.value;
+  filtro.textContent = '';
+  filtro.appendChild(new Option('Todos os sistemas', ''));
+  sistemas.forEach((s) => filtro.appendChild(new Option(nomeSistema(s.sistema_origem), s.sistema_origem)));
+  filtro.value = sistemas.some((s) => s.sistema_origem === escolhido) ? escolhido : '';
+}
+
+function desenharFalhas() {
+  const escolhido = document.querySelector('#filtro-falhas').value;
+  const falhas = escolhido ? falhasDoPainel.filter((f) => f.sistema_origem === escolhido) : falhasDoPainel;
+  // Com um sistema escolhido, a coluna Sistema só repetiria o nome dele: some (e sobra espaço no celular)
+  document.querySelector('#tabela-falhas').classList.toggle('so-um-sistema', Boolean(escolhido));
   const corpo = document.querySelector('#tabela-falhas tbody');
   corpo.textContent = '';
-  if (!painel.falhas.length) {
+  if (!falhas.length) {
     const tr = criarElemento('tr', 'vazio');
-    const td = criarElemento('td', '', 'Nenhuma falha registrada ainda.');
+    const td = criarElemento('td', '', escolhido ? 'Nenhuma falha deste sistema.' : 'Nenhuma falha registrada ainda.');
     td.colSpan = 4;
     tr.appendChild(td);
     corpo.appendChild(tr);
   }
-  painel.falhas.slice(0, MAX_FALHAS_NA_TABELA).forEach((f) => {
+  falhas.slice(0, MAX_FALHAS_NA_TABELA).forEach((f) => {
     const tr = document.createElement('tr');
+    const regra = criarElemento('td', '', REGRAS_LEGIVEIS[f.regra] || f.regra);
+    regra.title = `regra: ${f.regra}`;
     tr.append(
       criarElemento('td', '', nomeSistema(f.sistema_origem)),
       criarElemento('td', '', ROTULOS[f.campo] || f.campo),
-      criarElemento('td', 'codigo', f.regra),
+      regra,
       criarElemento('td', 'numero', formatarNumero(f.quantidade))
     );
     corpo.appendChild(tr);
   });
+  const total = falhas.reduce((soma, f) => soma + f.quantidade, 0);
+  document.querySelector('#falhas-resumo').textContent = falhas.length > MAX_FALHAS_NA_TABELA
+    ? `Mostrando as ${MAX_FALHAS_NA_TABELA} mais frequentes de ${falhas.length} tipos de falha (${formatarNumero(total)} falhas).`
+    : (falhas.length ? `${falhas.length} ${falhas.length === 1 ? 'tipo' : 'tipos'} de falha (${formatarNumero(total)} falhas).` : '');
 }
 
 async function carregarPainel() {
@@ -126,6 +173,7 @@ async function carregarPainel() {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#btn-recarregar-painel').addEventListener('click', carregarPainel);
+  document.querySelector('#filtro-falhas').addEventListener('change', desenharFalhas);
   // Na demo: ao voltar para esta aba depois de usar o Sistema A ou B, o painel já vem atualizado
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && cagdLiberada) carregarPainel();
