@@ -1,5 +1,6 @@
 import json
 import re
+from pathlib import Path
 
 import pytest
 
@@ -23,13 +24,26 @@ def test_cada_linguagem_chama_o_validar_no_endereco_do_servidor(html, linguagem)
     codigo = exemplo(html, linguagem)
     assert "{{URL}}/validar" in codigo  # o JS troca {{URL}} pelo endereço de onde a página foi aberta
     assert "sistema_origem" in codigo and "sistema_exemplo" in codigo
+    assert "X-API-Key" in codigo and "demo-exemplo" in codigo  # a chave do sistema vai em todo exemplo
     assert "127.0.0.1" not in codigo and "onrender" not in codigo
 
 
-def test_json_do_exemplo_curl_e_aceito_pela_api(cliente, html):
-    # Se o contrato mudar, este teste avisa que os exemplos da página ficaram desatualizados
-    corpo = json.loads(re.search(r"-d '(.*?)'", exemplo(html, "curl"), re.S).group(1))
-    resposta = cliente.post("/validar", json=corpo).json()
+def chaves_de_demonstracao():
+    """As chaves que o render.yaml configura no site hospedado (sistema → chave)."""
+    render = (Path(__file__).resolve().parent.parent / "render.yaml").read_text(encoding="utf-8")
+    valor = re.search(r"key: VALIDA_CHAVES_SISTEMAS\s+value: (\S+)", render).group(1)
+    return dict(item.split(":", 1) for item in valor.split(";"))
+
+
+def test_json_e_chave_do_exemplo_curl_sao_aceitos_pela_api(cliente, html, monkeypatch):
+    # Se o contrato mudar, este teste avisa que os exemplos da página ficaram desatualizados.
+    # Roda com as mesmas chaves do site hospedado: o exemplo precisa funcionar lá.
+    monkeypatch.setenv("VALIDA_CHAVES_SISTEMAS", ";".join(f"{s}:{c}" for s, c in chaves_de_demonstracao().items()))
+    codigo = exemplo(html, "curl")
+    corpo = json.loads(re.search(r"-d '(.*?)'", codigo, re.S).group(1))
+    chave = re.search(r'-H "X-API-Key: (.*?)"', codigo).group(1)
+    assert cliente.post("/validar", json=corpo).status_code == 401  # sem a chave, recusado
+    resposta = cliente.post("/validar", json=corpo, headers={"X-API-Key": chave}).json()
     assert resposta["valido"] is False
     assert [(e["campo"], e["regra"]) for e in resposta["erros"]] == [
         ("email", "dominio_valido"),
@@ -81,3 +95,10 @@ def test_funcao_usada_no_depois_existe_na_aba_php(html):
     php = exemplo(html, "php")
     assert "function valida_setic(array $dados)" in php
     assert "$resposta = valida_setic([" in php
+
+
+def test_chaves_de_demonstracao_do_render_batem_com_as_paginas(cliente, html):
+    chaves = chaves_de_demonstracao()
+    assert chaves["sistema_exemplo"] == "demo-exemplo"
+    assert f'data-chave="{chaves["sistema_b"]}"' in cliente.get("/sistema-b.html").text
+    assert "sistema_a" not in chaves  # o Sistema A valida pelo /cadastros, no servidor, sem chave

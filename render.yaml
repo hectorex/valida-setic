@@ -22,3 +22,9 @@ services:
       # Sem nenhuma das duas, a CAGD fica aberta para qualquer pessoa com o link.
       - key: VALIDA_SENHA_CAGD
         sync: false
+      # Chave por sistema no POST /validar (sistema:chave;...). Estas duas são de DEMONSTRAÇÃO e públicas de
+      # propósito: aparecem no código do Sistema B e da página Como integrar, que chamam a API pelo navegador.
+      # Em produção, cada sistema guarda a sua chave no próprio servidor. O Sistema A não precisa de chave
+      # (o /cadastros valida por dentro).
+      - key: VALIDA_CHAVES_SISTEMAS
+        value: sistema_b:demo-sistema-b;sistema_exemplo:demo-exemplo

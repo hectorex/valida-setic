@@ -3,6 +3,7 @@
 Uso (com a API rodando):
     python scripts/teste_carga.py                      # 2000 chamadas, 20 ao mesmo tempo, em http://127.0.0.1:8000
     python scripts/teste_carga.py --total 5000 --simultaneas 50
+    python scripts/teste_carga.py --chave demo-exemplo       # servidor com chaves por sistema
 
 Cada chamada é um cadastro fictício de verdade (metade válido, metade com erro), e fica registrada no painel
 como "teste_carga". Por isso, rode num banco de teste, nunca contra o site hospedado.
@@ -28,11 +29,14 @@ def corpo_da_chamada(numero):
     return json.dumps({"sistema_origem": "teste_carga", "dados": dados}).encode()
 
 
-def enviar_por_http(url):
+def enviar_por_http(url, chave=None):
     """Devolve uma função que faz um POST /validar e retorna o código HTTP."""
+    cabecalhos = {"Content-Type": "application/json"}
+    if chave:
+        cabecalhos["X-API-Key"] = chave  # chave do sistema, quando o servidor exige
+
     def enviar(corpo):
-        requisicao = urllib.request.Request(f"{url}/validar", data=corpo, method="POST",
-                                            headers={"Content-Type": "application/json"})
+        requisicao = urllib.request.Request(f"{url}/validar", data=corpo, method="POST", headers=cabecalhos)
         with urllib.request.urlopen(requisicao, timeout=30) as resposta:
             resposta.read()
             return resposta.status
@@ -74,10 +78,11 @@ def main():
     argumentos.add_argument("--url", default="http://127.0.0.1:8000")
     argumentos.add_argument("--total", type=int, default=2000)
     argumentos.add_argument("--simultaneas", type=int, default=20)
+    argumentos.add_argument("--chave", help="chave do sistema (X-API-Key), se o servidor exigir")
     opcoes = argumentos.parse_args()
 
     print(f"Enviando {opcoes.total} validações para {opcoes.url}, {opcoes.simultaneas} ao mesmo tempo...")
-    r = medir(enviar_por_http(opcoes.url), opcoes.total, opcoes.simultaneas)
+    r = medir(enviar_por_http(opcoes.url, opcoes.chave), opcoes.total, opcoes.simultaneas)
     print(f"  {r['por_segundo']} validações por segundo ({r['total']} em {r['segundos']} s)")
     print(f"  tempo de resposta: média {r['media_ms']} ms, p50 {r['p50_ms']} ms, p95 {r['p95_ms']} ms, "
           f"p99 {r['p99_ms']} ms")

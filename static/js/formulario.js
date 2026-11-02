@@ -9,6 +9,9 @@ const formulario = document.querySelector('form[data-sistema]');
 //   <form data-sistema="sistema_b">                          → só POST /validar (padrão)
 const SISTEMA_ORIGEM = formulario.dataset.sistema;
 const ROTA_ENVIO = formulario.dataset.rota || '/validar';
+// Chave do sistema no POST /validar (cabeçalho X-API-Key). Aqui é uma chave de demonstração, visível na página;
+// em produção a chamada sai do servidor do sistema, como o Sistema A faz pelo /cadastros.
+const CHAVE_SISTEMA = formulario.dataset.chave;
 
 /** Busca as regras e aplica asterisco, tooltip e estado ativo/inativo em cada campo. */
 async function carregarRegrasFormulario() {
@@ -305,7 +308,8 @@ async function enviarFormulario(e) {
   definirCarregando(true);
 
   try {
-    const { data } = await apiFetch(ROTA_ENVIO, 'POST', montarPayload());
+    const cabecalhos = CHAVE_SISTEMA ? { 'X-API-Key': CHAVE_SISTEMA } : {};
+    const { data } = await apiFetch(ROTA_ENVIO, 'POST', montarPayload(), cabecalhos);
     const resultado = lerResultado(data);
 
     if (resultado.aprovado === false) {
