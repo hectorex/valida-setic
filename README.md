@@ -193,27 +193,30 @@ E-mails institucionais com subdomínio funcionam (ex.: `aluno@estudante.ifro.edu
 ## 7. Como integrar um sistema
 Qualquer sistema que faça uma chamada HTTP integra, em qualquer linguagem e sem biblioteca nova:
 
-1. **Antes de gravar**, envie os dados para `POST /validar`, dizendo quem você é (`sistema_origem`).
+1. **Antes de gravar**, envie os dados para `POST /validar`, com a **chave do seu sistema** no cabeçalho
+   `X-API-Key`. Cada sistema recebe a sua, e o painel registra o sistema dono da chave.
 2. **Bloqueado** (`"valido": false`): mostre cada erro embaixo do campo (`campo` e `mensagem`) e não grave.
 3. **Aprovado** (`"valido": true`): grave no **seu** banco os `dados_padronizados`.
 
 ```bash
 curl -X POST https://valida-setic.onrender.com/validar \
   -H "Content-Type: application/json" \
-  -d '{"sistema_origem": "meu_sistema",
+  -H "X-API-Key: demo-exemplo" \
+  -d '{"sistema_origem": "sistema_exemplo",
        "dados": {"nome": "Maria da Silva", "cpf": "123.456.789-09",
                  "email": "maria@", "data_nascimento": "31/02/1990"}}'
 ```
 
 Em números: **cerca de 10 linhas** por formulário, **menos de 1 hora** de desenvolvimento para integrar, e
 **zero linhas** quando a regra muda. A página `/integrar.html` tem o exemplo em 6 linguagens e o "Antes e depois".
+`demo-exemplo` é uma chave de demonstração, pública de propósito (ver a seção 9).
 
 ## 8. Referência da API
 Documentação interativa completa, com exemplos, em **`/docs`** (Swagger).
 
 | Método | Rota | O que faz | Acesso |
 |---|---|---|---|
-| `POST` | `/validar` | Verifica e padroniza; registra só o resultado para o painel | público |
+| `POST` | `/validar` | Verifica e padroniza; registra só o resultado para o painel | 🔑 chave do sistema |
 | `GET` | `/regras` | Configuração de cada campo (obrigatório, ativo, formato, ajuda) | público |
 | `PUT` | `/regras/{campo}` | CAGD altera um campo; vale na próxima validação | 🔒 login |
 | `GET` | `/regras/historico` | Mudanças da CAGD: quem, quando, campo, antes e depois | 🔒 login |
@@ -226,7 +229,8 @@ Documentação interativa completa, com exemplos, em **`/docs`** (Swagger).
 | `GET` | `/municipios` | Os 52 municípios de RO (nome oficial e código IBGE) | público |
 | `GET` | `/saude` | Confirma que a API está no ar | público |
 
-"Público" é o que os sistemas precisam para funcionar. "Login" é só da CAGD.
+"Público" é o que os sistemas precisam para funcionar. "Login" é só da CAGD. "Chave do sistema" é o cabeçalho
+`X-API-Key`, exigido só quando o servidor tem chaves configuradas (no site hospedado, sim; no notebook, não).
 
 ### `POST /validar`
 Entrada:
@@ -252,6 +256,8 @@ Com o e-mail corrigido (e `"municipio": "espigao doeste"`), aprovado:
 ```
 Campos aceitos em `dados`: `nome`, `cpf`, `email`, `data_nascimento`, `telefone`, `municipio`. Campos desconhecidos são
 ignorados; campos ausentes só geram erro se forem obrigatórios. JSON malformado ou sem `sistema_origem` → 422.
+Com chaves configuradas: sem `X-API-Key` ou com chave errada → 401, e nada entra no painel. Com a chave certa, o
+painel registra o **sistema dono da chave**, e o `sistema_origem` enviado é ignorado.
 
 ### `PUT /regras/{campo}` (com login)
 Envie só o que quer mudar:
@@ -313,6 +319,14 @@ O `cadastro` traz o dado padronizado e o `criado_em` em UTC (`...Z`), que o nave
     senha certa). Vale também para usuários que não existem, para não revelar quais existem. Na tela, o botão
     Entrar fica desativado para aquele usuário, com contagem regressiva ("Tente de novo em 4:59"). O bloqueio é por
     usuário: os outros continuam entrando.
+- **Chave por sistema:** cada sistema chama o `/validar` com a própria chave (`X-API-Key`), e o painel registra o
+  sistema **dono da chave**, não o nome que a requisição diz. Ninguém se passa por outro sistema, e só sistemas
+  cadastrados entram no painel. As chaves vêm da variável `VALIDA_CHAVES_SISTEMAS` (`sistema:chave;...`) e são
+  comparadas em tempo constante.
+  - **Ponto honesto da demo:** o Sistema B e a página Como integrar chamam a API pelo navegador, então as chaves
+    deles (`demo-sistema-b` e `demo-exemplo`) ficam visíveis no código da página. São chaves de demonstração. Em
+    produção, a chamada sai do servidor de cada sistema, onde a chave fica guardada, como o Sistema A já faz pelo
+    `/cadastros` (que valida por dentro, sem chave).
 - **Auditoria:** cada mudança de regra registra quem, quando e o quê. O autor vem do login, nunca da requisição.
 - **Só aceita o que conhece (contra "admin": true):** mudar regra aceita só 4 atributos; qualquer outro é recusado
   (422). O resultado da validação e o cadastro gravado são calculados pelo servidor: campos extras mandados pelo
@@ -417,17 +431,23 @@ Abra **http://127.0.0.1:8000**. O Swagger fica em **http://127.0.0.1:8000/docs**
 
 Formato: `usuario:Nome que aparece no histórico:senha`, vários separados por `;`. A senha pode ter `:`, mas não `;`.
 
+- **Chave por sistema:** sem a variável `VALIDA_CHAVES_SISTEMAS`, o `/validar` não exige chave (vale o
+  `sistema_origem` enviado). Para testar como no site hospedado, suba com
+  `VALIDA_CHAVES_SISTEMAS="sistema_b:demo-sistema-b;sistema_exemplo:demo-exemplo"` (mesmo jeito da variável acima).
+
 ## 12. Testes
 ```bash
 python -m pytest
 ```
-São **316 testes automáticos**, que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
+São **329 testes automáticos**, que rodam em poucos segundos num banco em memória, sem tocar no `valida.db`. Cobrem:
 - cada validador com casos válidos e inválidos (29/02/2024 aceito; 31/02/1990, 00/00/0000, 1985-03-15, CPF
   111.111.111-11, e-mail sem domínio bloqueados…);
 - os erros em camadas e as rotas;
 - as regras da CAGD e o histórico;
 - o painel, o Onde agir e o tempo;
 - o login (senha errada, sessão expirada, usuário removido, bloqueio por força bruta…);
+- a chave por sistema (sem chave, chave errada, tentar se passar por outro sistema) e se as chaves de
+  demonstração do `render.yaml` batem com as páginas;
 - o teste de invasão: 31 ataques que precisam continuar falhando, e os cabeçalhos de segurança;
 - a LGPD: as tabelas de log não têm onde guardar o valor digitado;
 - as páginas, e se os exemplos do Swagger e da página "Como integrar" batem com a resposta real da API.
@@ -436,6 +456,7 @@ São **316 testes automáticos**, que rodam em poucos segundos num banco em mem�
 válidas, metade com erro), várias ao mesmo tempo, e mede quantas a API atende por segundo:
 ```bash
 python scripts/teste_carga.py --total 5000 --simultaneas 50
+python scripts/teste_carga.py --chave demo-exemplo   # se o servidor exigir chave
 ```
 Num notebook, com **um único processo** e SQLite: cerca de **145 validações por segundo** (mais de 500 mil por hora),
 **sem nenhuma falha com 50 chamadas ao mesmo tempo**, e resposta típica de 10 ms quando não há fila. A verificação
@@ -473,8 +494,8 @@ A demo oficial roda no notebook, sem depender de internet. O link serve para tes
   permissões.
 - **As mesmas regras para todos os sistemas.** Próximo passo: regras diferentes por sistema (ex.: um sistema que não
   coleta e-mail).
-- **Sem chave por sistema.** Hoje qualquer um pode chamar `/validar` e dizer qualquer `sistema_origem`. Próximo passo:
-  uma chave por sistema (cabeçalho `X-API-Key`), para o painel ter certeza de quem chamou.
+- **Chaves de sistema numa variável de ambiente**, e as da demo visíveis no navegador (ver a seção 9). Próximo
+  passo: cadastro de sistemas e troca de chave pela tela da CAGD, com as chamadas sempre saindo do servidor.
 - **Limites por endereço (IP).** O bloqueio de força bruta é por usuário e fica na memória do servidor. Em produção,
   somar um limite de requisições por IP no servidor de entrada (proxy) da SETIC.
 - **Implantação gradual.** Uma ideia é começar num sistema piloto em "modo observação" (registra no painel sem

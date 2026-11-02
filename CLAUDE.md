@@ -98,6 +98,14 @@ Hoje o único derivado é `municipio_codigo_ibge` (código IBGE de 7 dígitos, c
 `municipio` é aprovado.
 Payload malformado (não é JSON, falta `sistema_origem`) → 422 normal do FastAPI.
 
+**Chave por sistema (`X-API-Key`):** com `VALIDA_CHAVES_SISTEMAS` = `sistema:chave;outro:chave` (`seguranca.py`,
+`sistema_chamador`), o `/validar` exige o cabeçalho; sem ele ou com chave errada → 401 "Chave do sistema ausente ou
+inválida (cabeçalho X-API-Key).", e nada é registrado. Com a chave certa, o painel registra o **sistema dono da
+chave** (o `sistema_origem` do corpo continua obrigatório, mas é ignorado). Sem a variável (notebook), não exige
+chave e vale o `sistema_origem`. O `render.yaml` define as chaves de demonstração, públicas de propósito porque
+chamam pelo navegador: `sistema_b:demo-sistema-b;sistema_exemplo:demo-exemplo` (`tests/test_integrar.py` confere que
+batem com `sistema-b.html` e com a página Como integrar). `/cadastros` (Sistema A) não usa chave: valida por dentro.
+
 ### `GET /regras` e `PUT /regras/{campo}`
 Configuração por campo: `obrigatorio`, `ativo`, `formato_esperado`, `ajuda` (texto do ícone "i").
 O formulário monta asteriscos e textos de ajuda a partir do `GET /regras`, nunca de texto fixo.
@@ -217,6 +225,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Schemas de entrada que alteram dados com `extra="forbid"` (ex.: `RegraAtualizacao`); valores calculados (resultado
   da validação, cadastro, autor do histórico) nunca vêm do cliente.
 - Telas: dado vindo da API entra só por `textContent`; `innerHTML` só para ícones fixos (`ICONE_*`).
+- Chave por sistema no `/validar` (ver o contrato): chaves comparadas em tempo constante; o sistema registrado
+  vem da chave, nunca do corpo da requisição.
 - `tests/test_seguranca_ataques.py` é o teste de invasão: ataques que precisam continuar falhando.
 
 ## LGPD (inegociável)
@@ -231,7 +241,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Ícone "i" ao lado de cada campo com `ajuda` + `formato_esperado` (tooltip no desktop, toque no celular).
 - `sistema-a.html` envia para `POST /cadastros` (o backend dele) e mostra a lista "Banco do Sistema A (simulado)",
   deixando claro que esse banco é do sistema, não do Valida SETIC.
-- `sistema-b.html` (Agendamento de Atendimento): só `POST /validar`, campos nome, cpf, telefone, data_nascimento,
+- `sistema-b.html` (Agendamento de Atendimento): só `POST /validar` (com `data-chave="demo-sistema-b"` no form, que o
+  `formulario.js` manda em `X-API-Key`), campos nome, cpf, telefone, data_nascimento,
   email e um campo próprio não enviado ("Serviço"); cor própria (`body.tema-sistema-b`). Precisa ter todos os
   campos obrigatórios por padrão, senão seria sempre bloqueado (as regras valem para todos os sistemas).
 - Campo município com lista própria de sugestões do `GET /municipios` (não `<datalist>`, que não dá para
@@ -251,8 +262,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   o `console.log` mostrado na tela), para a banca editar valores dentro do código. Só no navegador de quem clicou,
   nunca no servidor: executar no servidor código digitado na página seria uma falha de segurança grave. As outras
   linguagens são só leitura ("copie e rode no terminal"); não fingir execução delas. Exemplos com `{{URL}}` (trocado pelo endereço de onde a página foi aberta) e
-  `sistema_origem: "sistema_exemplo"`. `tests/test_integrar.py` manda o JSON do exemplo curl para a API: se o
-  contrato mudar, o teste avisa que a página ficou desatualizada. Executados de verdade: curl, Python e Java.
+  `sistema_origem: "sistema_exemplo"`, com o cabeçalho `X-API-Key: demo-exemplo`. `tests/test_integrar.py` manda o JSON do exemplo curl para a API: se o
+  contrato mudar, o teste avisa que a página ficou desatualizada. Executados de verdade (com a chave, em 01/11): curl,
+  Python, JavaScript (Node) e Java.
 - Outros integrantes editam `static/`. Não reescrever arquivos de `static/` inteiros sem pedir.
 
 ## Fora do escopo
@@ -260,7 +272,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 - Editor genérico de regras (regras técnicas ficam no código; o banco guarda só a configuração).
 - Validação dentro do banco (o desafio pede escolher API **ou** banco; escolhemos API).
 - Gestão de usuários pela tela (criar, trocar senha, permissões): os usuários vêm da variável de ambiente.
-  Chave por sistema `X-API-Key` só se sobrar tempo.
+  Cadastro de sistemas e troca de chave pela tela (as chaves vêm da variável `VALIDA_CHAVES_SISTEMAS`).
 
 ## Como trabalhar neste repositório
 1. Uma etapa por vez. Antes de codar uma etapa, apresente o plano e espere aprovação.
@@ -316,7 +328,7 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
      - mesma comparação (sem acento, caixa, apóstrofo, hífen e espaços) e sugestão por `difflib` dentro da UF;
      - `GET /municipios` passa a aceitar `?uf=`.
    - **Dockerfile**: "roda em qualquer servidor da SETIC com um comando" (argumento de viabilidade).
-10. Extras se sobrar tempo: chave por sistema no header `X-API-Key`.
+10. ✅ Chave por sistema no header `X-API-Key` (01/11): o painel registra o sistema dono da chave.
 
 Ideias descartadas por agora (citar no pitch como próximos passos): regras diferentes por sistema; IA para
 sugerir correções (contradiz o princípio de não adivinhar o que o usuário quis digitar).
