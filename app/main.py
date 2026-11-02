@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401  (registra as tabelas no Base)
-from app.database import SessionLocal, atualizar_tabelas
+from app.database import SessionLocal, atualizar_tabelas, engine
 from app.rotas import agendamentos, cadastros, cagd, municipios, painel, regras, validar
 from app.servicos.regras import inicializar_regras
 
@@ -65,7 +65,12 @@ async def cabecalhos_de_seguranca(requisicao, chamar_proximo):
 
 @app.get("/saude", tags=["sistema"])
 def saude():
-    return {"status": "ok"}
+    """Confirma que a API está no ar e diz qual banco está em uso ("postgresql" ou "sqlite"), sem endereço nem senha.
+
+    Serve para conferir no site hospedado que a variável VALIDA_DB_URL pegou (sem ela, o Render usa SQLite e apaga os
+    dados a cada reinício).
+    """
+    return {"status": "ok", "banco": engine.dialect.name}
 
 
 # Frontend (HTML/CSS/JS) servido pelo próprio FastAPI: mesma origem, sem problema de CORS.

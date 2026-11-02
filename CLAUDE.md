@@ -206,6 +206,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
 
 ## Banco (PostgreSQL no Render; SQLite `valida.db` no notebook, fora do git)
 - URL pela variável `VALIDA_DB_URL` (padrão `sqlite:///./valida.db`). Tabelas criadas na subida do app.
+  `GET /saude` devolve `{"status": "ok", "banco": "postgresql"}` (ou `"sqlite"`): conferir no site hospedado. Em
+  01/11 a `VALIDA_DB_URL` não existia no Render, o site caiu no SQLite em silêncio e os dados sumiam a cada reinício.
   `normalizar_url` (`database.py`) aceita a URL do Render (`postgres://` ou `postgresql://`) e usa o driver psycopg;
   no PostgreSQL, `pool_pre_ping=True`. Diferença que importa: o PostgreSQL recusa texto maior que a coluna (o SQLite
   ignora). Por isso `cadastros.nome`/`email` não têm limite e `RegraAtualizacao` limita `formato_esperado` (100) e
