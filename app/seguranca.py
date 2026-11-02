@@ -1,4 +1,4 @@
-"""Login da CAGD: cada pessoa entra com o próprio usuário, e o histórico registra quem mudou cada regra.
+"""Login da CAGD (cada pessoa com o próprio usuário) e chave por sistema no POST /validar (ver o fim do arquivo).
 
 Usuários vêm da variável de ambiente VALIDA_USUARIOS_CAGD, no formato
     usuario:Nome para exibir:senha;outro:Outro Nome:outra-senha
@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
 
 DURACAO_SESSAO = timedelta(hours=8)
 # Contra força bruta: 5 senhas erradas seguidas para um usuário bloqueiam o login dele por 5 minutos
@@ -140,5 +140,59 @@ RESPOSTA_401 = {
     401: {
         "description": "Sem login na CAGD ou sessão expirada (só quando o servidor tem usuários configurados)",
         "content": {"application/json": {"example": {"detail": "Faça login na CAGD (sessão ausente ou expirada)."}}},
+    }
+}
+
+
+# --- Chave por sistema (cabeçalho X-API-Key) ---
+# Cada sistema chama o POST /validar com a própria chave, e o painel registra o sistema DONO DA CHAVE, não o que a
+# requisição diz. Chaves em VALIDA_CHAVES_SISTEMAS, no formato sistema_a:chave;sistema_b:outra-chave.
+# Sem a variável (ex.: notebook da demo), a chave não é exigida e vale o sistema_origem enviado, como antes.
+
+
+def chaves_configuradas() -> dict[str, str]:
+    """sistema → chave. Lido a cada chamada: trocar a variável vale sem mudar código."""
+    chaves = {}
+    for item in (os.getenv("VALIDA_CHAVES_SISTEMAS") or "").split(";"):
+        partes = item.strip().split(":", 1)
+        if len(partes) == 2 and all(p.strip() for p in partes) and len(partes[0].strip()) <= 50:
+            chaves[partes[0].strip()] = partes[1].strip()
+    return chaves
+
+
+def sistema_da_chave(chave: str) -> str | None:
+    """O sistema dono da chave, ou None. Compara com todas, em tempo constante, para não dar pista pelo tempo."""
+    dono = None
+    for sistema, esperada in chaves_configuradas().items():
+        if secrets.compare_digest(chave.encode(), esperada.encode()):
+            dono = sistema
+    return dono
+
+
+esquema_chave_sistema = APIKeyHeader(
+    name="X-API-Key",
+    auto_error=False,
+    description="Chave do sistema que está chamando (só exigida quando o servidor tem chaves configuradas).",
+)
+
+
+def sistema_chamador(chave: str | None = Depends(esquema_chave_sistema)) -> str | None:
+    """Quem está chamando o /validar. None quando não há chaves configuradas (vale o sistema_origem enviado)."""
+    if not chaves_configuradas():
+        return None
+    sistema = sistema_da_chave(chave) if chave else None
+    if sistema is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Chave do sistema ausente ou inválida (cabeçalho X-API-Key).",
+        )
+    return sistema
+
+
+RESPOSTA_401_CHAVE = {
+    401: {
+        "description": "Sem chave do sistema ou chave inválida (só quando o servidor tem chaves configuradas)",
+        "content": {"application/json": {"example": {
+            "detail": "Chave do sistema ausente ou inválida (cabeçalho X-API-Key)."}}},
     }
 }

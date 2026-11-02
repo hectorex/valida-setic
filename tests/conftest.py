@@ -22,8 +22,9 @@ def sessao():
 
 @pytest.fixture(autouse=True)
 def sem_login_por_padrao(monkeypatch):
-    """Os testes começam sem usuários da CAGD e sem sessões; quem precisa de login liga no próprio teste."""
+    """Os testes começam sem usuários da CAGD, sem sessões e sem chaves de sistema; quem precisa liga no teste."""
     monkeypatch.delenv("VALIDA_USUARIOS_CAGD", raising=False)
+    monkeypatch.delenv("VALIDA_CHAVES_SISTEMAS", raising=False)
     monkeypatch.delenv("VALIDA_SENHA_CAGD", raising=False)
     seguranca.SESSOES.clear()
     seguranca.TENTATIVAS_ERRADAS.clear()

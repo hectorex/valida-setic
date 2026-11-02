@@ -4,6 +4,7 @@ from fastapi import APIRouter, Body, Depends
 from sqlalchemy.orm import Session
 
 from app.database import obter_sessao
+from app.seguranca import RESPOSTA_401_CHAVE, sistema_chamador
 from app.schemas import ErroValidacao, RequisicaoValidacao, RespostaValidacao
 from app.servicos.registro import validar_e_registrar
 
@@ -88,16 +89,21 @@ EXEMPLOS_RESPOSTA = {
 @router.post(
     "/validar",
     response_model=RespostaValidacao,
-    responses={200: {"content": {"application/json": {"examples": EXEMPLOS_RESPOSTA}}}},
+    responses={200: {"content": {"application/json": {"examples": EXEMPLOS_RESPOSTA}}}, **RESPOSTA_401_CHAVE},
 )
 def validar(
     requisicao: Annotated[RequisicaoValidacao, Body(openapi_examples=EXEMPLOS_REQUISICAO)],
     sessao: Session = Depends(obter_sessao),
+    sistema_da_chave: str | None = Depends(sistema_chamador),
 ):
     """Verifica e padroniza os dados antes de o sistema gravar. Não grava os dados.
 
     A configuração dos campos (obrigatório/ativo) é lida do banco a cada chamada.
     Cada chamada é registrada para o painel de erros só com sistema, campo, regra e data/hora,
     nunca com o valor digitado (LGPD).
+
+    Com chaves configuradas no servidor, exige o cabeçalho `X-API-Key`, e o painel registra o sistema dono da
+    chave (o `sistema_origem` enviado é ignorado): ninguém se passa por outro sistema.
     """
-    return validar_e_registrar(sessao, requisicao.sistema_origem, requisicao.dados.model_dump())
+    sistema = sistema_da_chave or requisicao.sistema_origem
+    return validar_e_registrar(sessao, sistema, requisicao.dados.model_dump())
