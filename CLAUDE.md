@@ -61,6 +61,7 @@ static/
   js/dados-ficticios.js  # painel "Dados fictícios para testar" (copiar/preencher) nos Sistemas A e B
   js/login-cagd.js     # login da CAGD (usuário e senha), guarda o token na aba e libera a tela (vem antes de cagd/painel/historico)
   js/cagd.js           # interruptores das regras (dispara o evento regra-alterada)
+  js/regras-formato.js # card "Regras de formato para campos novos" (criar com teste ao vivo, ativar, excluir)
   js/historico.js      # histórico de mudanças das regras (GET /regras/historico)
   js/painel.js         # painel de erros da CAGD (GET /painel/erros)
   js/integrar.js       # abas de linguagem, copiar, editar e executar o exemplo JS; troca {{URL}} por location.origin
@@ -307,6 +308,9 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   fica no `sessionStorage` (some ao fechar a aba). As telas registram o carregamento com `quandoLiberada()` e tratam
   401 com `tratarLoginRecusado()`. O histórico tem a coluna Quem.
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
+  Card "Regras de formato para campos novos" (`js/regras-formato.js`, depois do `cagd.js`, que tem o `criarSwitch`):
+  formulário com teste ao vivo (`POST /regras-formato/testar`), lista com obrigatório/ativo e Excluir; dispara
+  `regra-alterada` para o histórico, que mostra "Regra de formato criada/excluída".
   "Falhas mais frequentes" tem um seletor de sistema (`#filtro-falhas`, montado de `por_sistema`): o filtro roda na
   tela, porque a API devolve todas as falhas (não cortar `falhas` no servidor). Regras com nome legível em
   `REGRAS_LEGIVEIS` (`painel.js`); regra nova precisa de nome lá (`tests/test_painel_filtro.py` confere).
