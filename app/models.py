@@ -70,6 +70,7 @@ class Cadastro(Base):
     telefone: Mapped[str | None] = mapped_column(String(20))
     municipio: Mapped[str | None] = mapped_column(String(100))
     municipio_codigo_ibge: Mapped[str | None] = mapped_column(String(7))
+    municipio_uf: Mapped[str | None] = mapped_column(String(2))  # só quando o sistema manda a UF
     criado_em: Mapped[datetime] = mapped_column(default=agora_utc)
 
 

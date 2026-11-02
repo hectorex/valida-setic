@@ -20,6 +20,7 @@ function linhaCadastro(cadastro) {
     [cadastro.email, ''],
     [cadastro.telefone, 'codigo'],
     [cadastro.municipio, ''],
+    [cadastro.municipio_uf, 'codigo'],
     [formatarDataHora(cadastro.criado_em), 'codigo'],
   ];
   // Mostra o valor exatamente como foi gravado (padronizado); vazio vira "—"
@@ -35,7 +36,7 @@ async function carregarCadastros() {
     if (!cadastros.length) {
       const tr = criarElemento('tr', 'vazio');
       const td = criarElemento('td', '', 'Nenhum cadastro gravado. Dado bloqueado pela API não chega aqui.');
-      td.colSpan = 7;
+      td.colSpan = 8;
       tr.appendChild(td);
       corpoCadastros.appendChild(tr);
       return;

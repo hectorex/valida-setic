@@ -99,13 +99,49 @@
               <span class="error-msg" aria-live="polite"></span>
             </div>
 
-            <div class="field" data-campo="telefone">
+            <div class="field field-full" data-campo="telefone">
               <div class="label-row">
                 <label for="telefone">Telefone</label>
                 <button type="button" class="info-btn" aria-label="Ajuda sobre o campo telefone">i<span class="tooltip" role="tooltip"></span></button>
               </div>
               <input type="text" id="telefone" name="telefone" inputmode="tel" data-mascara="telefone" maxlength="15" placeholder="(69) 99999-0000">
               <span class="error-msg" aria-live="polite"></span>
+            </div>
+
+            <!-- UF do município: vai junto como "uf" e a API valida o município naquele estado (padrão RO) -->
+            <div class="field campo-uf">
+              <div class="label-row">
+                <label for="uf">UF do município</label>
+              </div>
+              <select id="uf" name="uf" class="select">
+                <option value="AC">AC – Acre</option>
+                <option value="AL">AL – Alagoas</option>
+                <option value="AP">AP – Amapá</option>
+                <option value="AM">AM – Amazonas</option>
+                <option value="BA">BA – Bahia</option>
+                <option value="CE">CE – Ceará</option>
+                <option value="DF">DF – Distrito Federal</option>
+                <option value="ES">ES – Espírito Santo</option>
+                <option value="GO">GO – Goiás</option>
+                <option value="MA">MA – Maranhão</option>
+                <option value="MT">MT – Mato Grosso</option>
+                <option value="MS">MS – Mato Grosso do Sul</option>
+                <option value="MG">MG – Minas Gerais</option>
+                <option value="PA">PA – Pará</option>
+                <option value="PB">PB – Paraíba</option>
+                <option value="PR">PR – Paraná</option>
+                <option value="PE">PE – Pernambuco</option>
+                <option value="PI">PI – Piauí</option>
+                <option value="RJ">RJ – Rio de Janeiro</option>
+                <option value="RN">RN – Rio Grande do Norte</option>
+                <option value="RS">RS – Rio Grande do Sul</option>
+                <option value="RO" selected>RO – Rondônia</option>
+                <option value="RR">RR – Roraima</option>
+                <option value="SC">SC – Santa Catarina</option>
+                <option value="SP">SP – São Paulo</option>
+                <option value="SE">SE – Sergipe</option>
+                <option value="TO">TO – Tocantins</option>
+              </select>
             </div>
 
             <div class="field" data-campo="municipio">
@@ -146,7 +182,7 @@
         <div class="tabela-rolagem">
           <table class="tabela" id="tabela-cadastros">
             <thead>
-              <tr><th>Nome</th><th>CPF</th><th>Nascimento</th><th>E-mail</th><th>Telefone</th><th>Município</th><th>Gravado em</th></tr>
+              <tr><th>Nome</th><th>CPF</th><th>Nascimento</th><th>E-mail</th><th>Telefone</th><th>Município</th><th>UF</th><th>Gravado em</th></tr>
             </thead>
             <tbody></tbody>
           </table>

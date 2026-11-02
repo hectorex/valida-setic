@@ -152,6 +152,7 @@ class CadastroSaida(BaseModel):
     telefone: str | None
     municipio: str | None
     municipio_codigo_ibge: str | None
+    municipio_uf: str | None = None
     criado_em: datetime = Field(description="Em UTC, com fuso no texto (ex.: 2026-11-03T20:30:00Z).")
 
     @field_validator("criado_em")

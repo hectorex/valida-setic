@@ -49,6 +49,9 @@ async function copiarTexto(texto) {
 
 /** Preenche os campos como se fossem digitados (as máscaras do Sistema A reformatam normalmente). */
 function preencherFormulario(valores) {
+  // Os exemplos de município são de Rondônia
+  const uf = formulario.querySelector('select[name="uf"]');
+  if (uf) uf.value = 'RO';
   Object.entries(valores).forEach(([campo, valor]) => {
     const input = campoDoFormulario(campo);
     if (!input || input.disabled) return;

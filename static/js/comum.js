@@ -16,6 +16,7 @@ const ROTULOS = {
   telefone: 'Telefone',
   municipio: 'Município',
   municipio_codigo_ibge: 'Código IBGE do município',
+  municipio_uf: 'UF do município',
 };
 
 /* --------------------------------------------------------------------------
