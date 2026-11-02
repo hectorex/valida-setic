@@ -337,8 +337,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   nunca no servidor: executar no servidor código digitado na página seria uma falha de segurança grave. As outras
   linguagens são só leitura ("copie e rode no terminal"); não fingir execução delas. Exemplos com `{{URL}}` (trocado pelo endereço de onde a página foi aberta) e
   `sistema_origem: "sistema_exemplo"`, com o cabeçalho `X-API-Key: demo-exemplo`. `tests/test_integrar.py` manda o JSON do exemplo curl para a API: se o
-  contrato mudar, o teste avisa que a página ficou desatualizada. Executados de verdade (com a chave, em 01/11): curl,
-  Python, JavaScript (Node) e Java.
+  contrato mudar, o teste avisa que a página ficou desatualizada. Executados de verdade (com a chave): curl,
+  Python, JavaScript (Node) e Java em 01/11; PHP e C# (.NET 10) em 02/11. Todos mostram os erros ou o dado aprovado.
 - Outros integrantes editam `static/`. Não reescrever arquivos de `static/` inteiros sem pedir.
 
 ## Fora do escopo
