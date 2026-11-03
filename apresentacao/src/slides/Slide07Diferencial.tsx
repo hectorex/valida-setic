@@ -14,8 +14,8 @@ interface Linha {
 
 const LINHAS: Linha[] = [
   { pergunta: '31/02/1990 existe?', soFormato: 'Parece uma data', validaSetic: 'Bloqueia: data inexistente' },
-  { pergunta: 'O CPF é de verdade?', soFormato: 'Tem 11 dígitos', validaSetic: 'Confere o dígito verificador' },
-  { pergunta: 'DDD e município existem?', soFormato: 'Aceita qualquer texto', validaSetic: '67 DDDs e 52 municípios (IBGE)' },
+  { pergunta: 'O CPF é válido?', soFormato: 'Tem 11 dígitos', validaSetic: 'Confere o dígito verificador' },
+  { pergunta: 'DDD e município existem?', soFormato: 'Aceita qualquer texto', validaSetic: '67 DDDs e 5.571 municípios (IBGE)' },
   { pergunta: 'Grava no mesmo padrão?', soFormato: 'Cada sistema de um jeito', validaSetic: 'Padroniza: 1990-02-28' },
   {
     pergunta: 'A regra mudou. E agora?',
