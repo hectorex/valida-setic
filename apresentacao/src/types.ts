@@ -151,7 +151,7 @@ export const SLIDES_DATA: SlideInfo[] = [
       keyPoints: [
         '"Checar o formato é só o começo. A SETIC precisa saber se o dado existe, se está no padrão e quem mudou a regra."',
         'Destaque: 0 linhas quando a regra muda, e a CAGD cria regra nova para campo novo pela tela, sem programar (molde como RO-000000, com teste antes de salvar, login e histórico).',
-        '~1 ms por verificação, ~240 por segundo em PostgreSQL, 410 testes.',
+        'Menos de 50 ms por verificação (poucos centésimos de segundo), ~240 por segundo em PostgreSQL, 432 testes.',
         'Impacto: "quantas pessoas têm mais de 60 anos?" vira uma consulta simples.',
         '"Agora, ao vivo": passar para o Felipe e o Judson abrirem o sistema de verdade.'
       ],
