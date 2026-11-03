@@ -114,11 +114,18 @@ async function testarMolde() {
   }
 }
 
+/** Nome técnico do campo (o que os sistemas mandam no JSON): minúsculo, sem acento, espaço vira "_".
+ *  Ex.: "Número Processo" → "numero_processo". A API confere de novo. */
+function nomeTecnicoDoCampo(texto) {
+  return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 50);
+}
+
 async function criarRegraFormato(e) {
   e.preventDefault();
   esconderAlerta('#formato-alerta');
   const corpo = {
-    campo: document.querySelector('#rf-campo').value.trim(),
+    campo: nomeTecnicoDoCampo(document.querySelector('#rf-campo').value.trim()),
     nome: document.querySelector('#rf-nome').value.trim(),
     molde: document.querySelector('#rf-molde').value,
     mensagem: document.querySelector('#rf-mensagem').value.trim() || null,
@@ -134,7 +141,11 @@ async function criarRegraFormato(e) {
     document.dispatchEvent(new CustomEvent('regra-alterada'));
     carregarRegrasFormato();
   } catch (erro) {
-    if (!tratarLoginRecusado(erro)) mostrarAlerta('#formato-alerta', erro.message);
+    if (tratarLoginRecusado(erro)) return;
+    const mensagem = /should match pattern/.test(erro.message)
+      ? 'O campo precisa começar com letra e ter de 2 a 50 caracteres: letras sem acento, números ou "_" (ex.: matricula).'
+      : erro.message;
+    mostrarAlerta('#formato-alerta', mensagem);
   } finally {
     botao.disabled = false;
   }
@@ -142,6 +153,12 @@ async function criarRegraFormato(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
   formRegraFormato.addEventListener('submit', criarRegraFormato);
+  // Mostra o nome técnico enquanto a pessoa digita ("Matrícula" vira "matricula")
+  const campo = document.querySelector('#rf-campo');
+  campo.addEventListener('input', () => {
+    const ajustado = nomeTecnicoDoCampo(campo.value);
+    if (ajustado !== campo.value) campo.value = ajustado;
+  });
   ['#rf-molde', '#rf-teste', '#rf-mensagem'].forEach((id) => document.querySelector(id).addEventListener('input', agendarTeste));
   quandoLiberada(carregarRegrasFormato); // só depois do login (login-cagd.js)
 });

@@ -319,7 +319,8 @@ Formatos alternativos ("1985-03-15", "15-3-85", "15 de março de 1985", "00/00/0
   401 com `tratarLoginRecusado()`. O histórico tem a coluna Quem.
 - `cagd.html`: tabela de regras com interruptores (chama `PUT /regras/{campo}`) e painel com contagens.
   Card "Regras de formato para campos novos" (`js/regras-formato.js`, depois do `cagd.js`, que tem o `criarSwitch`):
-  formulário com teste ao vivo (`POST /regras-formato/testar`), lista com obrigatório/ativo e Excluir; dispara
+  formulário com teste ao vivo (`POST /regras-formato/testar`) e o nome do campo ajustado enquanto digita
+  (`nomeTecnicoDoCampo`: minúsculo, sem acento, espaço vira `_`), lista com obrigatório/ativo e Excluir; dispara
   `regra-alterada` para o histórico, que mostra "Regra de formato criada/excluída".
   "Falhas mais frequentes" tem um seletor de sistema (`#filtro-falhas`, montado de `por_sistema`): o filtro roda na
   tela, porque a API devolve todas as falhas (não cortar `falhas` no servidor). Regras com nome legível em
