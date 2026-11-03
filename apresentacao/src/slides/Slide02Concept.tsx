@@ -305,7 +305,7 @@ export const Slide02Concept: React.FC = () => {
         </div>
         <div>
           <div className="text-lg font-bold text-emerald-300">Base de Dados A</div>
-          <div className="text-sm font-bold text-white mt-1">Apenas registros 100% íntegros</div>
+          <div className="text-sm font-bold text-white mt-1">Só entra o que segue as regras</div>
         </div>
         <div className="text-xs font-black text-emerald-300 border-t border-emerald-800 pt-2 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -322,8 +322,8 @@ export const Slide02Concept: React.FC = () => {
           <Database className="w-7 h-7 text-emerald-400" />
         </div>
         <div>
-          <div className="text-lg font-bold text-emerald-300">Base de Dados B / Lake</div>
-          <div className="text-sm font-bold text-white mt-1">Dados sem inconsistências</div>
+          <div className="text-lg font-bold text-emerald-300">Base de Dados B</div>
+          <div className="text-sm font-bold text-white mt-1">Dados no mesmo padrão</div>
         </div>
         <div className="text-xs font-black text-emerald-300 border-t border-emerald-800 pt-2 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />

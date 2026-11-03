@@ -137,7 +137,8 @@ válidos** e **Preencher com erros**. Ninguém precisa digitar dados reais no li
   `RO-000000`). Sem precisar saber programar, sem regex que possa travar o servidor, com teste antes de salvar,
   login e histórico de quem criou ou mudou. Vale na hora, para todos os sistemas.
 - **Painel de erros:** total de validações, bloqueadas, taxa de bloqueio, **tempo médio de verificação** (medido de
-  verdade, menos de 1 ms), taxa por sistema, campos que mais erram e falhas mais frequentes, com **filtro por
+  verdade: no site, com PostgreSQL, fica entre 10 e 50 ms, porque inclui ler as regras no banco; a validação em si
+  leva menos de 1 ms), taxa por sistema, campos que mais erram e falhas mais frequentes, com **filtro por
   sistema** (útil quando forem dezenas de sistemas) e o nome de cada regra em português ("Celular sem o 9").
 - **Onde agir:** recomendações geradas das contagens. Ex.: *"Sistema A: 21,9% das falhas são de data de nascimento
   fora do formato. Sugestão: use máscara DD/MM/AAAA no campo de data."* São regras simples no código, sem IA.
