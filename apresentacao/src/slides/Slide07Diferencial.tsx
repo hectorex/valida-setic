@@ -33,10 +33,10 @@ const LINHAS: Linha[] = [
 ];
 
 const NUMEROS = [
-  { valor: '~1 ms', rotulo: 'por verificação' },
+  { valor: '< 50 ms', rotulo: 'por verificação' },
   { valor: '~240/s', rotulo: 'em PostgreSQL, sem falhas' },
   { valor: '0', rotulo: 'linhas quando a regra muda' },
-  { valor: '410', rotulo: 'testes automáticos' },
+  { valor: '432', rotulo: 'testes automáticos' },
   { valor: '1 chave', rotulo: 'por sistema' },
 ];
 
