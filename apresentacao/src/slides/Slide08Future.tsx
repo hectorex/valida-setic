@@ -63,12 +63,12 @@ const DIFFERENTIALS: Differential[] = [
   },
   {
     id: 5,
-    title: 'Barreira Pré-Data Lake',
-    category: 'INTEGRIDADE',
+    title: 'Regras de Faixa para Valores',
+    category: 'FLEXIBILIDADE',
     tagColor: 'bg-indigo-600 text-white',
     icon: <ShieldCheck className="w-10 h-10 text-indigo-300" />,
-    howWeHelp: 'Alimenta as bases de inteligência apenas com dados limpos.',
-    benefit: 'Evita que dado errado chegue às bases de análise.',
+    howWeHelp: 'A CAGD define mínimo e máximo pela tela, como idade ou valor de um benefício.',
+    benefit: 'Bloqueia valores impossíveis, como uma idade de 200 anos.',
   },
   {
     id: 6,
